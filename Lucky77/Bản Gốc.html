@@ -1,0 +1,941 @@
+
+
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎰 Lucky Spin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+
+   body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+  background-size: 400% 400%;
+  color: #fff;
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding-bottom: 50px;
+  animation: softGradient 20s ease infinite;
+}
+
+
+
+   h1 {
+  margin: 30px 0 10px;
+  font-size: 3rem;
+  color: #ffd700;
+  text-shadow: 0 0 10px #ffcc00, 0 0 20px #ff9900, 0 0 30px #cc6600;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+
+
+    .wallet, .result, .history, .notification, .bet-section {
+  background: linear-gradient(145deg, #222, #111);
+  border-radius: 15px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+  width: 90%;
+  max-width: 700px;
+  border: 1px solid #ffd700;
+}
+
+
+    .wallet {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .wallet input {
+      padding: 10px;
+      font-size: 1em;
+      width: 150px;
+      margin: 5px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    button {
+  padding: 12px 20px;
+  margin: 5px;
+  font-size: 1em;
+  font-weight: bold;
+  border: 2px solid #ffd700;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #ffcc00, #cc9900);
+  color: #000;
+  cursor: pointer;
+  box-shadow: 0 0 10px #ffd700, inset 0 0 5px #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px #fff000, inset 0 0 5px #fff;
+}
+
+
+    .notification {
+      margin-top: 10px;
+      color: #00ff95;
+      font-weight: 600;
+    }
+
+    .bet-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+  .bet-box {
+  flex: 1 0 calc(25% - 15px);
+  max-width: calc(25% - 15px);
+  background: linear-gradient(145deg, #ffd700, #ffcc00); /* vàng kim */
+  border: 2px solid #fff8dc;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.6), inset 0 0 5px rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+  color: #000; /* để chữ và input rõ hơn trên nền vàng */
+}
+
+.bet-box:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(255, 223, 0, 0.9), inset 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+@media (max-width: 768px) 
+{
+  .bet-box {
+    flex: 1 0 calc(50% - 15px);
+    max-width: calc(50% - 15px);
+  }
+}
+    .bet-box label {
+      display: flex;
+      flex-direction: column;
+      font-weight: 600;
+    }
+
+    .bet-box input {
+      margin-top: 5px;
+      padding: 5px;
+      font-size: 1em;
+      border-radius: 8px;
+      border: none;
+      text-align: center;
+    }
+
+    .result {
+      font-size: 1.3em;
+      font-weight: 600;
+      border: 2px solid #f0c330;
+    }
+
+    .history {
+      text-align: left;
+      font-size: 0.95em;
+      background: #1d1d2c;
+      overflow-y: auto;
+      max-height: 200px;
+    }
+
+.time-display {
+  margin-top: 10px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #ffcc00;
+  text-shadow: 0 0 5px #fff000;
+}
+
+
+@keyframes smallWinFlash {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: rgba(0, 255, 100, 0.3); }
+}
+
+@keyframes bigWinFlash {
+  0%, 100% { background-color: transparent; transform: scale(1); }
+  50% {
+    background-color: rgba(255, 255, 0, 0.4);
+    transform: scale(1.2);
+  }
+}
+
+.small-win-effect {
+  animation: smallWinFlash 1s ease-in-out 2;
+  border: 2px solid #00ff95 !important;
+}
+
+.big-win-effect {
+  animation: bigWinFlash 0.8s ease-in-out 3;
+  border: 3px solid #ffd700 !important;
+}
+
+
+
+#jackpotEffect {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+/* Coin bay */
+.coin {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-image: url('https://cdn-icons-png.flaticon.com/512/138/138292.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: flyCoin 1.5s ease-out forwards;
+}
+
+@keyframes flyCoin {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--x), var(--y)) scale(1.3) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Firework burst nhiều màu */
+.firework {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: var(--color);
+  border-radius: 50%;
+  animation: firework 1s ease-out forwards;
+}
+
+@keyframes firework {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(6);
+    opacity: 0;
+  }
+}
+
+/* Mưa xu */
+.rain-coin {
+  position: absolute;
+  top: -50px;
+  width: 24px;
+  height: 24px;
+  background-image: url('https://cdn-icons-png.flaticon.com/512/138/138292.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: coinRain linear forwards;
+}
+
+@keyframes coinRain {
+  to {
+    transform: translateY(120vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+
+@keyframes softGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+
+@keyframes spinShake {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(3deg); }
+  50% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+  100% { transform: rotate(0deg); }
+}
+.spin-animating {
+  animation: spinShake 0.2s ease-in-out infinite;
+}
+
+
+#jackpotProgress {
+  height: 15px;
+  border-radius: 10px;
+  border: 1px solid #ffd700;
+  background-color: #333;
+}
+
+#jackpotProgress::-webkit-progress-value {
+  background-color: gold;
+  border-radius: 10px;
+}
+
+
+@keyframes luxuryFlash {
+  0% {
+    box-shadow: 0 0 0px gold, inset 0 0 0px #fff;
+    background: rgba(255, 215, 0, 0.05);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 15px 5px gold, inset 0 0 10px #fff8dc;
+    background: rgba(255, 215, 0, 0.1);
+    transform: scale(1.03);
+  }
+  100% {
+    box-shadow: 0 0 0px gold, inset 0 0 0px #fff;
+    background: rgba(255, 215, 0, 0.05);
+    transform: scale(1);
+  }
+}
+
+.bet-box.highlight-win {
+  animation: luxuryFlash 1s ease-in-out 3;
+  border: 2px solid gold;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+
+
+
+.glow {
+  box-shadow: 0 0 20px 5px #ffd700, inset 0 0 10px #fff;
+  animation: pulseGlow 1s infinite alternate;
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 10px #ffd700; }
+  100% { box-shadow: 0 0 25px #fff000; }
+}
+
+
+#wheel-container {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin: 30px auto;
+}
+
+#wheel {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 5px solid gold;
+  position: relative;
+  transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
+  background: repeating-conic-gradient(#f8c200 0deg 45deg, #ffe680 45deg 90deg);
+  overflow: hidden;
+}
+
+#wheel .segment {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  top: 50%;
+  left: 50%;
+  transform-origin: 0% 0%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6em;
+  font-weight: bold;
+  color: #000;
+  padding-left: 75px; /* giúp icon không bị ra sát viền */
+ 
+}
+
+
+#pointer {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;
+}
+
+.game-container {
+  border: 4px solid gold;
+  border-radius: 20px;
+  padding: 40px 30px;
+  margin: 40px auto;
+  max-width: 960px;
+  background: rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 25px 5px gold, inset 0 0 15px #fff5cc;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px; /* khoảng cách giữa các khối bên trong */
+}
+
+
+
+  </style>
+</head>
+<body>
+ <div class="game-container">
+
+  <h1>💎Lucky 777💎</h1>
+
+<div class="time-display">🕒 <span id="currentTime">--:--:--</span></div>
+
+  <div class="wallet">
+
+<div id="stats" style="margin-top: 10px; font-weight: bold; color: #ffc107;">
+  📊 Lãi: 0 xu | Lỗ: 0 xu
+</div>
+
+
+
+    <div> <h3>💰Số dư xu: <span id="balance">0</span> <h3>
+    <h3>💰 Jackpot: <span id="jackpot">0</span></h3>
+<progress id="jackpotProgress" max="5000" value="0" style="width: 100%;"></progress>
+
+    </div>
+
+    <div>
+    <input type="number" id="amount" placeholder="Nhập số xu">
+      <button onclick="confirmDeposit()">Nạp xu</button>
+      <button onclick="confirmWithdraw()">Rút xu</button>
+    </div> <br>
+
+    <div class="notification" id="notification"></div>
+  </div>
+
+  <form id="betForm" class="bet-section">
+    <div class="bet-box"><label>Chua🍋<input type="number" name="Chua" min="0" value="0"></label><span style="font-size: 0.8em; color: #000000">19.2% | x5</span></div>  
+    <div class="bet-box"><label>Cải🥬<input type="number" name="Cải" min="0" value="0"></label><span style="font-size: 0.8em; color: #000000">19.2% | x5</span></div>  
+    <div class="bet-box"><label>Ngô🌽<input type="number" name="Ngô" min="0" value="0"></label><span style="font-size: 0.8em; color: #000000">19.2% | x5</span></div>  
+    <div class="bet-box"><label>Rốt🥕<input type="number" name="Rốt" min="0" value="0"></label><span style="font-size: 0.8em; color: #000000">19.2% | x5</span></div> <br>
+    <div class="bet-box"><label>Mỳ🥖<input type="number" name="Mỳ" min="0" value="0"></label><span style="font-size: 0.8em; color: #000000">10% | x10</span></div>
+    <div class="bet-box"><label>Xiên🍢<input type="number" name="Xiên" min="0" value="0"></label><span style="font-size: 0.8em; color: #000000">6.67% | x15</span></div>
+    <div class="bet-box"><label>Đùi🍗<input type="number" name="Đùi" min="0" value="0"></label><span style="font-size: 0.8em; color: #000000">4% | x25</span></div>
+    <div class="bet-box"><label>Bò🥩<input type="number" name="Bò" min="0" value="0"></label><span style="font-size: 0.8em; color: #000000">2.53% | x45</span></div> <br>
+    <div id="totalBetDisplay" style="margin-top: 10px; font-weight: bold;">Tổng cược: 0 </div><br><br>
+    
+
+  </form>
+ <div>
+    <button onclick="resetBets()">🔄 Reset cược</button>
+    <button onclick="confirmClearBetHistory()">🧹 Xóa lịch sử cược</button>
+    <button onclick="confirmClearResultHistory()">🧹 Xóa lịch sử kết quả</button>
+    <button onclick="resetStats()">♻️ Reset thống kê</button>
+ </div>
+
+<div id="wheel-container">
+  <div id="wheel">
+    <!-- Các phần tử ô sẽ được thêm bằng JS -->
+  </div>
+ 
+</div>
+
+  <button style="margin-top: 15px;" onclick="confirmSpin()">🎰 Quay thưởng</button>
+
+<audio id="spinSound" src="spin.mp3"></audio>
+<audio id="winSound" src="win.mp3"></audio>
+<audio id="bigWinSound" src="bigwin.mp3"></audio>
+
+  <div class="result" id="result">Kết quả trả thưởng...</div>
+
+  <div class="history" id="history">🌡 <b>Lịch sử kết quả:</b><br></div>
+  <div class="history" id="betHistory">🧾 <b>Lịch sử đặt cược:</b><br></div>
+
+ <script>
+
+
+let wheelRotation = 0;
+let spinInterval;
+let isSpinning = false;
+
+
+
+const JACKPOT_THRESHOLD = 5000;
+const JACKPOT_CHANCE = 0.01;
+
+document.querySelectorAll('#betForm input').forEach(input => {
+  input.addEventListener('input', updateTotalBetDisplay);
+});
+
+function updateTotalBetDisplay() {
+  const form = document.getElementById("betForm");
+  const formData = new FormData(form);
+  let total = 0;
+  for (let value of formData.values()) {
+    total += parseInt(value || 0);
+  }
+  document.getElementById("totalBetDisplay").textContent = `Tổng cược: ${total}`;
+}
+
+
+    let balance = 0;
+    const balanceEl = document.getElementById("balance");
+
+let jackpot = 0;
+let netProfit = 0; // Chênh lệch xu lời
+let netLoss = 0;   // Chênh lệch xu lỗ
+
+
+const jackpotEl = document.getElementById("jackpot");
+
+function updateJackpotDisplay() {
+  jackpotEl.textContent = jackpot.toFixed(0);
+}
+
+
+    const notificationEl = document.getElementById("notification");
+    const historyEl = document.getElementById("history");
+    const betHistoryEl = document.getElementById("betHistory");
+
+    function updateBalanceDisplay() {
+      balanceEl.textContent = balance;
+    }
+
+    function showNotification(message) {
+      notificationEl.textContent = message;
+      setTimeout(() => notificationEl.textContent = "", 3000);
+    }
+
+    function confirmDeposit() {
+      const amount = parseInt(document.getElementById("amount").value) || 0;
+      if (amount > 0 && confirm(`Xác nhận nạp ${amount} xu?`)) {
+        deposit(amount);
+      }
+    }
+
+    function confirmWithdraw() {
+  const amount = parseInt(document.getElementById("amount").value);
+  const balanceEl = document.getElementById("balance");
+ 
+
+  if (isNaN(amount) || amount <= 0) {
+    alert("Vui lòng nhập số xu hợp lệ để rút.");
+    return;
+  }
+
+  if (amount > balance) {
+    alert("Không thể rút xu vì số dư không đủ.");
+    return;
+  }
+
+  if (confirm(`Bạn có chắc muốn rút ${amount} xu không?`)) {
+    balance -= amount;
+    balanceEl.textContent = balance;
+    document.getElementById("notification").textContent = `Rút xu thành công -${amount}`;
+  }
+}
+
+
+    function deposit(amount) {
+      balance += amount;
+      updateBalanceDisplay();
+      showNotification(`Nạp xu thành công +${amount}`);
+    }
+
+    function withdraw(amount) {
+      balance -= amount;
+      updateBalanceDisplay();
+      showNotification(`-${amount} xu đã được rút.`);
+    }
+
+    function resetBets() {
+  const inputs = document.querySelectorAll('#betForm input');
+  inputs.forEach(input => input.value = 0);
+  updateTotalBetDisplay(); // thêm dòng này
+}
+
+    function confirmClearBetHistory() {
+      if (confirm("Bạn có chắc muốn xóa lịch sử đặt cược?")) {
+        clearBetHistory();
+      }
+    }
+
+    function confirmClearResultHistory() {
+      if (confirm("Bạn có chắc muốn xóa lịch sử kết quả?")) {
+        clearResultHistory();
+      }
+    }
+
+    function clearBetHistory() {
+      betHistoryEl.innerHTML = "🧾 <b>Lịch sử đặt cược:</b><br>";
+    }
+
+    function clearResultHistory() {
+      historyEl.innerHTML = "🌡 <b>Lịch sử kết quả:</b><br>";
+    }
+
+    const options = [
+      { name: "Chua", icon: "🍋", weight: 19.2, reward: 5 },
+      { name: "Cải", icon: "🥬", weight: 19.2, reward: 5 },
+      { name: "Ngô", icon: "🌽", weight: 19.2, reward: 5 },
+      { name: "Rốt", icon: "🥕", weight: 19.2, reward: 5 },
+      { name: "Mỳ", icon: "🥖", weight: 10, reward: 10 },
+      { name: "Xiên", icon: "🍢", weight: 6.67, reward: 15 },
+      { name: "Đùi", icon: "🍗", weight: 4, reward: 25 },
+      { name: "Bò", icon: "🥩", weight: 2.53, reward: 45 },
+    ];
+
+
+
+const wheelEl = document.getElementById("wheel");
+
+// Tạo các ô trong vòng quay
+function renderWheel() {
+  const angleStep = 360 / options.length;
+  wheelEl.innerHTML = ""; // xóa cũ
+
+  options.forEach((opt, index) => {
+    const segment = document.createElement("div");
+    segment.className = "segment";
+    segment.textContent = opt.icon;
+    segment.style.transform = `rotate(${index * angleStep}deg) translate(0, -85%)`;
+    wheelEl.appendChild(segment);
+  });
+}
+
+renderWheel();
+
+
+
+
+
+    function spinWheel() {
+
+
+
+
+
+      const resultEl = document.getElementById("result");
+      const form = document.getElementById("betForm");
+      const formData = new FormData(form);
+      const bets = Object.fromEntries(formData.entries());
+
+      let totalBet = 0;
+      for (let key in bets) {
+        totalBet += parseFloat(bets[key]) || 0;
+      }
+
+      if (totalBet > balance) {
+        resultEl.textContent = "❌ Không đủ xu để cược.";
+        return;
+      }
+
+for (let key in bets) {
+  let val = parseFloat(bets[key]);
+  if (isNaN(val) || val < 0) {
+    resultEl.textContent = `❌ Cược không hợp lệ ở cửa ${key}`;
+    return;
+  }
+}
+
+
+      balance -= totalBet;
+      updateBalanceDisplay();
+
+document.getElementById("spinSound").play();
+
+resultEl.classList.add("spin-animating");
+setTimeout(() => {
+  resultEl.classList.remove("spin-animating");
+}, 3000);
+
+      const spinDuration = 5; // giây
+let countdown = spinDuration;
+resultEl.textContent = `⏳ Đếm ngược: ${countdown} giây...`;
+
+
+      const selected = weightedRandom(options, bets);
+
+const anglePerSegment = 360 / options.length;
+const selectedIndex = options.findIndex(opt => opt.name === selected.name);
+const randomOffset = Math.random() * anglePerSegment; // giúp kết quả trông tự nhiên hơn
+
+// Mục tiêu là đưa ô trúng về vị trí 270 độ (dưới kim đỏ)
+const targetAngle = 270 - (selectedIndex * anglePerSegment + anglePerSegment / 2);
+
+// Tính góc quay tiếp theo, cộng thêm số vòng quay để hiệu ứng đẹp hơn
+const extraSpins = 5;
+const targetRotation = 360 * extraSpins + targetAngle;
+
+wheelRotation += targetRotation;
+
+
+
+wheelEl.style.transform = `rotate(${wheelRotation}deg)`;
+
+
+
+
+      const animationInterval = setInterval(() => {
+        const tempIcon = options[Math.floor(Math.random() * options.length)].icon;
+        resultEl.textContent = `⏳ Đợi kết quả: ${countdown} - ${tempIcon}`;
+      }, 100);
+
+
+
+      const countdownInterval = setInterval(() => {
+        countdown--;
+        if (countdown <= 0) {
+          clearInterval(countdownInterval);
+          clearInterval(animationInterval);
+
+          const betAmount = parseFloat(bets[selected.name]) || 0;
+          const winAmount = betAmount > 0 ? betAmount * selected.reward : 0;
+
+const lostAmount = totalBet - winAmount;
+let profitOrLoss = winAmount - totalBet;
+
+// Tích lũy hũ từ phần cược thua
+if (lostAmount > 0) {
+  const jackpotContribution = Math.floor(lostAmount * 0.1); // 10% số xu thua
+  jackpot += jackpotContribution;
+  updateJackpotDisplay();
+}
+
+if (profitOrLoss > 0) {
+  netProfit += profitOrLoss;
+} else if (profitOrLoss < 0) {
+  netLoss += Math.abs(profitOrLoss);
+}
+updateStatsDisplay();
+
+
+
+
+          balance += winAmount;
+          updateBalanceDisplay();
+
+          historyEl.innerHTML += `${selected.icon} `;
+
+          let outcome = winAmount > 0 ? `✅ Thắng ${winAmount}` : `❌ Thua`;
+
+let jackpotWin = 0;
+if (jackpot >= JACKPOT_THRESHOLD && Math.random() < JACKPOT_CHANCE) {
+  jackpotWin = Math.floor(jackpot * 0.8);
+  jackpot -= jackpotWin;
+  balance += jackpotWin;
+  updateBalanceDisplay();
+  updateJackpotDisplay();
+  outcome += ` 🎉 Nổ hũ! Nhận thêm ${jackpotWin} xu từ hũ!`;
+showJackpotEffect();  // Hiển thị hiệu ứng pháo hoa + coin bay
+}
+
+
+
+          resultEl.textContent = `🎉 Kết quả: ${selected.name} ${selected.icon} - ${outcome}`;
+
+// Bật sáng cả ô đặt cược trúng
+const winningInput = document.querySelector(`input[name="${selected.name}"]`);
+if (winningInput) {
+  const betBox = winningInput.closest('.bet-box');
+  if (betBox) {
+    betBox.classList.add('highlight-win');
+    setTimeout(() => {
+      betBox.classList.remove('highlight-win');
+    }, 5000);
+  }
+}
+
+
+
+if (winAmount >= 1000) {
+  resultEl.classList.add("big-win-effect");
+} else if (winAmount > 0) {
+  resultEl.classList.add("small-win-effect");
+}
+setTimeout(() => {
+  resultEl.classList.remove("big-win-effect", "small-win-effect");
+}, 2000);
+
+          let betLog = `${new Date().toLocaleTimeString()} - Cược: `;
+          for (let key in bets) {
+            const val = parseFloat(bets[key]) || 0;
+            if (val > 0) betLog += `${key}: ${val} xu, `;
+          }
+          betLog += `→ Kết quả: ${selected.name} ${selected.icon} - ${outcome}`;
+          betHistoryEl.innerHTML += `🧾 ${betLog}<br>`;
+        }
+      }, 1000);
+    }
+
+    function weightedRandom(items,bets) {
+	const adjustedItems = items.map(item => {
+    	const betAmount = parseFloat(bets[item.name]) || 0;
+     
+
+     	let penaltyFactor = 1;
+  	if (betAmount > 0) {
+      // Giảm mượt theo công thức: penaltyFactor = 1 / (1 + betAmount / 1000)
+      // - Cược 2000 xu → còn 50% cơ hội
+      // - Cược 4000 xu → còn 33%
+      // - Cược 8000 xu → còn 20% (giới hạn thấp)
+      penaltyFactor = Math.max(0.2, 1 / (1 + betAmount / 2000));
+    }
+
+	return { ...item, weight: item.weight * penaltyFactor };
+  });
+
+    const totalWeight = adjustedItems.reduce((sum, item) => sum + item.weight, 0);
+  let rand = Math.random() * totalWeight;
+  let cumWeight = 0;
+
+  for (let item of adjustedItems) {
+    cumWeight += item.weight;
+    if (rand <= cumWeight) {
+      return item;
+    }
+  }
+}
+
+
+function confirmSpin() {
+  const form = document.getElementById("betForm");
+  const formData = new FormData(form);
+  let totalBet = 0;
+
+  for (const [key, value] of formData.entries()) {
+    totalBet += parseInt(value || 0);
+  }
+
+  if (totalBet <= 0) {
+    alert("Vui lòng đặt cược trước khi quay.");
+    return;
+  }
+
+  if (confirm(`Tổng số xu đã đặt cược: ${totalBet}.\nBạn có chắc chắn muốn quay thưởng?`)) {
+   spinWheel();
+  }
+
+
+
+
+}
+
+window.onload = function() {
+  updateBalanceDisplay();
+  updateJackpotDisplay();
+};
+
+
+function showJackpotEffect() {
+  const container = document.getElementById("jackpotEffect");
+  container.innerHTML = "";
+
+  // Coin bay xiên
+  for (let i = 0; i < 20; i++) {
+    const coin = document.createElement("div");
+    coin.className = "coin";
+    const x = `${(Math.random() - 0.5) * 300}px`;
+    const y = `${-150 - Math.random() * 200}px`;
+    coin.style.left = `${50 + Math.random() * 30 - 15}%`;
+    coin.style.bottom = `0`;
+    coin.style.setProperty('--x', x);
+    coin.style.setProperty('--y', y);
+    container.appendChild(coin);
+  }
+
+  // Fireworks nhiều màu
+  const colors = ['#ff0', '#f0f', '#0ff', '#f55', '#5f5', '#55f', '#ffa500'];
+  for (let i = 0; i < 10; i++) {
+    const fw = document.createElement("div");
+    fw.className = "firework";
+    fw.style.left = `${40 + Math.random() * 20}%`;
+    fw.style.top = `${30 + Math.random() * 30}%`;
+    fw.style.setProperty('--color', colors[Math.floor(Math.random() * colors.length)]);
+    container.appendChild(fw);
+  }
+
+  // Mưa xu
+  for (let i = 0; i < 30; i++) {
+    const rain = document.createElement("div");
+    rain.className = "rain-coin";
+    rain.style.left = `${Math.random() * 100}%`;
+    rain.style.animationDuration = `${2 + Math.random() * 2}s`;
+    rain.style.animationDelay = `${Math.random() * 0.5}s`;
+    container.appendChild(rain);
+  }
+
+  // Xoá hiệu ứng sau 3 giây
+  setTimeout(() => container.innerHTML = "", 3000);
+}
+
+
+function updateTimeDisplay() {
+  const now = new Date();
+  const timeString = now.toLocaleTimeString('vi-VN', { hour12: false });
+  document.getElementById("currentTime").textContent = timeString;
+}
+setInterval(updateTimeDisplay, 1000);
+updateTimeDisplay(); // chạy ngay khi load
+
+
+function updateStatsDisplay() {
+  document.getElementById("stats").textContent =
+    `📊 Lãi: ${netProfit} xu | Lỗ: ${netLoss} xu`;
+}
+
+
+function resetStats() {
+  if (confirm("Reset thống kê lãi/lỗ?")) {
+    netProfit = 0;
+    netLoss = 0;
+    updateStatsDisplay();
+  }
+}
+
+
+
+
+function updateJackpotDisplay() {
+  jackpotEl.textContent = jackpot.toFixed(0);
+  document.getElementById("jackpotProgress").value = jackpot;
+}
+
+
+if (jackpot >= JACKPOT_THRESHOLD) {
+  document.querySelector('button[onclick="confirmSpin()"]').classList.add('glow');
+}
+
+
+
+
+
+
+  </script>
+
+
+
+<div id="jackpotEffect"></div>
+
+</body>
+</html>
