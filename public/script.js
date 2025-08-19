@@ -114,9 +114,9 @@ document.getElementById("confirmWithdraw").onclick = () => {
 
 
 
-                status.textContent = `✅ Rút ${amount} xu thành công!`;
+                status.textContent = `Yêu cầu rút xu đã được phê duyệt!`;
                 status.style.color = "lightgreen";
-                document.getElementById("notification").textContent = `Rút thành công -${amount} xu.`;
+                document.getElementById("notification").textContent = `Rút xu thành công, tiền đang được chuyển tới tài khoản, vui lòng đợi!`;
                 // Ẩn giao diện sau 5s
                 setTimeout(() => {
                     document.getElementById("withdrawPanel").style.display = "none";
@@ -271,8 +271,8 @@ renderWheel();
 function addResultToHistory(icon) {
     const historyEl = document.getElementById("history");
     let results = historyEl.querySelectorAll(".result-item");
-    // Nếu đủ 12 thì xóa cái đầu tiên (cũ nhất)
-    if (results.length >= 12) {
+    // Nếu đủ 8 thì xóa cái đầu tiên (cũ nhất)
+    if (results.length >= 8) {
         results[0].remove();
     }
     // Thêm kết quả mới vào cuối

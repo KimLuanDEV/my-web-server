@@ -106,6 +106,12 @@ button:hover {
   color: #000; /* để chữ và input rõ hơn trên nền vàng */
 }
 
+.bet-box .icon {
+  font-size: 2.5rem;  /* icon to hơn */
+  display: block;
+  margin-bottom: 5px;
+}
+
 .bet-box:hover {
   transform: scale(1.02);
   box-shadow: 0 0 20px rgba(255, 223, 0, 0.9), inset 0 0 8px rgba(255, 255, 255, 0.6);
@@ -539,4 +545,20 @@ button:hover {
   font-size: 1.1em;
   box-shadow: 0 0 15px rgba(255,215,0,0.3);
   animation: fadeIn 0.5s ease;
+}
+
+/* Icon trong lịch sử kết quả */
+.history .result-item {
+  font-size: 1.8rem;   /* tăng kích thước icon */
+  margin: 3px;       /* tạo khoảng cách giữa các icon */
+  display: inline-block;
+}
+
+/* Icon trong ô hiển thị kết quả chính */
+.result-display {
+  font-size: 4rem;   /* tăng kích thước icon kết quả */
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -115,6 +116,12 @@ button:hover {
   box-shadow: 0 0 15px rgba(255, 215, 0, 0.6), inset 0 0 5px rgba(255, 255, 255, 0.4);
   transition: all 0.3s ease;
   color: #000; /* để chữ và input rõ hơn trên nền vàng */
+}
+
+.bet-box .icon {
+  font-size: 2.5rem;  /* icon to hơn */
+  display: block;
+  margin-bottom: 5px;
 }
 
 .bet-box:hover {
@@ -552,6 +559,22 @@ button:hover {
   animation: fadeIn 0.5s ease;
 }
 
+/* Icon trong lịch sử kết quả */
+.history .result-item {
+  font-size: 1.8rem;   /* tăng kích thước icon */
+  margin: 3px;       /* tạo khoảng cách giữa các icon */
+  display: inline-block;
+}
+
+/* Icon trong ô hiển thị kết quả chính */
+.result-display {
+  font-size: 4rem;   /* tăng kích thước icon kết quả */
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 
   </style>
 </head>
@@ -585,14 +608,14 @@ button:hover {
 
 
  <form id="betForm" class="bet-section">
-  <div class="bet-box" data-name="Chua">🍅 <name=Chua> <span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
-  <div class="bet-box" data-name="Cải">🥬 <span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
-  <div class="bet-box" data-name="Ngô">🌽 <span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
-  <div class="bet-box" data-name="Rốt">🥕 <span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
-  <div class="bet-box" data-name="Mỳ">🌭 <span class="bet-amount">0</span><br><small>Win 10 times</small></div>
-  <div class="bet-box" data-name="Xiên">🍢 <span class="bet-amount">0</span><br><small>Win 15 times</small></div>
-  <div class="bet-box" data-name="Đùi">🍖 <span class="bet-amount">0</span><br><small>Win 25 times</small></div>
-  <div class="bet-box" data-name="Bò">🥩 <span class="bet-amount">0</span><br><small>Win 45 times</small></div>
+  <div class="bet-box" data-name="Chua"><span class="icon">🍅</span><span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
+  <div class="bet-box" data-name="Cải"><span class="icon">🥬</span><span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
+  <div class="bet-box" data-name="Ngô"><span class="icon">🌽</span><span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
+  <div class="bet-box" data-name="Rốt"><span class="icon">🥕</span><span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
+  <div class="bet-box" data-name="Mỳ"><span class="icon">🌭</span><span class="bet-amount">0</span><br><small>Win 10 times</small></div>
+  <div class="bet-box" data-name="Xiên"><span class="icon">🍢</span><span class="bet-amount">0</span><br><small>Win 15 times</small></div>
+  <div class="bet-box" data-name="Đùi"><span class="icon">🍖</span><span class="bet-amount">0</span><br><small>Win 25 times</small></div>
+  <div class="bet-box" data-name="Bò"><span class="icon">🥩</span><span class="bet-amount">0</span><br><small>Win 45 times</small></div>
 
   <div class="chip-selector">
     <div class="chip" data-value="10">10</div>
@@ -802,9 +825,9 @@ input.addEventListener('input', updateTotalBetDisplay);
 
 
 
-   status.textContent = `✅ Rút ${amount} xu thành công!`;
+   status.textContent = `Yêu cầu rút xu đã được phê duyệt!`;
    status.style.color = "lightgreen";
-   document.getElementById("notification").textContent = `Rút thành công -${amount} xu.`;
+   document.getElementById("notification").textContent = `Rút xu thành công, tiền đang được chuyển tới tài khoản, vui lòng đợi!`;
 // Ẩn giao diện sau 5s
    setTimeout(() => {
    document.getElementById("withdrawPanel").style.display = "none";
@@ -959,8 +982,8 @@ input.addEventListener('input', updateTotalBetDisplay);
   function addResultToHistory(icon) {
   const historyEl = document.getElementById("history");
   let results = historyEl.querySelectorAll(".result-item");
-  // Nếu đủ 12 thì xóa cái đầu tiên (cũ nhất)
-  if (results.length >= 12) {
+  // Nếu đủ 8 thì xóa cái đầu tiên (cũ nhất)
+  if (results.length >= 8) {
     results[0].remove();
   }
   // Thêm kết quả mới vào cuối
