@@ -19,13 +19,13 @@ const JACKPOT_THRESHOLD = 5000;
 const JACKPOT_CHANCE = 0.01;
 const wheelEl = document.getElementById("wheel");
 const options = [
-    { name: "Chua", icon: "🍋", weight: 19.2, reward: 5 },
+    { name: "Chua", icon: "🍅", weight: 19.2, reward: 5 },
     { name: "Cải", icon: "🥬", weight: 19.2, reward: 5 },
     { name: "Ngô", icon: "🌽", weight: 19.2, reward: 5 },
     { name: "Rốt", icon: "🥕", weight: 19.2, reward: 5 },
-    { name: "Mỳ", icon: "🥖", weight: 10, reward: 10 },
+    { name: "Mỳ", icon: "🌭", weight: 10, reward: 10 },
     { name: "Xiên", icon: "🍢", weight: 6.67, reward: 15 },
-    { name: "Đùi", icon: "🍗", weight: 4, reward: 25 },
+    { name: "Đùi", icon: "🍖", weight: 4, reward: 25 },
     { name: "Bò", icon: "🥩", weight: 2.53, reward: 45 },
 ];
 
@@ -97,7 +97,7 @@ document.getElementById("confirmWithdraw").onclick = () => {
     document.getElementById("confirmYes").onclick = () => {
         modal.style.display = "none";
 
-        // Trừ xu sau khi xác nhận rút
+        // Trừ xu sau khi xác nhận
         balance -= amount;
         updateBalance();
 
@@ -111,6 +111,8 @@ document.getElementById("confirmWithdraw").onclick = () => {
             status.textContent = `⏳ Gửi yêu cầu thành công, hệ thống đang xử lý...`;
             if (timeLeft <= 0) {
                 clearInterval(countdown);
+
+
 
                 status.textContent = `✅ Rút ${amount} xu thành công!`;
                 status.style.color = "lightgreen";
@@ -301,7 +303,7 @@ function spinWheel() {
     }, 3000);
     const spinDuration = 5; // giây
     let countdown = spinDuration;
-    resultEl.textContent = `⏳ Đếm ngược: ${countdown} giây...`;
+    /*resultEl.textContent = `⏳ Đếm ngược: ${countdown} giây...`;*/
     const selected = weightedRandom(options, bets);
     const anglePerSegment = 360 / options.length;
     const selectedIndex = options.findIndex(opt => opt.name === selected.name);
@@ -313,7 +315,7 @@ function spinWheel() {
     wheelEl.style.transform = `rotate(${wheelRotation}deg)`;
     const animationInterval = setInterval(() => {
         const tempIcon = options[Math.floor(Math.random() * options.length)].icon;
-        resultEl.textContent = `⏳ Đợi kết quả: ${countdown} - ${tempIcon}`;
+        resultEl.textContent = `${tempIcon}`;
     }, 100);
     const countdownInterval = setInterval(() => {
         countdown--;
@@ -353,10 +355,10 @@ function spinWheel() {
                 showJackpotEffect();  // Hiển thị hiệu ứng pháo hoa + coin bay
             }
             if (totalBet > 0) {
-                resultEl.textContent = `🎉 Kết quả: ${selected.name} ${selected.icon} - ${outcome}`;
+                resultEl.textContent = `${selected.icon} - ${outcome}`;
             }
             else {
-                resultEl.textContent = `🎉 Kết quả: ${selected.name} ${selected.icon}`;
+                resultEl.textContent = `${selected.icon}`;
             }
             // Bật sáng cả ô đặt cược trúng
             const betBox = document.querySelector(`.bet-box[data-name="${selected.name}"]`);
@@ -400,11 +402,7 @@ function weightedRandom(items, bets) {
         const betAmount = parseFloat(bets[item.name]) || 0;
         let penaltyFactor = 1;
         if (betAmount > 0) {
-            // Giảm mượt theo công thức: penaltyFactor = 1 / (1 + betAmount / 1000)
-            // - Cược 2000 xu → còn 50% cơ hội
-            // - Cược 4000 xu → còn 33%
-            // - Cược 8000 xu → còn 20% (giới hạn thấp)
-            penaltyFactor = Math.max(0.2, 1 / (1 + betAmount / 2000));
+            penaltyFactor = Math.max(0.2, 1 / (1 + betAmount / 10000000));
         }
         return { ...item, weight: item.weight * penaltyFactor };
     });
@@ -436,7 +434,7 @@ function confirmSpin() {
 }
 
 //auto quay
-let autoTime = 10;
+let autoTime = 35;
 let autoInterval;
 let pauseAfterSpin = false;
 let pauseTimer = 0;
@@ -452,7 +450,7 @@ function startAutoSpinTimer() {
                 pauseTimer--;
             }
             else {
-                autoTime = 10; // reset về 35 giây
+                autoTime = 35; // reset về 35 giây
                 pauseAfterSpin = false;
                 countdownEl.classList.remove("blink-yellow");
                 countdownEl.textContent = `⏳ Quay thưởng sau: ${autoTime} giây`;
@@ -462,7 +460,7 @@ function startAutoSpinTimer() {
         // Bình thường đếm ngược 35s
         autoTime--;
         countdownEl.textContent = `⏳ Quay thưởng sau: ${autoTime} giây`;
-        if (autoTime === 7) {
+        if (autoTime === 20) {
             suggestResult();
         }
         if (autoTime <= 5) {

@@ -573,10 +573,10 @@ button:hover {
   ⏳ Quay thưởng sau: 7 giây
 </div>
 <div class="result" id="result">Kết quả trả thưởng...</div>
-<div class="history" id="history">🌡 <b>Lịch sử kết quả:</b><br></div>
+<div class="history" id="history">🧾 <b>Lịch sử kết quả:</b><br></div>
 
 <div id="suggestion" style="font-weight:bold; color:#00ccff; margin:10px 0;">
- 🔥 Hot: đang tính toán...
+ 🔥 Hot: Hế thống đang phân tích...
  </div>
 </div>
 
@@ -585,21 +585,21 @@ button:hover {
 
 
  <form id="betForm" class="bet-section">
-  <div class="bet-box" data-name="Chua">Chua🍋 <name=Chua> <span class="bet-amount">0</span><br><small>19.2% | x5</small></div>  
-  <div class="bet-box" data-name="Cải">Cải🥬 <span class="bet-amount">0</span><br><small>19.2% | x5</small></div>  
-  <div class="bet-box" data-name="Ngô">Ngô🌽 <span class="bet-amount">0</span><br><small>19.2% | x5</small></div>  
-  <div class="bet-box" data-name="Rốt">Rốt🥕 <span class="bet-amount">0</span><br><small>19.2% | x5</small></div>  
-  <div class="bet-box" data-name="Mỳ">Mỳ🥖 <span class="bet-amount">0</span><br><small>10% | x10</small></div>
-  <div class="bet-box" data-name="Xiên">Xiên🍢 <span class="bet-amount">0</span><br><small>6.67% | x15</small></div>
-  <div class="bet-box" data-name="Đùi">Đùi🍗 <span class="bet-amount">0</span><br><small>4% | x25</small></div>
-  <div class="bet-box" data-name="Bò">Bò🥩 <span class="bet-amount">0</span><br><small>2.53% | x45</small></div>
+  <div class="bet-box" data-name="Chua">🍅 <name=Chua> <span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
+  <div class="bet-box" data-name="Cải">🥬 <span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
+  <div class="bet-box" data-name="Ngô">🌽 <span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
+  <div class="bet-box" data-name="Rốt">🥕 <span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
+  <div class="bet-box" data-name="Mỳ">🌭 <span class="bet-amount">0</span><br><small>Win 10 times</small></div>
+  <div class="bet-box" data-name="Xiên">🍢 <span class="bet-amount">0</span><br><small>Win 15 times</small></div>
+  <div class="bet-box" data-name="Đùi">🍖 <span class="bet-amount">0</span><br><small>Win 25 times</small></div>
+  <div class="bet-box" data-name="Bò">🥩 <span class="bet-amount">0</span><br><small>Win 45 times</small></div>
 
   <div class="chip-selector">
-    <div class="chip" data-value="10">💰10</div>
-    <div class="chip" data-value="50">💰50</div>
-    <div class="chip" data-value="100">💰100</div>
-    <div class="chip" data-value="1000">💰1000</div>
-    <div class="chip" data-value="10000">💰10000</div>
+    <div class="chip" data-value="10">10</div>
+    <div class="chip" data-value="50">50</div>
+    <div class="chip" data-value="100">100</div>
+    <div class="chip" data-value="1000">1000</div>
+    <div class="chip" data-value="10000">10000</div>
   </div>
 
   <div id="totalBetDisplay" style="margin-top: 10px; font-weight: bold;">Tổng cược: 0</div>
@@ -707,13 +707,13 @@ const JACKPOT_THRESHOLD = 5000;
 const JACKPOT_CHANCE = 0.01;
 const wheelEl = document.getElementById("wheel");
 const options = [
-  { name: "Chua", icon: "🍋", weight: 19.2, reward: 5 },
+  { name: "Chua", icon: "🍅", weight: 19.2, reward: 5 },
   { name: "Cải", icon: "🥬", weight: 19.2, reward: 5 },
   { name: "Ngô", icon: "🌽", weight: 19.2, reward: 5 },
   { name: "Rốt", icon: "🥕", weight: 19.2, reward: 5 },
-  { name: "Mỳ", icon: "🥖", weight: 10, reward: 10 },
+  { name: "Mỳ", icon: "🌭", weight: 10, reward: 10 },
   { name: "Xiên", icon: "🍢", weight: 6.67, reward: 15 },
-  { name: "Đùi", icon: "🍗", weight: 4, reward: 25 },
+  { name: "Đùi", icon: "🍖", weight: 4, reward: 25 },
   { name: "Bò", icon: "🥩", weight: 2.53, reward: 45 },
 ];
 
@@ -990,7 +990,7 @@ input.addEventListener('input', updateTotalBetDisplay);
   }, 3000);
   const spinDuration = 5; // giây
   let countdown = spinDuration;
-  resultEl.textContent = `⏳ Đếm ngược: ${countdown} giây...`;
+  /*resultEl.textContent = `⏳ Đếm ngược: ${countdown} giây...`;*/
   const selected = weightedRandom(options, bets);
   const anglePerSegment = 360 / options.length;
   const selectedIndex = options.findIndex(opt => opt.name === selected.name);
@@ -1002,7 +1002,7 @@ input.addEventListener('input', updateTotalBetDisplay);
   wheelEl.style.transform = `rotate(${wheelRotation}deg)`;
   const animationInterval = setInterval(() => {
   const tempIcon = options[Math.floor(Math.random() * options.length)].icon;
-  resultEl.textContent = `⏳ Đợi kết quả: ${countdown} - ${tempIcon}`;
+  resultEl.textContent = `${tempIcon}`;
   }, 100);
   const countdownInterval = setInterval(() => {
   countdown--;
@@ -1042,10 +1042,10 @@ input.addEventListener('input', updateTotalBetDisplay);
   showJackpotEffect();  // Hiển thị hiệu ứng pháo hoa + coin bay
   }
   if (totalBet > 0) {
-  resultEl.textContent = `🎉 Kết quả: ${selected.name} ${selected.icon} - ${outcome}`;
+  resultEl.textContent = `${selected.icon} - ${outcome}`;
   } 
   else {
-  resultEl.textContent = `🎉 Kết quả: ${selected.name} ${selected.icon}`;
+  resultEl.textContent = `${selected.icon}`;
   }
 // Bật sáng cả ô đặt cược trúng
   const betBox = document.querySelector(`.bet-box[data-name="${selected.name}"]`);
@@ -1089,7 +1089,7 @@ input.addEventListener('input', updateTotalBetDisplay);
   const betAmount = parseFloat(bets[item.name]) || 0;        
   let penaltyFactor = 1;
   if (betAmount > 0) {
-  penaltyFactor = Math.max(0.2, 1 / (1 + betAmount / 2000));
+  penaltyFactor = Math.max(0.2, 1 / (1 + betAmount / 10000000));
   }
   return { ...item, weight: item.weight * penaltyFactor };
   });
@@ -1121,7 +1121,7 @@ input.addEventListener('input', updateTotalBetDisplay);
   }
 
 //auto quay
-  let autoTime = 30;
+  let autoTime = 35;
   let autoInterval;
   let pauseAfterSpin = false;
   let pauseTimer = 0;
@@ -1137,7 +1137,7 @@ input.addEventListener('input', updateTotalBetDisplay);
   pauseTimer--;
   } 
   else {
-  autoTime = 30; // reset về 35 giây
+  autoTime = 35; // reset về 35 giây
   pauseAfterSpin = false;
   countdownEl.classList.remove("blink-yellow");
   countdownEl.textContent = `⏳ Quay thưởng sau: ${autoTime} giây`;
