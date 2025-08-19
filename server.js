@@ -1,10 +1,10 @@
-const express = require('express');
+﻿const express = require("express");
+const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Cho phép Express phục vụ file tĩnh từ thư mục "public"
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, "public")));
 
 app.listen(PORT, () => {
-  console.log(`✅ Server đang chạy tại: http://localhost:${PORT}`);
+    console.log(`Server đang chạy trên cổng ${PORT}`);
 });

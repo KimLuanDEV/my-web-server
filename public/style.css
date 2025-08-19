@@ -1,0 +1,542 @@
+* {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+
+   body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+  background-size: 400% 400%;
+  color: #fff;
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding-bottom: 50px;
+  animation: softGradient 20s ease infinite;
+}
+
+
+
+   h1 {
+  margin: 30px 0 10px;
+  font-size: 3rem;
+  color: #ffd700;
+  text-shadow: 0 0 10px #ffcc00, 0 0 20px #ff9900, 0 0 30px #cc6600;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+
+
+    .wallet, .result, .history, .notification, .bet-section {
+  background: linear-gradient(145deg, #222, #111);
+  border-radius: 15px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+  width: 90%;
+  max-width: 700px;
+  border: 1px solid #ffd700;
+}
+
+
+    .wallet {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .wallet input {
+      padding: 10px;
+      font-size: 1em;
+      width: 150px;
+      margin: 5px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    button {
+  padding: 12px 20px;
+  margin: 5px;
+  font-size: 1em;
+  font-weight: bold;
+  border: 2px solid #ffd700;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #ffcc00, #cc9900);
+  color: #000;
+  cursor: pointer;
+  box-shadow: 0 0 10px #ffd700, inset 0 0 5px #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px #fff000, inset 0 0 5px #fff;
+}
+
+
+    .notification {
+      margin-top: 10px;
+      color: #00ff95;
+      font-weight: 600;
+    }
+
+    .bet-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+  .bet-box {
+  flex: 1 0 calc(25% - 15px);
+  max-width: calc(25% - 15px);
+  background: linear-gradient(145deg, #ffd700, #ffcc00); /* vàng kim */
+  border: 2px solid #fff8dc;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.6), inset 0 0 5px rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+  color: #000; /* để chữ và input rõ hơn trên nền vàng */
+}
+
+.bet-box:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(255, 223, 0, 0.9), inset 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+@media (max-width: 768px) 
+{
+  .bet-box {
+    flex: 1 0 calc(50% - 15px);
+    max-width: calc(50% - 15px);
+  }
+}
+    .bet-box label {
+      display: flex;
+      flex-direction: column;
+      font-weight: 600;
+    }
+
+    .bet-box input {
+      margin-top: 5px;
+      padding: 5px;
+      font-size: 1em;
+      border-radius: 8px;
+      border: none;
+      text-align: center;
+    }
+
+    .result {
+      font-size: 1.3em;
+      font-weight: 600;
+      border: 2px solid #f0c330;
+    }
+
+    .history {
+      text-align: left;
+      font-size: 0.95em;
+      background: #1d1d2c;
+      overflow-y: auto;
+      max-height: 200px;
+    }
+
+.time-display {
+  margin-top: 10px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #ffcc00;
+  text-shadow: 0 0 5px #fff000;
+}
+
+
+@keyframes smallWinFlash {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: rgba(0, 255, 100, 0.3); }
+}
+
+@keyframes bigWinFlash {
+  0%, 100% { background-color: transparent; transform: scale(1); }
+  50% {
+    background-color: rgba(255, 255, 0, 0.4);
+    transform: scale(1.2);
+  }
+}
+
+.small-win-effect {
+  animation: smallWinFlash 1s ease-in-out 2;
+  border: 2px solid #00ff95 !important;
+}
+
+.big-win-effect {
+  animation: bigWinFlash 0.8s ease-in-out 3;
+  border: 3px solid #ffd700 !important;
+}
+
+
+
+#jackpotEffect {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+/* Coin bay */
+.coin {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-image: url('https://cdn-icons-png.flaticon.com/512/138/138292.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: flyCoin 1.5s ease-out forwards;
+}
+
+@keyframes flyCoin {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--x), var(--y)) scale(1.3) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Firework burst nhiều màu */
+.firework {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: var(--color);
+  border-radius: 50%;
+  animation: firework 1s ease-out forwards;
+}
+
+@keyframes firework {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(6);
+    opacity: 0;
+  }
+}
+
+/* Mưa xu */
+.rain-coin {
+  position: absolute;
+  top: -50px;
+  width: 24px;
+  height: 24px;
+  background-image: url('https://cdn-icons-png.flaticon.com/512/138/138292.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: coinRain linear forwards;
+}
+
+@keyframes coinRain {
+  to {
+    transform: translateY(120vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+
+@keyframes softGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+
+@keyframes spinShake {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(3deg); }
+  50% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+  100% { transform: rotate(0deg); }
+}
+.spin-animating {
+  animation: spinShake 0.2s ease-in-out infinite;
+}
+
+
+#jackpotProgress {
+  height: 15px;
+  border-radius: 10px;
+  border: 1px solid #ffd700;
+  background-color: #333;
+}
+
+#jackpotProgress::-webkit-progress-value {
+  background-color: gold;
+  border-radius: 10px;
+}
+
+
+@keyframes luxuryFlash {
+  0% {
+    box-shadow: 0 0 0px gold, inset 0 0 0px #fff;
+    background: rgba(255, 215, 0, 0.05);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 15px 5px gold, inset 0 0 10px #fff8dc;
+    background: rgba(255, 215, 0, 0.1);
+    transform: scale(1.03);
+  }
+  100% {
+    box-shadow: 0 0 0px gold, inset 0 0 0px #fff;
+    background: rgba(255, 215, 0, 0.05);
+    transform: scale(1);
+  }
+}
+
+.bet-box.highlight-win {
+  animation: luxuryFlash 1s ease-in-out 3;
+  border: 2px solid gold;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+
+
+
+.glow {
+  box-shadow: 0 0 20px 5px #ffd700, inset 0 0 10px #fff;
+  animation: pulseGlow 1s infinite alternate;
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 10px #ffd700; }
+  100% { box-shadow: 0 0 25px #fff000; }
+}
+
+
+#wheel-container {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin: 30px auto;
+}
+
+#wheel {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 5px solid gold;
+  position: relative;
+  transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
+  background: repeating-conic-gradient(#f8c200 0deg 45deg, #ffe680 45deg 90deg);
+  overflow: hidden;
+}
+
+#wheel .segment {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  top: 50%;
+  left: 50%;
+  transform-origin: 0% 0%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6em;
+  font-weight: bold;
+  color: #000;
+  padding-left: 75px; /* giúp icon không bị ra sát viền */
+ 
+}
+
+
+#pointer {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;
+}
+
+.game-container {
+  border: 4px solid gold;
+  border-radius: 20px;
+  padding: 20px;
+  margin: 40px auto;
+  max-width: 1200px;
+  background: #000;  /* NỀN ĐEN */
+  box-shadow: 0 0 25px 5px gold, inset 0 0 15px #fff5cc;
+  display: flex;
+  flex-direction: row; /* <-- CHIA NGANG */
+  gap: 25px;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-radius: 20px;    /* bo góc đẹp hơn */
+}
+
+/* Bên trái (vòng quay + kết quả) */
+.left-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Bên phải (cược + ví + lịch sử) */
+.right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+
+/* Cho màn hình nhỏ thì tự động xuống hàng */
+@media (max-width: 900px) {
+  .game-container {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.blink {
+  color: red !important;
+  animation: blink 1s infinite;
+}
+
+
+@keyframes blinkYellow {
+  0% { color: gold; opacity: 1; }
+  50% { color: orange; opacity: 0.3; }
+  100% { color: gold; opacity: 1; }
+}
+
+.blink-yellow {
+  animation: blinkYellow 1s infinite;
+  font-weight: bold;
+}
+
+#spinCounter {
+  margin: 10px 0;
+  font-weight: bold;
+  color: #ffcc00;
+}
+
+.chip-selector {
+  display: flex !important;        /* ép buộc dùng flex */
+  flex-direction: row !important;  /* xếp hàng ngang */
+  justify-content: center;         /* căn giữa ngang */
+  align-items: center;             /* căn giữa dọc */
+  gap: 15px;                       /* khoảng cách giữa chip */
+  margin: 20px 0;
+}
+
+.chip {
+  flex: 0 0 auto; /* đảm bảo không bị co dọc */
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, gold, orange);
+  color: #222;
+  font-weight: bold;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: transform 0.2s, border 0.2s;
+}
+
+.chip:hover {
+  transform: scale(1.15);
+}
+
+.chip.active {
+  border: 4px solid red;
+  transform: scale(1.2);
+}
+
+
+#betForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+.bet-cell {
+  flex: 1 1 22%;
+  padding: 10px;
+  background: #f9f9f9;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+.bet-cell:hover {
+  background: #e8ffe8;
+  border-color: #6c3;
+}
+.bet-amount {
+  display: block;
+  font-size: 14px;
+  margin-top: 5px;
+  color: #333;
+}
+
+
+.lock-bets {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+#bankInfo {
+  background: linear-gradient(145deg, #111, #222);
+  border: 2px solid gold;
+  border-radius: 12px;
+  padding: 15px;
+  color: #fff;
+  font-size: 1.1em;
+  box-shadow: 0 0 15px rgba(255,215,0,0.3);
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+#withdrawPanel {
+  background: linear-gradient(145deg, #111, #222);
+  border: 2px solid gold;
+  border-radius: 12px;
+  padding: 15px;
+  color: #fff;
+  font-size: 1.1em;
+  box-shadow: 0 0 15px rgba(255,215,0,0.3);
+  animation: fadeIn 0.5s ease;
+}

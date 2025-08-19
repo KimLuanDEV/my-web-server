@@ -1,23 +1,1293 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Xin chào từ Server!</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎰 Lucky Spin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+ 
+</head>
+
+ <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+
+   body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+  background-size: 400% 400%;
+  color: #fff;
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding-bottom: 50px;
+  animation: softGradient 20s ease infinite;
+}
+
+
+
+   h1 {
+  margin: 30px 0 10px;
+  font-size: 3rem;
+  color: #ffd700;
+  text-shadow: 0 0 10px #ffcc00, 0 0 20px #ff9900, 0 0 30px #cc6600;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+
+
+    .wallet, .result, .history, .notification, .bet-section {
+  background: linear-gradient(145deg, #222, #111);
+  border-radius: 15px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+  width: 90%;
+  max-width: 700px;
+  border: 1px solid #ffd700;
+}
+
+
+    .wallet {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .wallet input {
+      padding: 10px;
+      font-size: 1em;
+      width: 150px;
+      margin: 5px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    button {
+  padding: 12px 20px;
+  margin: 5px;
+  font-size: 1em;
+  font-weight: bold;
+  border: 2px solid #ffd700;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #ffcc00, #cc9900);
+  color: #000;
+  cursor: pointer;
+  box-shadow: 0 0 10px #ffd700, inset 0 0 5px #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px #fff000, inset 0 0 5px #fff;
+}
+
+
+    .notification {
+      margin-top: 10px;
+      color: #00ff95;
+      font-weight: 600;
+    }
+
+    .bet-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+  .bet-box {
+  flex: 1 0 calc(25% - 15px);
+  max-width: calc(25% - 15px);
+  background: linear-gradient(145deg, #ffd700, #ffcc00); /* vàng kim */
+  border: 2px solid #fff8dc;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.6), inset 0 0 5px rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+  color: #000; /* để chữ và input rõ hơn trên nền vàng */
+}
+
+.bet-box:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(255, 223, 0, 0.9), inset 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+@media (max-width: 768px) 
+{
+  .bet-box {
+    flex: 1 0 calc(50% - 15px);
+    max-width: calc(50% - 15px);
+  }
+}
+    .bet-box label {
+      display: flex;
+      flex-direction: column;
+      font-weight: 600;
+    }
+
+    .bet-box input {
+      margin-top: 5px;
+      padding: 5px;
+      font-size: 1em;
+      border-radius: 8px;
+      border: none;
       text-align: center;
-      margin-top: 50px;
     }
-    h1 {
-      color: #007bff;
+
+    .result {
+      font-size: 1.3em;
+      font-weight: 600;
+      border: 2px solid #f0c330;
     }
+
+    .history {
+      text-align: left;
+      font-size: 0.95em;
+      background: #1d1d2c;
+      overflow-y: auto;
+      max-height: 200px;
+    }
+
+.time-display {
+  margin-top: 10px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #ffcc00;
+  text-shadow: 0 0 5px #fff000;
+}
+
+
+@keyframes smallWinFlash {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: rgba(0, 255, 100, 0.3); }
+}
+
+@keyframes bigWinFlash {
+  0%, 100% { background-color: transparent; transform: scale(1); }
+  50% {
+    background-color: rgba(255, 255, 0, 0.4);
+    transform: scale(1.2);
+  }
+}
+
+.small-win-effect {
+  animation: smallWinFlash 1s ease-in-out 2;
+  border: 2px solid #00ff95 !important;
+}
+
+.big-win-effect {
+  animation: bigWinFlash 0.8s ease-in-out 3;
+  border: 3px solid #ffd700 !important;
+}
+
+
+
+#jackpotEffect {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+/* Coin bay */
+.coin {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-image: url('https://cdn-icons-png.flaticon.com/512/138/138292.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: flyCoin 1.5s ease-out forwards;
+}
+
+@keyframes flyCoin {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--x), var(--y)) scale(1.3) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Firework burst nhiều màu */
+.firework {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: var(--color);
+  border-radius: 50%;
+  animation: firework 1s ease-out forwards;
+}
+
+@keyframes firework {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(6);
+    opacity: 0;
+  }
+}
+
+/* Mưa xu */
+.rain-coin {
+  position: absolute;
+  top: -50px;
+  width: 24px;
+  height: 24px;
+  background-image: url('https://cdn-icons-png.flaticon.com/512/138/138292.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: coinRain linear forwards;
+}
+
+@keyframes coinRain {
+  to {
+    transform: translateY(120vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+
+@keyframes softGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+
+@keyframes spinShake {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(3deg); }
+  50% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+  100% { transform: rotate(0deg); }
+}
+.spin-animating {
+  animation: spinShake 0.2s ease-in-out infinite;
+}
+
+
+#jackpotProgress {
+  height: 15px;
+  border-radius: 10px;
+  border: 1px solid #ffd700;
+  background-color: #333;
+}
+
+#jackpotProgress::-webkit-progress-value {
+  background-color: gold;
+  border-radius: 10px;
+}
+
+
+@keyframes luxuryFlash {
+  0% {
+    box-shadow: 0 0 0px gold, inset 0 0 0px #fff;
+    background: rgba(255, 215, 0, 0.05);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 15px 5px gold, inset 0 0 10px #fff8dc;
+    background: rgba(255, 215, 0, 0.1);
+    transform: scale(1.03);
+  }
+  100% {
+    box-shadow: 0 0 0px gold, inset 0 0 0px #fff;
+    background: rgba(255, 215, 0, 0.05);
+    transform: scale(1);
+  }
+}
+
+.bet-box.highlight-win {
+  animation: luxuryFlash 1s ease-in-out 3;
+  border: 2px solid gold;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+
+
+
+.glow {
+  box-shadow: 0 0 20px 5px #ffd700, inset 0 0 10px #fff;
+  animation: pulseGlow 1s infinite alternate;
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 10px #ffd700; }
+  100% { box-shadow: 0 0 25px #fff000; }
+}
+
+
+#wheel-container {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin: 30px auto;
+}
+
+#wheel {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 5px solid gold;
+  position: relative;
+  transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
+  background: repeating-conic-gradient(#f8c200 0deg 45deg, #ffe680 45deg 90deg);
+  overflow: hidden;
+}
+
+#wheel .segment {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  top: 50%;
+  left: 50%;
+  transform-origin: 0% 0%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6em;
+  font-weight: bold;
+  color: #000;
+  padding-left: 75px; /* giúp icon không bị ra sát viền */
+ 
+}
+
+
+#pointer {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;
+}
+
+.game-container {
+  border: 4px solid gold;
+  border-radius: 20px;
+  padding: 20px;
+  margin: 40px auto;
+  max-width: 1200px;
+  background: #000;  /* NỀN ĐEN */
+  box-shadow: 0 0 25px 5px gold, inset 0 0 15px #fff5cc;
+  display: flex;
+  flex-direction: row; /* <-- CHIA NGANG */
+  gap: 25px;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-radius: 20px;    /* bo góc đẹp hơn */
+}
+
+/* Bên trái (vòng quay + kết quả) */
+.left-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Bên phải (cược + ví + lịch sử) */
+.right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+
+/* Cho màn hình nhỏ thì tự động xuống hàng */
+@media (max-width: 900px) {
+  .game-container {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.blink {
+  color: red !important;
+  animation: blink 1s infinite;
+}
+
+
+@keyframes blinkYellow {
+  0% { color: gold; opacity: 1; }
+  50% { color: orange; opacity: 0.3; }
+  100% { color: gold; opacity: 1; }
+}
+
+.blink-yellow {
+  animation: blinkYellow 1s infinite;
+  font-weight: bold;
+}
+
+#spinCounter {
+  margin: 10px 0;
+  font-weight: bold;
+  color: #ffcc00;
+}
+
+.chip-selector {
+  display: flex !important;        /* ép buộc dùng flex */
+  flex-direction: row !important;  /* xếp hàng ngang */
+  justify-content: center;         /* căn giữa ngang */
+  align-items: center;             /* căn giữa dọc */
+  gap: 15px;                       /* khoảng cách giữa chip */
+  margin: 20px 0;
+}
+
+.chip {
+  flex: 0 0 auto; /* đảm bảo không bị co dọc */
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, gold, orange);
+  color: #222;
+  font-weight: bold;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: transform 0.2s, border 0.2s;
+}
+
+.chip:hover {
+  transform: scale(1.15);
+}
+
+.chip.active {
+  border: 4px solid red;
+  transform: scale(1.2);
+}
+
+
+#betForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+.bet-cell {
+  flex: 1 1 22%;
+  padding: 10px;
+  background: #f9f9f9;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+.bet-cell:hover {
+  background: #e8ffe8;
+  border-color: #6c3;
+}
+.bet-amount {
+  display: block;
+  font-size: 14px;
+  margin-top: 5px;
+  color: #333;
+}
+
+
+.lock-bets {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+#bankInfo {
+  background: linear-gradient(145deg, #111, #222);
+  border: 2px solid gold;
+  border-radius: 12px;
+  padding: 15px;
+  color: #fff;
+  font-size: 1.1em;
+  box-shadow: 0 0 15px rgba(255,215,0,0.3);
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+#withdrawPanel {
+  background: linear-gradient(145deg, #111, #222);
+  border: 2px solid gold;
+  border-radius: 12px;
+  padding: 15px;
+  color: #fff;
+  font-size: 1.1em;
+  box-shadow: 0 0 15px rgba(255,215,0,0.3);
+  animation: fadeIn 0.5s ease;
+}
+
+
   </style>
 </head>
 <body>
+ <div class="game-container">
+ <div class="left-panel">
+ <h1>💎Lucky Spin💎</h1>
+ <div class="time-display">🕒 <span id="currentTime">--:--:--</span></div>
 
-  <h1>🚀 Server của bạn đang hoạt động trên Internet!</h1>
-  <p>Đây là trang HTML tĩnh được gửi từ Node.js + Express.</p>
+<div class = result>
+<div id="spinCounter">🎯 Phiên quay: 0</div>
+<div id="wheel-container">
+  <div id="wheel">
+</div>
+</div>
+
+
+<div id="autoCountdown" style="margin-top:10px; font-weight:bold; color:#00ff95;">
+  ⏳ Quay thưởng sau: 7 giây
+</div>
+<div class="result" id="result">Kết quả trả thưởng...</div>
+<div class="history" id="history">🌡 <b>Lịch sử kết quả:</b><br></div>
+
+<div id="suggestion" style="font-weight:bold; color:#00ccff; margin:10px 0;">
+ 🔥 Hot: đang tính toán...
+ </div>
+</div>
+
+
+
+
+
+ <form id="betForm" class="bet-section">
+  <div class="bet-box" data-name="Chua">Chua🍋 <name=Chua> <span class="bet-amount">0</span><br><small>19.2% | x5</small></div>  
+  <div class="bet-box" data-name="Cải">Cải🥬 <span class="bet-amount">0</span><br><small>19.2% | x5</small></div>  
+  <div class="bet-box" data-name="Ngô">Ngô🌽 <span class="bet-amount">0</span><br><small>19.2% | x5</small></div>  
+  <div class="bet-box" data-name="Rốt">Rốt🥕 <span class="bet-amount">0</span><br><small>19.2% | x5</small></div>  
+  <div class="bet-box" data-name="Mỳ">Mỳ🥖 <span class="bet-amount">0</span><br><small>10% | x10</small></div>
+  <div class="bet-box" data-name="Xiên">Xiên🍢 <span class="bet-amount">0</span><br><small>6.67% | x15</small></div>
+  <div class="bet-box" data-name="Đùi">Đùi🍗 <span class="bet-amount">0</span><br><small>4% | x25</small></div>
+  <div class="bet-box" data-name="Bò">Bò🥩 <span class="bet-amount">0</span><br><small>2.53% | x45</small></div>
+
+  <div class="chip-selector">
+    <div class="chip" data-value="10">💰10</div>
+    <div class="chip" data-value="50">💰50</div>
+    <div class="chip" data-value="100">💰100</div>
+    <div class="chip" data-value="1000">💰1000</div>
+    <div class="chip" data-value="10000">💰10000</div>
+  </div>
+
+  <div id="totalBetDisplay" style="margin-top: 10px; font-weight: bold;">Tổng cược: 0</div>
+</form>
+</div>
+
+
+<div class="right-panel">
+<h1>💎Jackpot💎</h1>
+<div class="time-display"> Săn hũ trúng lớn</div>
+
+  <div class="wallet">
+<div id="stats" style="margin-top: 10px; font-weight: bold; color: #ffc107;">
+  📊 Lãi: 0 xu | Lỗ: 0 xu
+  </div>
+    <div> <h3>💰Số dư xu: <span id="balance">0</span> <h3>
+    <h3>💰 Jackpot: <span id="jackpot">0</span></h3>
+    <progress id="jackpotProgress" max="5000" value="0" style="width: 100%;"></progress>
+    </div>
+    <div>
+    <input type="number" id="amount" placeholder="Nhập số xu muốn nạp">
+      <button onclick="confirmDeposit()">Nạp xu</button>
+      <button id="withdrawBtn" onclick="confirmWithdraw()">Rút xu</button>
+    </div> <br>
+
+    <div class="notification" id="notification"></div>
+  </div>
+
+ 
+  
+  <div class="history" id="betHistory">🧾 <b>Lịch sử đặt cược:</b><br></div>
+
+<div id="bankInfo" style="display:none; margin-top:15px; text-align:left;">
+  <h3>🏦 Thông tin nạp tiền</h3>
+  <p><b>Ngân hàng:</b> Techcombank</p>
+  <p><b>Số tài khoản:</b> 9436789999</p>
+  <p><b>Chủ tài khoản:</b> Phan Văn Tuấn</p>
+  <p><b>Nội dung:</b> NAP KimDogCat</p>
+  <p id="depositStatus" style="color:orange; font-weight:bold; margin-top:10px;">Bấm gửi yêu cầu nạp sau khi chuyển khoản.</p>
+  <button onclick="sendDepositRequest()">📨 Gửi yêu cầu nạp</button>
+</div>
+
+
+<div id="withdrawPanel" style="display:none; background:#222; color:white; padding:20px; border-radius:10px;">
+  <h3>Thông tin rút xu</h3>
+  <label>Tên người dùng:</label><br>
+  <input type="text" id="userName" placeholder="Nhập tên chủ tài khoản"><br><br>
+
+  <label>Tên ngân hàng:</label><br>
+  <input type="text" id="bankName" placeholder="Nhập tên ngân hàng"><br><br>
+  
+  <label>Số tài khoản:</label><br>
+  <input type="text" id="userAccount" placeholder="Nhập số tài khoản"><br><br>
+  
+  <label>Số xu muốn rút:</label><br>
+  <input type="number" id="withdrawAmount" placeholder="Nhấp số xu"><br><br>
+  
+  <button id="confirmWithdraw">Gửi yêu cầu rút xu</button>
+  <p id="withdrawStatus"></p>
+</div>
+
+
+<audio id="spinSound" src="spin.mp3"></audio>
+<audio id="winSound" src="win.mp3"></audio>
+<audio id="bigWinSound" src="bigwin.mp3"></audio>
+
+
+
+</div>
+
+
+<!-- Modal xác nhận rút xu -->
+<div id="withdrawConfirmModal" class="modal" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:1000;">
+  <div style="background:#222; color:#fff; padding:20px; border-radius:12px; text-align:center; width:320px;">
+    <h3>⚠️ Xác nhận rút xu</h3>
+    <p id="withdrawConfirmText">Bạn có chắc chắn muốn rút ... xu?</p>
+    <div style="margin-top:15px; display:flex; justify-content:space-around;">
+      <button id="confirmYes" style="padding:8px 16px; background:green; color:#fff; border:none; border-radius:8px;">Xác nhận</button>
+      <button id="confirmNo" style="padding:8px 16px; background:red; color:#fff; border:none; border-radius:8px;">Hủy</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+
+let spinCount = 1;
+let wheelRotation = 0;
+let spinInterval;
+let isSpinning = false;
+let balance = 0;
+let jackpot = 0;
+let netProfit = 0; // Chênh lệch xu lời
+let netLoss = 0;   // Chênh lệch xu lỗ
+let currentChip = 0; // chip đang chọn
+let bets = {}; // lưu số xu đặt cược theo từng cửa
+
+
+const balanceEl = document.getElementById("balance");
+const jackpotEl = document.getElementById("jackpot");
+const notificationEl = document.getElementById("notification");
+const historyEl = document.getElementById("history");
+const betHistoryEl = document.getElementById("betHistory");
+const JACKPOT_THRESHOLD = 5000;
+const JACKPOT_CHANCE = 0.01;
+const wheelEl = document.getElementById("wheel");
+const options = [
+  { name: "Chua", icon: "🍋", weight: 19.2, reward: 5 },
+  { name: "Cải", icon: "🥬", weight: 19.2, reward: 5 },
+  { name: "Ngô", icon: "🌽", weight: 19.2, reward: 5 },
+  { name: "Rốt", icon: "🥕", weight: 19.2, reward: 5 },
+  { name: "Mỳ", icon: "🥖", weight: 10, reward: 10 },
+  { name: "Xiên", icon: "🍢", weight: 6.67, reward: 15 },
+  { name: "Đùi", icon: "🍗", weight: 4, reward: 25 },
+  { name: "Bò", icon: "🥩", weight: 2.53, reward: 45 },
+];
+
+
+document.querySelectorAll('#betForm input').forEach(input => {
+input.addEventListener('input', updateTotalBetDisplay);
+});
+
+
+  function suggestResult() {
+  const totalWeight = options.reduce((sum, opt) => sum + opt.weight, 0);
+  let rand = Math.random() * totalWeight;
+  let cumWeight = 0;
+  for (let opt of options) {
+  cumWeight += opt.weight;
+  if (rand <= cumWeight) {
+  document.getElementById("suggestion").textContent =
+  `🔥 Hot: ${opt.name} ${opt.icon}`;
+  return;
+  }
+  }
+}
+
+  function updateBalance() {
+  document.getElementById("balance").textContent = balance;
+}
+
+// Hiển thị giao diện rút xu
+  document.getElementById("withdrawBtn").onclick = () => {
+  document.getElementById("withdrawPanel").style.display = "block";
+};
+
+
+
+
+// Xử lý rút xu
+  document.getElementById("confirmWithdraw").onclick = () => {
+  const name = document.getElementById("userName").value;
+  const account = document.getElementById("userAccount").value;
+  const amount = parseInt(document.getElementById("withdrawAmount").value);
+  const status = document.getElementById("withdrawStatus");
+  const modal = document.getElementById("withdrawConfirmModal");
+  const confirmText = document.getElementById("withdrawConfirmText");
+
+  if (!name || !account || !amount || amount <= 0) {
+    status.textContent = "⚠️ Vui lòng điền đầy đủ thông tin hợp lệ.";
+    status.style.color = "red";
+    return;
+  }
+
+  if (amount > balance) {
+    status.textContent = "⚠️ Số dư không đủ để rút.";
+    status.style.color = "red";
+    return;
+  }
+
+// Hiển thị modal xác nhận
+   confirmText.textContent = `Bạn có chắc chắn muốn rút ${amount} xu không?`;
+   modal.style.display = "flex";
+
+// Nếu bấm Hủy
+   document.getElementById("confirmNo").onclick = () => {
+   modal.style.display = "none";
+   status.textContent = "❌ Yêu cầu rút đã bị hủy.";
+   status.style.color = "red";
+};
+
+// Nếu bấm Xác nhận
+   document.getElementById("confirmYes").onclick = () => {
+   modal.style.display = "none";
+
+// Trừ xu sau khi xác nhận
+   balance -= amount;
+   updateBalance();
+
+// Hiện thông báo chờ xử lý
+   let timeLeft = 35;
+   status.style.color = "orange";
+   status.textContent = `⏳ Gửi yêu cầu thành công, hệ thống đang xử lý...`;
+
+   const countdown = setInterval(() => {
+   timeLeft--;
+   status.textContent = `⏳ Gửi yêu cầu thành công, hệ thống đang xử lý...`;
+   if (timeLeft <= 0) {
+   clearInterval(countdown);
+
+
+
+   status.textContent = `✅ Rút ${amount} xu thành công!`;
+   status.style.color = "lightgreen";
+   document.getElementById("notification").textContent = `Rút thành công -${amount} xu.`;
+// Ẩn giao diện sau 5s
+   setTimeout(() => {
+   document.getElementById("withdrawPanel").style.display = "none";
+   status.textContent = "";
+   }, 5000);
+   }
+   }, 1000);
+   };
+};
+
+  function showBankInfo() {
+  const amount = parseInt(document.getElementById("amount").value) || 0;
+  if (amount > 0) {
+  document.getElementById("bankInfo").style.display = "block";
+  document.getElementById("depositStatus").textContent = 'Bấm gửi yêu cầu nạp sau khi chuyển khoản.';
+  } else {
+  alert("Vui lòng nhập số xu muốn nạp!");
+  }
+}
+
+  function sendDepositRequest() {
+  const amount = parseInt(document.getElementById("amount").value) || 0;
+  if (amount > 0) {
+  if (confirm(` Xác nhận chuyển khoản thành công !`)) {
+  // Hiện thông tin ngân hàng
+  document.getElementById("bankInfo").style.display = "block";
+  // Trạng thái chờ
+  const status = document.getElementById("depositStatus");
+  let timeLeft = 35;  
+  status.style.color = "orange";
+  status.textContent = `⏳ Gửi yêu cầu thành công, hệ thống đang xử lý...`;
+  // Đếm ngược 30s rồi cộng xu
+  const countdown = setInterval(() => {
+  timeLeft--;
+  if (timeLeft <= 0) {
+  clearInterval(countdown);
+  deposit(amount);
+  status.textContent = `✅ Nạp thành công ${amount} xu vào tài khoản!`;
+  status.style.color = "lightgreen";
+  document.getElementById("notification").textContent = `Nạp thành công +${amount} xu.`;
+
+  // Sau 5 giây ẩn giao diện ngân hàng
+  setTimeout(() => {
+  document.getElementById("bankInfo").style.display = "none";
+  }, 5000);
+  }
+  }, 1000);
+  }
+  } else {
+  alert("Vui lòng nhập số xu muốn nạp!");
+  }
+}
+
+
+  function updateBetDisplay() {
+  document.querySelectorAll(".bet-box").forEach(box => {
+  const name = box.dataset.name;
+  box.querySelector(".bet-amount").textContent = bets[name];
+  });
+  const total = Object.values(bets).reduce((a,b)=>a+b,0);
+  document.getElementById("totalBetDisplay").textContent = `Tổng cược: ${total}`;
+}
+
+
+  function updateJackpotDisplay() {
+  jackpotEl.textContent = jackpot.toFixed(0);
+}
+ 
+  function updateBalanceDisplay() {
+  balanceEl.textContent = balance;
+}
+   
+  function showNotification(message) {
+  notificationEl.textContent = message;
+  setTimeout(() => notificationEl.textContent = "", 3000);
+}
+
+  function confirmDeposit() {
+  const amount = parseInt(document.getElementById("amount").value) || 0;
+  if (amount > 0 && confirm(`Xác nhận nạp ${amount} xu?`)) {
+  /*deposit(amount);*/
+  showBankInfo();
+  
+// Hiện thông tin ngân hàng
+  document.getElementById("bankInfo").style.display = "block";
+  }
+}
+
+  function confirmWithdraw() {
+  const amount = parseInt(document.getElementById("amount").value);
+  const balanceEl = document.getElementById("balance");
+  if (isNaN(amount) || amount <= 0) {
+  alert("Vui lòng nhập số xu hợp lệ để rút.");
+  return;
+  }
+  if (amount > balance) {
+  alert("Không thể rút xu vì số dư không đủ.");
+  return;
+  }
+  if (confirm(`Bạn có chắc muốn rút ${amount} xu không?`)) {
+  balance -= amount;
+  balanceEl.textContent = balance;
+  document.getElementById("notification").textContent = `Rút xu thành công -${amount}`;
+  }
+}
+
+  function deposit(amount) {
+  balance += amount;
+  updateBalanceDisplay();
+}
+    
+  function withdraw(amount) {
+  balance -= amount;
+  updateBalanceDisplay();
+  showNotification(`-${amount} xu đã được rút.`);
+}
+
+  function confirmClearBetHistory() {
+  if (confirm("Bạn có chắc muốn xóa lịch sử đặt cược?")) {
+  clearBetHistory();
+  }
+}
+   
+  function confirmClearResultHistory() {
+  if (confirm("Bạn có chắc muốn xóa lịch sử kết quả?")) {
+  clearResultHistory();
+  }
+}
+
+  function clearBetHistory() {
+  betHistoryEl.innerHTML = "🧾 <b>Lịch sử đặt cược:</b><br>";
+}
+    
+  function clearResultHistory() {
+  historyEl.innerHTML = "🌡 <b>Lịch sử kết quả:</b><br>";
+}
+    
+  function renderWheel() {
+  const angleStep = 360 / options.length;
+  wheelEl.innerHTML = ""; // xóa cũ
+  options.forEach((opt, index) => {
+  const segment = document.createElement("div");
+  segment.className = "segment";
+  segment.textContent = opt.icon;
+  segment.style.transform = `rotate(${index * angleStep}deg) translate(0, -85%)`;
+  wheelEl.appendChild(segment);
+  });
+}
+  renderWheel();
+    
+// Hàm thêm kết quả vào lịch sử (giữ tối đa 12)
+  function addResultToHistory(icon) {
+  const historyEl = document.getElementById("history");
+  let results = historyEl.querySelectorAll(".result-item");
+  // Nếu đủ 12 thì xóa cái đầu tiên (cũ nhất)
+  if (results.length >= 12) {
+    results[0].remove();
+  }
+  // Thêm kết quả mới vào cuối
+  const span = document.createElement("span");
+  span.className = "result-item";
+  span.textContent = icon + " ";
+  historyEl.appendChild(span);
+}
+
+
+  function spinWheel() {
+  if (isSpinning) return;
+  isSpinning = true;
+  document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.add('lock-bets'));
+  const resultEl = document.getElementById("result");
+  let totalBet = Object.values(bets).reduce((a,b)=>a+b,0);
+  for (let key in bets) {
+  let val = parseFloat(bets[key]);
+  if (isNaN(val) || val < 0) {
+  resultEl.textContent = `❌ Cược không hợp lệ ở cửa ${key}`;
+  return;}
+  }
+  document.getElementById("spinSound").play();
+  resultEl.classList.add("spin-animating");
+  setTimeout(() => {
+  resultEl.classList.remove("spin-animating");
+  }, 3000);
+  const spinDuration = 5; // giây
+  let countdown = spinDuration;
+  resultEl.textContent = `⏳ Đếm ngược: ${countdown} giây...`;
+  const selected = weightedRandom(options, bets);
+  const anglePerSegment = 360 / options.length;
+  const selectedIndex = options.findIndex(opt => opt.name === selected.name);
+  const randomOffset = Math.random() * anglePerSegment; // giúp kết quả trông tự nhiên hơn
+  const targetAngle = (360 - (selectedIndex * anglePerSegment + anglePerSegment / 2)%360);
+  const extraSpins = 5;
+  const targetRotation = 360 * extraSpins + targetAngle;
+  wheelRotation += targetRotation;
+  wheelEl.style.transform = `rotate(${wheelRotation}deg)`;
+  const animationInterval = setInterval(() => {
+  const tempIcon = options[Math.floor(Math.random() * options.length)].icon;
+  resultEl.textContent = `⏳ Đợi kết quả: ${countdown} - ${tempIcon}`;
+  }, 100);
+  const countdownInterval = setInterval(() => {
+  countdown--;
+  if (countdown <= 0) {
+  clearInterval(countdownInterval);
+  clearInterval(animationInterval);
+  const betAmount = bets[selected.name] || 0;
+  const winAmount = betAmount > 0 ? betAmount * selected.reward : 0;
+  balance += winAmount;
+  updateBalanceDisplay();
+  const lostAmount = totalBet - winAmount;
+  let profitOrLoss = winAmount - totalBet;
+  
+// Tích lũy hũ từ phần cược thua
+  if (lostAmount > 0) {
+  const jackpotContribution = Math.floor(lostAmount * 0.1); // 10% số xu thua
+  jackpot += jackpotContribution;
+  updateJackpotDisplay();
+  }
+  if (profitOrLoss > 0) {
+  netProfit += profitOrLoss;
+  } 
+  else if (profitOrLoss < 0) {
+  netLoss += Math.abs(profitOrLoss);
+  }
+  updateStatsDisplay();
+  addResultToHistory(selected.icon);
+  let outcome = winAmount > 0 ? `✅ Thắng ${winAmount}` : `❌ Thua`;
+  let jackpotWin = 0;
+  if (jackpot >= JACKPOT_THRESHOLD && Math.random() < JACKPOT_CHANCE) {
+  jackpotWin = Math.floor(jackpot * 0.8);
+  jackpot -= jackpotWin;
+  balance += jackpotWin;
+  updateBalanceDisplay();
+  updateJackpotDisplay();
+  outcome += ` 🎉 Nổ hũ! Nhận thêm ${jackpotWin} xu từ hũ!`;
+  showJackpotEffect();  // Hiển thị hiệu ứng pháo hoa + coin bay
+  }
+  if (totalBet > 0) {
+  resultEl.textContent = `🎉 Kết quả: ${selected.name} ${selected.icon} - ${outcome}`;
+  } 
+  else {
+  resultEl.textContent = `🎉 Kết quả: ${selected.name} ${selected.icon}`;
+  }
+// Bật sáng cả ô đặt cược trúng
+  const betBox = document.querySelector(`.bet-box[data-name="${selected.name}"]`);
+  if (betBox) {
+  betBox.classList.add('highlight-win');
+  setTimeout(() => {
+  betBox.classList.remove('highlight-win');
+  document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.remove('lock-bets'));
+//Tăng số phiên quay.
+  spinCount++;
+  document.getElementById("spinCounter").textContent = `🎯 Phiên quay: ${spinCount}`;
+//Reset cược.
+  resetBets();
+  isSpinning = false;
+  }, 5000);
+  }
+  if (winAmount >= 1000) {
+  resultEl.classList.add("big-win-effect");
+  } 
+  else if (winAmount > 0) {
+  resultEl.classList.add("small-win-effect");
+  }
+  setTimeout(() => {
+  resultEl.classList.remove("big-win-effect", "small-win-effect");
+  }, 2000);
+  if (totalBet > 0) {
+  let betLog = `${new Date().toLocaleTimeString()} - Cược: `;
+  for (let key in bets) {
+  const val = parseFloat(bets[key]) || 0;
+  if (val > 0) betLog += `${key}: ${val} xu, `;
+  }
+  betLog += `→ Kết quả: ${selected.name} ${selected.icon} - ${outcome}`;
+  betHistoryEl.innerHTML += `🧾 ${betLog}<br>`;
+  }
+  }
+  }, 1000);
+}
+
+  function weightedRandom(items,bets) {
+  const adjustedItems = items.map(item => {
+  const betAmount = parseFloat(bets[item.name]) || 0;        
+  let penaltyFactor = 1;
+  if (betAmount > 0) {
+  penaltyFactor = Math.max(0.2, 1 / (1 + betAmount / 10000000));
+  }
+  return { ...item, weight: item.weight * penaltyFactor };
+  });
+  const totalWeight = adjustedItems.reduce((sum, item) => sum + item.weight, 0);
+  let rand = Math.random() * totalWeight;
+  let cumWeight = 0;
+  for (let item of adjustedItems) {
+  cumWeight += item.weight;
+  if (rand <= cumWeight) {
+  return item;
+  }
+  }
+}
+
+  function confirmSpin() {
+  const form = document.getElementById("betForm");
+  const formData = new FormData(form);
+  let totalBet = 0;
+  for (const [key, value] of formData.entries()) {
+    totalBet += parseInt(value || 0);
+  }
+  if (totalBet <= 0) {
+    alert("Vui lòng đặt cược trước khi quay.");
+    return;
+  }
+  if (confirm(`Tổng số xu đã đặt cược: ${totalBet}.\nBạn có chắc chắn muốn quay thưởng?`)) {
+   spinWheel();
+  }
+  }
+
+//auto quay
+  let autoTime = 30;
+  let autoInterval;
+  let pauseAfterSpin = false;
+  let pauseTimer = 0;
+
+  function startAutoSpinTimer() {
+  autoInterval = setInterval(() => {
+  const countdownEl = document.getElementById("autoCountdown");
+// Nếu đang trong thời gian chờ sau khi quay
+  if (pauseAfterSpin) {
+  if (pauseTimer > 0) {
+  countdownEl.textContent = `⏳ Đang chờ kết quả... ${pauseTimer}s`;
+  countdownEl.classList.add("blink-yellow"); // vàng nhấp nháy
+  pauseTimer--;
+  } 
+  else {
+  autoTime = 30; // reset về 35 giây
+  pauseAfterSpin = false;
+  countdownEl.classList.remove("blink-yellow");
+  countdownEl.textContent = `⏳ Quay thưởng sau: ${autoTime} giây`;
+  }
+  return;
+  }
+// Bình thường đếm ngược 35s
+  autoTime--;
+  countdownEl.textContent = `⏳ Quay thưởng sau: ${autoTime} giây`;
+  if (autoTime === 20) {
+    suggestResult();
+  }
+  if (autoTime <= 5) {
+  countdownEl.classList.add("blink"); // đỏ nhấp nháy
+  } 
+  else {
+  countdownEl.classList.remove("blink");
+  }
+  if (autoTime <= 0) {
+  if (!isSpinning) {
+  spinWheel(); // quay luôn dù không cược
+  }
+// Sau khi quay thì pause 4 giây
+  pauseAfterSpin = true;
+  pauseTimer = 4;
+  countdownEl.classList.remove("blink"); // tắt đỏ nhấp nháy
+  }
+  }, 1000);
+}
+
+  window.onload = function() {
+  updateBalanceDisplay();
+  updateJackpotDisplay();
+  startAutoSpinTimer();
+};
+
+  function showJackpotEffect() {
+  const container = document.getElementById("jackpotEffect");
+  container.innerHTML = "";
+// Coin bay xiên
+  for (let i = 0; i < 20; i++) {
+  const coin = document.createElement("div");
+  coin.className = "coin";
+  const x = `${(Math.random() - 0.5) * 300}px`;
+  const y = `${-150 - Math.random() * 200}px`;
+  coin.style.left = `${50 + Math.random() * 30 - 15}%`;
+  coin.style.bottom = `0`;
+  coin.style.setProperty('--x', x);
+  coin.style.setProperty('--y', y);
+  container.appendChild(coin);
+  }
+// Fireworks nhiều màu
+  const colors = ['#ff0', '#f0f', '#0ff', '#f55', '#5f5', '#55f', '#ffa500'];
+  for (let i = 0; i < 10; i++) {
+  const fw = document.createElement("div");
+  fw.className = "firework";
+  fw.style.left = `${40 + Math.random() * 20}%`;
+  fw.style.top = `${30 + Math.random() * 30}%`;
+  fw.style.setProperty('--color', colors[Math.floor(Math.random() * colors.length)]);
+  container.appendChild(fw);
+  }
+// Mưa xu
+  for (let i = 0; i < 30; i++) {
+  const rain = document.createElement("div");
+  rain.className = "rain-coin";
+  rain.style.left = `${Math.random() * 100}%`;
+  rain.style.animationDuration = `${2 + Math.random() * 2}s`;
+  rain.style.animationDelay = `${Math.random() * 0.5}s`;
+  container.appendChild(rain);
+  }
+  // Xoá hiệu ứng sau 3 giây
+  setTimeout(() => container.innerHTML = "", 3000);
+}
+
+  function updateTimeDisplay() {
+  const now = new Date();
+  const timeString = now.toLocaleTimeString('vi-VN', { hour12: false });
+  document.getElementById("currentTime").textContent = timeString;
+}
+  setInterval(updateTimeDisplay, 1000);
+  updateTimeDisplay(); // chạy ngay khi load
+
+  function updateStatsDisplay() {
+  document.getElementById("stats").textContent =
+  `📊 Lãi: ${netProfit} xu | Lỗ: ${netLoss} xu`;
+}
+
+  function resetStats() {
+  if (confirm("Reset thống kê lãi/lỗ?")) {
+  netProfit = 0;
+  netLoss = 0;
+  updateStatsDisplay();
+  }
+}
+
+  function updateJackpotDisplay() {
+  jackpotEl.textContent = jackpot.toFixed(0);
+  document.getElementById("jackpotProgress").value = jackpot;
+}
+
+  if (jackpot >= JACKPOT_THRESHOLD) {
+  document.querySelector('button[onclick="confirmSpin()"]').classList.add('glow');
+}
+
+
+// --- CHIP CHỌN TIỀN CƯỢC ---
+
+// Khởi tạo cược = 0 cho tất cả
+  document.querySelectorAll(".bet-box").forEach(box => {
+  bets[box.dataset.name] = 0;
+});
+
+
+// --- chọn chip ---
+  document.querySelectorAll(".chip").forEach(chip => {
+  chip.addEventListener("click", () => {
+  document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+  chip.classList.add("active");
+  currentChip = parseInt(chip.dataset.value);
+  });
+});
+
+// --- đặt cược bằng click ô ---
+  document.querySelectorAll(".bet-box").forEach(box => {
+  box.addEventListener("click", () => {
+  if (!currentChip) {
+  alert("Hãy chọn mệnh giá chip trước!");
+  return;
+  }
+  if (balance < currentChip) {
+  alert("Không đủ số dư để đặt cược!");
+  return;
+  }
+  const name = box.dataset.name;
+  bets[name] += currentChip;
+  balance -= currentChip;
+  updateBalanceDisplay();
+  updateBetDisplay();
+  });
+});
+
+// --- reset cược ---
+  function resetBets() {
+  for (let k in bets) bets[k] = 0;
+  updateBetDisplay();
+}
+
+
+</script>
+<div id="jackpotEffect"></div>
+
 </body>
 </html>
