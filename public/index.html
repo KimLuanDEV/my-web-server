@@ -593,7 +593,7 @@ button:hover {
 
 
 <div id="autoCountdown" style="margin-top:10px; font-weight:bold; color:#00ff95;">
-  ⏳ Quay thưởng sau: <span id="countdownValue">35</span> giây
+  ⏳ Quay thưởng sau: <span id="countdownValue"></span> giây
 </div>
 <div class="result" id="result">Kết quả trả thưởng...</div>
 <div class="history" id="history">🧾 <b>Lịch sử kết quả:</b><br></div>
@@ -710,7 +710,10 @@ button:hover {
 <script>
 
 let countdownDuration = 35; // số giây mỗi phiên
-let lastSpinTime = localStorage.getItem("lastSpinTime");
+let lastSpinTime = parseInt(localStorage.getItem("lastSpinTime")) || Date.now();
+let pauseAfterSpin = false;
+let pauseTimer = 0;
+let autoInterval;
 
 
 let spinCount = parseInt(localStorage.getItem("spinCount")) || 0;
@@ -756,6 +759,73 @@ if (!lastSpinTime) {
   lastSpinTime = Date.now();
   localStorage.setItem("lastSpinTime", lastSpinTime);
 }
+
+// Tính thời gian còn lại khi load lại trang
+  function getRemainingTime() {
+  const now = Date.now();
+  const elapsed = Math.floor((now - lastSpinTime) / 1000); // số giây đã trôi qua
+  let remaining = countdownDuration - elapsed;
+  if (remaining <= 0) {
+  // Nếu hết giờ thì bắt đầu phiên mới
+  lastSpinTime = now;
+  localStorage.setItem("lastSpinTime", lastSpinTime);
+  remaining = countdownDuration;
+  }
+  return remaining;
+}
+
+let countdownValue = getRemainingTime();
+ 
+
+  // Hiển thị đếm ngược
+  function startCountdown() {
+  const timer = setInterval(() => {
+  const countdownEl = document.getElementById("autoCountdown");
+// Nếu đang trong thời gian chờ sau khi quay
+  if (pauseAfterSpin) {
+  if (pauseTimer > 0) {
+  countdownEl.innerHTML = `⏳ Đang chờ kết quả... <span>${pauseTimer}</span> giây`;
+  countdownEl.classList.add("blink-yellow"); // vàng nhấp nháy
+  pauseTimer--;
+  } 
+  else {
+  countdownValue = 35; // reset về 35 giây
+  pauseAfterSpin = false;
+  countdownEl.classList.remove("blink-yellow");
+  countdownEl.innerHTML = `⏳ Quay thưởng sau: <span id="countdownValue">${countdownValue}</span> giây`;
+  }
+  return;
+  }
+  countdownValue--;
+  countdownEl.textContent = `⏳ Quay thưởng sau: ${countdownValue} giây`;
+  if (countdownValue === 20) {
+    suggestResult();
+  }
+  if (countdownValue <= 5) {
+  countdownEl.classList.add("blink"); // đỏ nhấp nháy
+  } 
+  else {
+  countdownEl.classList.remove("blink");
+  }
+  countdownEl.innerHTML = `⏳ Quay thưởng sau: <span id="countdownValue">${countdownValue}</span> giây`;
+
+  if (countdownValue <= 0) {
+  if (!isSpinning) {
+  spinWheel(); // quay luôn dù không cược
+  }
+// Sau khi quay thì pause 4 giây
+  pauseAfterSpin = true;
+  pauseTimer = 4;
+  countdownEl.classList.remove("blink"); // tắt đỏ nhấp nháy
+  
+  lastSpinTime = Date.now();
+  localStorage.setItem("lastSpinTime", lastSpinTime);
+  countdownValue = countdownDuration;
+  }
+  countdownEl.innerHTML = `⏳ Quay thưởng sau: <span id="countdownValue">${countdownValue}</span> giây`;
+  }, 1000);
+}
+startCountdown();
 
   function suggestResult() {
   const totalWeight = options.reduce((sum, opt) => sum + opt.weight, 0);
@@ -1189,7 +1259,7 @@ if (!lastSpinTime) {
   }
   }
 
-//auto quay
+/*//auto quay
   let autoTime = 35;
   let autoInterval;
   let pauseAfterSpin = false;
@@ -1235,7 +1305,7 @@ if (!lastSpinTime) {
   countdownEl.classList.remove("blink"); // tắt đỏ nhấp nháy
   }
   }, 1000);
-}
+}*/
 
   window.onload = function() {
   updateBalanceDisplay();
