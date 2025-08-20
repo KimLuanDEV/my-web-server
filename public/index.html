@@ -593,7 +593,7 @@ button:hover {
 
 
 <div id="autoCountdown" style="margin-top:10px; font-weight:bold; color:#00ff95;">
-  ⏳ Quay thưởng sau: 7 giây
+  ⏳ Quay thưởng sau: <span id="countdownValue">35</span> giây
 </div>
 <div class="result" id="result">Kết quả trả thưởng...</div>
 <div class="history" id="history">🧾 <b>Lịch sử kết quả:</b><br></div>
@@ -709,11 +709,16 @@ button:hover {
 
 <script>
 
-let spinCount = 1;
+let countdownDuration = 35; // số giây mỗi phiên
+let lastSpinTime = localStorage.getItem("lastSpinTime");
+
+
+let spinCount = parseInt(localStorage.getItem("spinCount")) || 0;
 let wheelRotation = 0;
 let spinInterval;
 let isSpinning = false;
-let balance = 0;
+// Lấy balance từ localStorage (nếu có)
+let balance = parseInt(localStorage.getItem("balance")) || 0;
 let jackpot = 0;
 let netProfit = 0; // Chênh lệch xu lời
 let netLoss = 0;   // Chênh lệch xu lỗ
@@ -745,6 +750,12 @@ document.querySelectorAll('#betForm input').forEach(input => {
 input.addEventListener('input', updateTotalBetDisplay);
 });
 
+
+// Nếu chưa có thì set mốc ban đầu
+if (!lastSpinTime) {
+  lastSpinTime = Date.now();
+  localStorage.setItem("lastSpinTime", lastSpinTime);
+}
 
   function suggestResult() {
   const totalWeight = options.reduce((sum, opt) => sum + opt.weight, 0);
@@ -898,6 +909,7 @@ input.addEventListener('input', updateTotalBetDisplay);
  
   function updateBalanceDisplay() {
   balanceEl.textContent = balance;
+  localStorage.setItem("balance", balance); // lưu vào localStorage
 }
    
   function showNotification(message) {
@@ -978,21 +990,43 @@ input.addEventListener('input', updateTotalBetDisplay);
 }
   renderWheel();
     
-// Hàm thêm kết quả vào lịch sử (giữ tối đa 12)
+/// Hàm thêm kết quả vào lịch sử (giữ tối đa 12)
   function addResultToHistory(icon) {
-  const historyEl = document.getElementById("history");
-  let results = historyEl.querySelectorAll(".result-item");
-  // Nếu đủ 8 thì xóa cái đầu tiên (cũ nhất)
-  if (results.length >= 8) {
-    results[0].remove();
+  let Results = JSON.parse(localStorage.getItem("Results")) || [];
+
+  // thêm kết quả mới vào đầu mảng
+  Results.unshift(icon);
+
+  // giới hạn 8 kết quả
+  if (Results.length > 8) {
+    Results = Results.slice(0, 8);
   }
-  // Thêm kết quả mới vào cuối
+
+  // lưu lại
+  localStorage.setItem("Results", JSON.stringify(Results));
+
+  // cập nhật hiển thị
+  renderHistory();
+}
+
+// Hàm hiển thị lịch sử ra giao diện
+  function renderHistory() {
+  const historyEl = document.getElementById("history");
+  historyEl.innerHTML = "🧾 <b>Lịch sử kết quả:</b><br>";
+  let Results = JSON.parse(localStorage.getItem("Results")) || [];
+  Results.forEach(icon => {
   const span = document.createElement("span");
   span.className = "result-item";
   span.textContent = icon + " ";
   historyEl.appendChild(span);
+  });
 }
 
+// gọi khi tải lại trang để load lịch sử cũ
+  window.onload = () => {
+  renderHistory();
+  updateBalanceDisplay(); // cũng load lại số dư đã lưu
+};
 
   function spinWheel() {
   if (isSpinning) return;
@@ -1080,6 +1114,7 @@ input.addEventListener('input', updateTotalBetDisplay);
 //Tăng số phiên quay.
   spinCount++;
   document.getElementById("spinCounter").textContent = `🎯 Phiên quay: ${spinCount}`;
+  updateSpinCounter();
 //Reset cược.
   resetBets();
   isSpinning = false;
@@ -1106,6 +1141,17 @@ input.addEventListener('input', updateTotalBetDisplay);
   }
   }, 1000);
 }
+
+  // Hàm cập nhật giao diện + lưu
+  function updateSpinCounter() {
+  document.getElementById("spinCounter").textContent = `🎯 Phiên quay: ${spinCount}`;
+  localStorage.setItem("spinCount", spinCount);
+  localStorage.setItem("lastSpinDate", getToday());
+}
+
+// Khi load trang thì hiển thị số phiên đã lưu
+  updateSpinCounter();
+
 
   function weightedRandom(items,bets) {
   const adjustedItems = items.map(item => {
@@ -1306,6 +1352,22 @@ input.addEventListener('input', updateTotalBetDisplay);
   function resetBets() {
   for (let k in bets) bets[k] = 0;
   updateBetDisplay();
+}
+
+// Lấy ngày hiện tại (yyyy-mm-dd)
+  function getToday() {
+  let d = new Date();
+  return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+}
+
+// Lấy ngày cuối cùng lưu trong localStorage
+  let lastDate = localStorage.getItem("lastSpinDate");
+
+// Nếu khác ngày → reset về 0
+  if (lastDate !== getToday()) {
+  spinCount = 0;
+  localStorage.setItem("spinCount", spinCount);
+  localStorage.setItem("lastSpinDate", getToday());
 }
 
 
