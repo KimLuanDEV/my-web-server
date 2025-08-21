@@ -729,7 +729,8 @@ let netLoss = parseInt(localStorage.getItem("netLoss")) || 0;   // Chênh lệch
 let currentChip = 0; // chip đang chọn
 let bets = {}; // lưu số xu đặt cược theo từng cửa
 
-
+const SPIN_DURATION = 40; // 40 giây 1 phiên
+const spinCounterEl = document.getElementById("spinCounter");
 const balanceEl = document.getElementById("balance");
 const jackpotEl = document.getElementById("jackpot");
 const notificationEl = document.getElementById("notification");
@@ -748,6 +749,14 @@ const options = [
   { name: "Đùi", icon: "🍖", weight: 4, reward: 25 },
   { name: "Bò", icon: "🥩", weight: 2.53, reward: 45 },
 ];
+
+// Tính số phiên dựa vào thời gian thực (tính từ mốc 1/1/2025 chẳng hạn)
+  function getCurrentSpinNumber() {
+  const startTime = new Date("2025-01-01T00:00:00Z").getTime(); // mốc cố định
+  const now = Date.now();
+  const elapsedSeconds = Math.floor((now - startTime) / 1000);
+  return Math.floor(elapsedSeconds / SPIN_DURATION) + 1; // +1 để bắt đầu từ phiên 1
+}
 
 
 document.querySelectorAll('#betForm input').forEach(input => {
@@ -981,6 +990,7 @@ startCountdown();
 }
 
 
+ 
   function updateJackpotDisplay() {
   jackpotEl.textContent = jackpot.toFixed(0);
 }
@@ -1252,14 +1262,16 @@ function loadHistory() {
 
   // Hàm cập nhật giao diện + lưu
   function updateSpinCounter() {
-  document.getElementById("spinCounter").textContent = `🎯 Phiên quay: ${spinCount}`;
+  const spinNumber = getCurrentSpinNumber();
+  spinCounterEl.textContent = `🎯 Phiên quay: ${spinNumber}`;
+  /*document.getElementById("spinCounter").textContent = `🎯 Phiên quay: ${spinCount}`;
   localStorage.setItem("spinCount", spinCount);
-  localStorage.setItem("lastSpinDate", getToday());
+  localStorage.setItem("lastSpinDate", getToday());*/
 }
 
 // Khi load trang thì hiển thị số phiên đã lưu
   updateSpinCounter();
-
+  setInterval(updateSpinCounter, 1000);
 
   function weightedRandom(items,bets) {
   const adjustedItems = items.map(item => {
@@ -1485,6 +1497,8 @@ function loadHistory() {
   localStorage.setItem("lastSpinDate", getToday());
 }
 
+  
+  
 
 </script>
 <div id="jackpotEffect"></div>
