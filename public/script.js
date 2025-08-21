@@ -11,7 +11,7 @@ let spinInterval;
 let isSpinning = false;
 // Lấy balance từ localStorage (nếu có)
 let balance = parseInt(localStorage.getItem("balance")) || 0;
-let jackpot = 0;
+let jackpot = parseInt(localStorage.getItem("jackpot")) || 0;
 let netProfit = parseInt(localStorage.getItem("netProfit")) || 0; // Chênh lệch xu lời
 let netLoss = parseInt(localStorage.getItem("netLoss")) || 0;   // Chênh lệch xu lỗ
 let currentChip = 0; // chip đang chọn
@@ -349,7 +349,7 @@ function renderWheel() {
 }
 renderWheel();
 
-/// Hàm thêm kết quả vào lịch sử (giữ tối đa 12)
+/// Hàm thêm kết quả vào lịch sử (giữ tối đa 8)
 function addResultToHistory(icon) {
     let Results = JSON.parse(localStorage.getItem("Results")) || [];
 
@@ -368,6 +368,27 @@ function addResultToHistory(icon) {
     renderHistory();
 }
 
+// Lưu lịch sử vào localStorage
+function saveHistory() {
+    const data = historyEl.innerHTML.replace('🧾 <b>Lịch sử kết quả:</b><br>', '');
+    localStorage.setItem("historyData", data);
+}
+
+// Khôi phục lịch sử khi F5
+function loadHistory() {
+    const saved = localStorage.getItem("historyData");
+    if (saved) {
+        historyEl.innerHTML = '🧾 <b>Lịch sử kết quả:</b><br>' + saved;
+    }
+}
+
+// Gọi khi trang load
+window.addEventListener("load", loadHistory);
+
+function addHistory(resultIcon) {
+    saveHistory();
+}
+
 // Hàm hiển thị lịch sử ra giao diện
 function renderHistory() {
     const historyEl = document.getElementById("history");
@@ -379,7 +400,12 @@ function renderHistory() {
         span.textContent = icon + " ";
         historyEl.appendChild(span);
     });
+
 }
+
+
+
+
 
 // gọi khi tải lại trang để load lịch sử cũ
 window.onload = () => {
@@ -464,6 +490,8 @@ function spinWheel() {
             else {
                 resultEl.textContent = `${selected.icon}`;
             }
+            addHistory(result.icon);
+
             // Bật sáng cả ô đặt cược trúng
             const betBox = document.querySelector(`.bet-box[data-name="${selected.name}"]`);
             if (betBox) {
@@ -497,6 +525,7 @@ function spinWheel() {
                 }
                 betLog += `→ Kết quả: ${selected.name} ${selected.icon} - ${outcome}`;
                 betHistoryEl.innerHTML += `🧾 ${betLog}<br>`;
+
             }
         }
     }, 1000);
@@ -667,8 +696,12 @@ function resetStats() {
 
 function updateJackpotDisplay() {
     jackpotEl.textContent = jackpot.toFixed(0);
+    localStorage.setItem("jackpot", jackpot); // 🔥 lưu lại jackpot
     document.getElementById("jackpotProgress").value = jackpot;
 }
+
+// 🔹 Hiển thị ngay khi load trang
+updateJackpotDisplay();
 
 if (jackpot >= JACKPOT_THRESHOLD) {
     document.querySelector('button[onclick="confirmSpin()"]').classList.add('glow');

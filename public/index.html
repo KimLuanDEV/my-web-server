@@ -835,11 +835,18 @@ startCountdown();
   for (let opt of options) {
   cumWeight += opt.weight;
   if (rand <= cumWeight) {
-  document.getElementById("suggestion").textContent =
-  `🔥 Hot: ${opt.name} ${opt.icon}`;
+  const hotText = `🔥 Hot: ${opt.name} ${opt.icon}`;
+  document.getElementById("suggestion").textContent = hotText;
+  localStorage.setItem("lastHot", hotText); // 🔥 Lưu vào localStorage
   return;
   }
   }
+}
+
+//Khi load lại trang, hiển thị lại Hot nếu có
+  const savedHot = localStorage.getItem("lastHot");
+  if (savedHot) {
+  document.getElementById("suggestion").textContent = savedHot;
 }
 
   function updateBalance() {
@@ -1061,7 +1068,7 @@ startCountdown();
 }
   renderWheel();
     
-/// Hàm thêm kết quả vào lịch sử (giữ tối đa 12)
+/// Hàm thêm kết quả vào lịch sử (giữ tối đa 8)
   function addResultToHistory(icon) {
   let Results = JSON.parse(localStorage.getItem("Results")) || [];
 
@@ -1080,6 +1087,27 @@ startCountdown();
   renderHistory();
 }
 
+// Lưu lịch sử vào localStorage
+function saveHistory() {
+  const data = historyEl.innerHTML.replace('🧾 <b>Lịch sử kết quả:</b><br>', '');
+  localStorage.setItem("historyData", data);
+}
+
+// Khôi phục lịch sử khi F5
+function loadHistory() {
+  const saved = localStorage.getItem("historyData");
+  if (saved) {
+   historyEl.innerHTML = '🧾 <b>Lịch sử kết quả:</b><br>' + saved;
+  }
+}
+
+ // Gọi khi trang load
+  window.addEventListener("load", loadHistory);
+
+  function addHistory(resultIcon) {
+  saveHistory();
+  }
+
 // Hàm hiển thị lịch sử ra giao diện
   function renderHistory() {
   const historyEl = document.getElementById("history");
@@ -1091,7 +1119,12 @@ startCountdown();
   span.textContent = icon + " ";
   historyEl.appendChild(span);
   });
+ 
 }
+
+
+
+
 
 // gọi khi tải lại trang để load lịch sử cũ
   window.onload = () => {
@@ -1175,6 +1208,8 @@ startCountdown();
   else {
   resultEl.textContent = `${selected.icon}`;
   }
+  addHistory(result.icon);
+
 // Bật sáng cả ô đặt cược trúng
   const betBox = document.querySelector(`.bet-box[data-name="${selected.name}"]`);
   if (betBox) {
@@ -1208,6 +1243,7 @@ startCountdown();
   }
   betLog += `→ Kết quả: ${selected.name} ${selected.icon} - ${outcome}`;
   betHistoryEl.innerHTML += `🧾 ${betLog}<br>`;
+  
   }
   }
   }, 1000);
