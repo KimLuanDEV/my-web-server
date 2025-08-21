@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -722,7 +723,7 @@ let spinInterval;
 let isSpinning = false;
 // Lấy balance từ localStorage (nếu có)
 let balance = parseInt(localStorage.getItem("balance")) || 0;
-let jackpot = 0;
+let jackpot = parseInt(localStorage.getItem("jackpot")) || 0;
 let netProfit = parseInt(localStorage.getItem("netProfit")) || 0; // Chênh lệch xu lời
 let netLoss = parseInt(localStorage.getItem("netLoss")) || 0;   // Chênh lệch xu lỗ
 let currentChip = 0; // chip đang chọn
@@ -1377,8 +1378,12 @@ startCountdown();
 
   function updateJackpotDisplay() {
   jackpotEl.textContent = jackpot.toFixed(0);
+  localStorage.setItem("jackpot", jackpot); // 🔥 lưu lại jackpot
   document.getElementById("jackpotProgress").value = jackpot;
 }
+
+// 🔹 Hiển thị ngay khi load trang
+  updateJackpotDisplay();
 
   if (jackpot >= JACKPOT_THRESHOLD) {
   document.querySelector('button[onclick="confirmSpin()"]').classList.add('glow');
