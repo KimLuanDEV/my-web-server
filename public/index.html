@@ -750,13 +750,21 @@ const options = [
   { name: "Bò", icon: "🥩", weight: 2.53, reward: 45 },
 ];
 
-// Tính số phiên dựa vào thời gian thực (tính từ mốc 1/1/2025 chẳng hạn)
-  function getCurrentSpinNumber() {
-  const startTime = new Date("2025-01-01T00:00:00Z").getTime(); // mốc cố định
+// Lấy mốc 0h hôm nay
+  function getStartOfDay() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0).getTime();
+}
+
+// Tính số phiên hiện tại
+function getCurrentSpinNumber() {
+  const startTime = getStartOfDay();
   const now = Date.now();
   const elapsedSeconds = Math.floor((now - startTime) / 1000);
-  return Math.floor(elapsedSeconds / SPIN_DURATION) + 1; // +1 để bắt đầu từ phiên 1
+  return Math.floor(elapsedSeconds / SPIN_DURATION) + 1;
 }
+
+
 
 
 document.querySelectorAll('#betForm input').forEach(input => {
