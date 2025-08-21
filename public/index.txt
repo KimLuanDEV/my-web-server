@@ -1125,7 +1125,6 @@ function loadHistory() {
 
 
 
-
 // gọi khi tải lại trang để load lịch sử cũ
   window.onload = () => {
   renderHistory();
@@ -1151,7 +1150,6 @@ function loadHistory() {
   }, 3000);
   const spinDuration = 5; // giây
   let countdown = spinDuration;
-  /*resultEl.textContent = `⏳ Đếm ngược: ${countdown} giây...`;*/
   const selected = weightedRandom(options, bets);
   const anglePerSegment = 360 / options.length;
   const selectedIndex = options.findIndex(opt => opt.name === selected.name);
@@ -1165,6 +1163,9 @@ function loadHistory() {
   const tempIcon = options[Math.floor(Math.random() * options.length)].icon;
   resultEl.textContent = `${tempIcon}`;
   }, 100);
+
+  
+
   const countdownInterval = setInterval(() => {
   countdown--;
   if (countdown <= 0) {
