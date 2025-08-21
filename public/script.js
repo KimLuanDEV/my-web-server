@@ -12,8 +12,8 @@ let isSpinning = false;
 // Lấy balance từ localStorage (nếu có)
 let balance = parseInt(localStorage.getItem("balance")) || 0;
 let jackpot = 0;
-let netProfit = 0; // Chênh lệch xu lời
-let netLoss = 0;   // Chênh lệch xu lỗ
+let netProfit = parseInt(localStorage.getItem("netProfit")) || 0; // Chênh lệch xu lời
+let netLoss = parseInt(localStorage.getItem("netLoss")) || 0;   // Chênh lệch xu lỗ
 let currentChip = 0; // chip đang chọn
 let bets = {}; // lưu số xu đặt cược theo từng cửa
 
@@ -652,7 +652,10 @@ updateTimeDisplay(); // chạy ngay khi load
 function updateStatsDisplay() {
     document.getElementById("stats").textContent =
         `📊 Lãi: ${netProfit} xu | Lỗ: ${netLoss} xu`;
+    localStorage.setItem("netProfit", netProfit);
+    localStorage.setItem("netLoss", netLoss);
 }
+updateStatsDisplay(); // gọi 1 lần khi load trang
 
 function resetStats() {
     if (confirm("Reset thống kê lãi/lỗ?")) {
