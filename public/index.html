@@ -750,6 +750,42 @@ const options = [
   { name: "Bò", icon: "🥩", weight: 2.53, reward: 45 },
 ];
 
+
+// Hàm thêm lịch sử đặt cược
+  function addBetHistory(betName, amount) {
+  const time = new Date().toLocaleTimeString();
+  const entry = { time, betName, amount };
+
+  // Thêm vào giao diện
+  betHistoryEl.innerHTML += `⏰ ${time} - Đặt ${amount} xu vào ${betName}<br>`;
+
+  // Lưu vào localStorage
+  let betHistory = JSON.parse(localStorage.getItem("betHistory")) || [];
+  betHistory.push(entry);
+  localStorage.setItem("betHistory", JSON.stringify(betHistory));
+}
+
+// Khôi phục khi load lại trang
+  window.addEventListener("load", () => {
+  let betHistory = JSON.parse(localStorage.getItem("betHistory")) || [];
+  if (betHistory.length > 0) {
+  betHistoryEl.innerHTML = "🧾 <b>Lịch sử đặt cược:</b><br>";
+  betHistory.forEach(entry => {
+  betHistoryEl.innerHTML += `⏰ ${entry.time} - Đặt ${entry.amount} xu vào ${entry.betName}<br>`;
+  });
+  }
+});
+
+  function resetHistoryDaily() {
+  let today = new Date().toLocaleDateString();
+  let savedDate = localStorage.getItem("betHistoryDate");
+  if (savedDate !== today) {
+  localStorage.removeItem("betHistory");
+  localStorage.setItem("betHistoryDate", today);
+  }
+}
+resetHistoryDaily();
+
 // Lấy mốc 0h hôm nay
   function getStartOfDay() {
   const now = new Date();
@@ -757,7 +793,7 @@ const options = [
 }
 
 // Tính số phiên hiện tại
-function getCurrentSpinNumber() {
+  function getCurrentSpinNumber() {
   const startTime = getStartOfDay();
   const now = Date.now();
   const elapsedSeconds = Math.floor((now - startTime) / 1000);
@@ -1112,7 +1148,7 @@ function saveHistory() {
 }
 
 // Khôi phục lịch sử khi F5
-function loadHistory() {
+  function loadHistory() {
   const saved = localStorage.getItem("historyData");
   if (saved) {
    historyEl.innerHTML = '🧾 <b>Lịch sử kết quả:</b><br>' + saved;
@@ -1223,9 +1259,13 @@ function loadHistory() {
   }
   if (totalBet > 0) {
   resultEl.textContent = `${selected.icon} - ${outcome}`;
+ // ✅ Lưu icon kết quả vào localStorage
+  localStorage.setItem("lastResultIcon", result.icon);
   } 
   else {
   resultEl.textContent = `${selected.icon}`;
+ // ✅ Lưu icon kết quả vào localStorage
+  localStorage.setItem("lastResultIcon", result.icon);
   }
   addHistory(result.icon);
 
