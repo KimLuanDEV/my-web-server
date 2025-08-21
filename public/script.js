@@ -677,20 +677,6 @@ if (jackpot >= JACKPOT_THRESHOLD) {
 
 // --- CHIP CHỌN TIỀN CƯỢC ---
 
-
-// --- Lưu cược vào localStorage ---
-function saveBets() {
-    localStorage.setItem("bets", JSON.stringify(bets));
-}
-
-// --- Tải cược khi F5 ---
-function loadBets() {
-    const saved = JSON.parse(localStorage.getItem("bets")) || {};
-    bets = saved;
-    updateBetDisplay();
-}
-
-
 // Khởi tạo cược = 0 cho tất cả
 document.querySelectorAll(".bet-box").forEach(box => {
     bets[box.dataset.name] = 0;
@@ -720,13 +706,10 @@ document.querySelectorAll(".bet-box").forEach(box => {
         const name = box.dataset.name;
         bets[name] += currentChip;
         balance -= currentChip;
-        saveBets();
         updateBalanceDisplay();
         updateBetDisplay();
     });
 });
-
-loadBets();
 
 // --- reset cược ---
 function resetBets() {
