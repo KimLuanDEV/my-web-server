@@ -17,7 +17,8 @@ let netLoss = parseInt(localStorage.getItem("netLoss")) || 0;   // Chênh lệch
 let currentChip = 0; // chip đang chọn
 let bets = {}; // lưu số xu đặt cược theo từng cửa
 
-
+const SPIN_DURATION = 40; // 40 giây 1 phiên
+const spinCounterEl = document.getElementById("spinCounter");
 const balanceEl = document.getElementById("balance");
 const jackpotEl = document.getElementById("jackpot");
 const notificationEl = document.getElementById("notification");
@@ -36,6 +37,58 @@ const options = [
     { name: "Đùi", icon: "🍖", weight: 4, reward: 25 },
     { name: "Bò", icon: "🥩", weight: 2.53, reward: 45 },
 ];
+
+
+// Hàm thêm lịch sử đặt cược
+function addBetHistory(betName, amount) {
+    const time = new Date().toLocaleTimeString();
+    const entry = { time, betName, amount };
+
+    // Thêm vào giao diện
+    betHistoryEl.innerHTML += `⏰ ${time} - Đặt ${amount} xu vào ${betName}<br>`;
+
+    // Lưu vào localStorage
+    let betHistory = JSON.parse(localStorage.getItem("betHistory")) || [];
+    betHistory.push(entry);
+    localStorage.setItem("betHistory", JSON.stringify(betHistory));
+}
+
+// Khôi phục khi load lại trang
+window.addEventListener("load", () => {
+    let betHistory = JSON.parse(localStorage.getItem("betHistory")) || [];
+    if (betHistory.length > 0) {
+        betHistoryEl.innerHTML = "🧾 <b>Lịch sử đặt cược:</b><br>";
+        betHistory.forEach(entry => {
+            betHistoryEl.innerHTML += `⏰ ${entry.time} - Đặt ${entry.amount} xu vào ${entry.betName}<br>`;
+        });
+    }
+});
+
+function resetHistoryDaily() {
+    let today = new Date().toLocaleDateString();
+    let savedDate = localStorage.getItem("betHistoryDate");
+    if (savedDate !== today) {
+        localStorage.removeItem("betHistory");
+        localStorage.setItem("betHistoryDate", today);
+    }
+}
+resetHistoryDaily();
+
+// Lấy mốc 0h hôm nay
+function getStartOfDay() {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0).getTime();
+}
+
+// Tính số phiên hiện tại
+function getCurrentSpinNumber() {
+    const startTime = getStartOfDay();
+    const now = Date.now();
+    const elapsedSeconds = Math.floor((now - startTime) / 1000);
+    return Math.floor(elapsedSeconds / SPIN_DURATION) + 1;
+}
+
+
 
 
 document.querySelectorAll('#betForm input').forEach(input => {
@@ -123,11 +176,18 @@ function suggestResult() {
     for (let opt of options) {
         cumWeight += opt.weight;
         if (rand <= cumWeight) {
-            document.getElementById("suggestion").textContent =
-                `🔥 Hot: ${opt.name} ${opt.icon}`;
+            const hotText = `🔥 Hot: ${opt.name} ${opt.icon}`;
+            document.getElementById("suggestion").textContent = hotText;
+            localStorage.setItem("lastHot", hotText); // 🔥 Lưu vào localStorage
             return;
         }
     }
+}
+
+//Khi load lại trang, hiển thị lại Hot nếu có
+const savedHot = localStorage.getItem("lastHot");
+if (savedHot) {
+    document.getElementById("suggestion").textContent = savedHot;
 }
 
 function updateBalance() {
@@ -260,6 +320,7 @@ function updateBetDisplay() {
     const total = Object.values(bets).reduce((a, b) => a + b, 0);
     document.getElementById("totalBetDisplay").textContent = `Tổng cược: ${total}`;
 }
+
 
 
 function updateJackpotDisplay() {
@@ -406,7 +467,6 @@ function renderHistory() {
 
 
 
-
 // gọi khi tải lại trang để load lịch sử cũ
 window.onload = () => {
     renderHistory();
@@ -433,7 +493,6 @@ function spinWheel() {
     }, 3000);
     const spinDuration = 5; // giây
     let countdown = spinDuration;
-    /*resultEl.textContent = `⏳ Đếm ngược: ${countdown} giây...`;*/
     const selected = weightedRandom(options, bets);
     const anglePerSegment = 360 / options.length;
     const selectedIndex = options.findIndex(opt => opt.name === selected.name);
@@ -447,6 +506,9 @@ function spinWheel() {
         const tempIcon = options[Math.floor(Math.random() * options.length)].icon;
         resultEl.textContent = `${tempIcon}`;
     }, 100);
+
+
+
     const countdownInterval = setInterval(() => {
         countdown--;
         if (countdown <= 0) {
@@ -486,9 +548,13 @@ function spinWheel() {
             }
             if (totalBet > 0) {
                 resultEl.textContent = `${selected.icon} - ${outcome}`;
+                // ✅ Lưu icon kết quả vào localStorage
+                localStorage.setItem("lastResultIcon", result.icon);
             }
             else {
                 resultEl.textContent = `${selected.icon}`;
+                // ✅ Lưu icon kết quả vào localStorage
+                localStorage.setItem("lastResultIcon", result.icon);
             }
             addHistory(result.icon);
 
@@ -533,14 +599,16 @@ function spinWheel() {
 
 // Hàm cập nhật giao diện + lưu
 function updateSpinCounter() {
-    document.getElementById("spinCounter").textContent = `🎯 Phiên quay: ${spinCount}`;
+    const spinNumber = getCurrentSpinNumber();
+    spinCounterEl.textContent = `🎯 Phiên quay: ${spinNumber}`;
+    /*document.getElementById("spinCounter").textContent = `🎯 Phiên quay: ${spinCount}`;
     localStorage.setItem("spinCount", spinCount);
-    localStorage.setItem("lastSpinDate", getToday());
+    localStorage.setItem("lastSpinDate", getToday());*/
 }
 
 // Khi load trang thì hiển thị số phiên đã lưu
 updateSpinCounter();
-
+setInterval(updateSpinCounter, 1000);
 
 function weightedRandom(items, bets) {
     const adjustedItems = items.map(item => {
