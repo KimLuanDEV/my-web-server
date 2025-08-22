@@ -1,4 +1,4 @@
-let countdownDuration = 35; // số giây mỗi phiên
+let countdownDuration = 40; // số giây mỗi phiên
 let lastSpinTime = parseInt(localStorage.getItem("lastSpinTime")) || Date.now();
 let pauseAfterSpin = false;
 let pauseTimer = 0;
@@ -103,6 +103,11 @@ if (!lastSpinTime) {
     localStorage.setItem("lastSpinTime", lastSpinTime);
 }
 
+
+
+
+
+
 // Tính thời gian còn lại khi load lại trang
 function getRemainingTime() {
     const now = Date.now();
@@ -160,6 +165,7 @@ function startCountdown() {
             pauseAfterSpin = true;
             pauseTimer = 4;
             countdownEl.classList.remove("blink"); // tắt đỏ nhấp nháy
+
 
             lastSpinTime = Date.now();
             localStorage.setItem("lastSpinTime", lastSpinTime);
@@ -429,11 +435,13 @@ function addResultToHistory(icon) {
     renderHistory();
 }
 
+
 // Lưu lịch sử vào localStorage
 function saveHistory() {
     const data = historyEl.innerHTML.replace('🧾 <b>Lịch sử kết quả:</b><br>', '');
     localStorage.setItem("historyData", data);
 }
+
 
 // Khôi phục lịch sử khi F5
 function loadHistory() {
@@ -450,6 +458,12 @@ function addHistory(resultIcon) {
     saveHistory();
 }
 
+
+// --- Load lịch sử khi vào trang ---
+let playHistory = JSON.parse(localStorage.getItem("playHistory")) || [];
+
+
+
 // Hàm hiển thị lịch sử ra giao diện
 function renderHistory() {
     const historyEl = document.getElementById("history");
@@ -461,8 +475,8 @@ function renderHistory() {
         span.textContent = icon + " ";
         historyEl.appendChild(span);
     });
-
 }
+
 
 
 
@@ -593,7 +607,6 @@ function spinWheel() {
                 }
                 betLog += `→ Kết quả: ${selected.name} ${selected.icon} - ${outcome}`;
                 betHistoryEl.innerHTML += `🧾 ${betLog}<br>`;
-
             }
         }
     }, 1000);
@@ -603,9 +616,6 @@ function spinWheel() {
 function updateSpinCounter() {
     const spinNumber = getCurrentSpinNumber();
     spinCounterEl.textContent = `🎯 Phiên quay: ${spinNumber}`;
-    /*document.getElementById("spinCounter").textContent = `🎯 Phiên quay: ${spinCount}`;
-    localStorage.setItem("spinCount", spinCount);
-    localStorage.setItem("lastSpinDate", getToday());*/
 }
 
 // Khi load trang thì hiển thị số phiên đã lưu
