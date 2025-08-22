@@ -727,7 +727,7 @@ let jackpot = parseInt(localStorage.getItem("jackpot")) || 0;
 let netProfit = parseInt(localStorage.getItem("netProfit")) || 0; // Chênh lệch xu lời
 let netLoss = parseInt(localStorage.getItem("netLoss")) || 0;   // Chênh lệch xu lỗ
 let currentChip = 0; // chip đang chọn
-let bets = {}; // lưu số xu đặt cược theo từng cửa
+let bets = {}; // lưu trữ cược hiện tại // lưu số xu đặt cược theo từng cửa
 
 const SPIN_DURATION = 40; // 40 giây 1 phiên
 const spinCounterEl = document.getElementById("spinCounter");
@@ -749,6 +749,7 @@ const options = [
   { name: "Đùi", icon: "🍖", weight: 4, reward: 25 },
   { name: "Bò", icon: "🥩", weight: 2.53, reward: 45 },
 ];
+
 
 
 // Hàm thêm lịch sử đặt cược
@@ -1034,7 +1035,6 @@ startCountdown();
 }
 
 
- 
   function updateJackpotDisplay() {
   jackpotEl.textContent = jackpot.toFixed(0);
 }
@@ -1268,7 +1268,7 @@ function saveHistory() {
   localStorage.setItem("lastResultIcon", result.icon);
   }
   addHistory(result.icon);
-
+ 
 // Bật sáng cả ô đặt cược trúng
   const betBox = document.querySelector(`.bet-box[data-name="${selected.name}"]`);
   if (betBox) {
@@ -1282,7 +1282,9 @@ function saveHistory() {
   updateSpinCounter();
 //Reset cược.
   resetBets();
+  
   isSpinning = false;
+  clearBets(); // 🔥 sang vòng mới thì không giữ cược nữa
   }, 5000);
   }
   if (winAmount >= 1000) {
@@ -1515,11 +1517,14 @@ function saveHistory() {
   alert("Không đủ số dư để đặt cược!");
   return;
   }
+  if (currentChip > 0) {
   const name = box.dataset.name;
-  bets[name] += currentChip;
+  bets[name] = Number(bets[name] || 0) + Number(currentChip);
   balance -= currentChip;
   updateBalanceDisplay();
   updateBetDisplay();
+  saveBets();  // 🔥 lưu lại ngay
+  }
   });
 });
 
@@ -1545,8 +1550,43 @@ function saveHistory() {
   localStorage.setItem("lastSpinDate", getToday());
 }
 
+// --- Lưu cược vào localStorage ---
+  function saveBets() {
+  localStorage.setItem("currentBets", JSON.stringify(bets));
+  localStorage.setItem("totalBet", document.getElementById("totalBetDisplay").textContent);
+}
+
+// --- Khôi phục cược khi load lại ---
+  function restoreBets() {
+  const savedBets = JSON.parse(localStorage.getItem("currentBets")) || {};
+  bets = savedBets;
+  Object.keys(bets).forEach(name => {
+  bets[name] = Number(bets[name]); // ép về số
+  const bet = document.querySelector(`.bet-box[data-name="${name}"] .bet-amount`);
+  if (bet) bet.textContent = bets[name];
+  });
+
+  // Tổng cược
+  const savedTotal = localStorage.getItem("totalBet");
+  if (savedTotal) {
+  document.getElementById("totalBetDisplay").textContent = savedTotal;
+  }
+}
+
+// --- Reset cược sau khi quay ---
+  function clearBets() {
+  bets = {};
+  document.querySelectorAll(".bet-amount").forEach(el => el.textContent = "0");
+  document.getElementById("totalBetDisplay").textContent = "Tổng cược: 0";
+  localStorage.removeItem("currentBets");
+  localStorage.removeItem("totalBet");
+}
+
+// Gọi restore khi trang vừa load
+  window.addEventListener("load", restoreBets);
   
-  
+
+
 
 </script>
 <div id="jackpotEffect"></div>
