@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -609,14 +607,14 @@ button:hover {
 
 
  <form id="betForm" class="bet-section">
-  <div class="bet-box" data-name="Chua"><span class="icon">🍅</span><span class="bet-amount"></span><br><small>Win 5 times</small></div>  
-  <div class="bet-box" data-name="Cải"><span class="icon">🥬</span><span class="bet-amount"></span><br><small>Win 5 times</small></div>  
-  <div class="bet-box" data-name="Ngô"><span class="icon">🌽</span><span class="bet-amount"></span><br><small>Win 5 times</small></div>  
-  <div class="bet-box" data-name="Rốt"><span class="icon">🥕</span><span class="bet-amount"></span><br><small>Win 5 times</small></div>  
-  <div class="bet-box" data-name="Mỳ"><span class="icon">🌭</span><span class="bet-amount"></span><br><small>Win 10 times</small></div>
-  <div class="bet-box" data-name="Xiên"><span class="icon">🍢</span><span class="bet-amount"></span><br><small>Win 15 times</small></div>
-  <div class="bet-box" data-name="Đùi"><span class="icon">🍖</span><span class="bet-amount"></span><br><small>Win 25 times</small></div>
-  <div class="bet-box" data-name="Bò"><span class="icon">🥩</span><span class="bet-amount"></span><br><small>Win 45 times</small></div>
+  <div class="bet-box" data-name="Chua"><span class="icon">🍅</span><span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
+  <div class="bet-box" data-name="Cải"><span class="icon">🥬</span><span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
+  <div class="bet-box" data-name="Ngô"><span class="icon">🌽</span><span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
+  <div class="bet-box" data-name="Rốt"><span class="icon">🥕</span><span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
+  <div class="bet-box" data-name="Mỳ"><span class="icon">🌭</span><span class="bet-amount">0</span><br><small>Win 10 times</small></div>
+  <div class="bet-box" data-name="Xiên"><span class="icon">🍢</span><span class="bet-amount">0</span><br><small>Win 15 times</small></div>
+  <div class="bet-box" data-name="Đùi"><span class="icon">🍖</span><span class="bet-amount">0</span><br><small>Win 25 times</small></div>
+  <div class="bet-box" data-name="Bò"><span class="icon">🥩</span><span class="bet-amount">0</span><br><small>Win 45 times</small></div>
 
   <div class="chip-selector">
     <div class="chip" data-value="10">10</div>
@@ -710,7 +708,7 @@ button:hover {
 
 <script>
 
-let countdownDuration = 40; // số giây mỗi phiên
+let countdownDuration = 35; // số giây mỗi phiên
 let lastSpinTime = parseInt(localStorage.getItem("lastSpinTime")) || Date.now();
 let pauseAfterSpin = false;
 let pauseTimer = 0;
@@ -815,11 +813,6 @@ if (!lastSpinTime) {
   localStorage.setItem("lastSpinTime", lastSpinTime);
 }
 
-
-
- 
-
-
 // Tính thời gian còn lại khi load lại trang
   function getRemainingTime() {
   const now = Date.now();
@@ -877,7 +870,6 @@ let countdownValue = getRemainingTime();
   pauseAfterSpin = true;
   pauseTimer = 4;
   countdownEl.classList.remove("blink"); // tắt đỏ nhấp nháy
-  
   
   lastSpinTime = Date.now();
   localStorage.setItem("lastSpinTime", lastSpinTime);
@@ -1147,13 +1139,11 @@ startCountdown();
   renderHistory();
 }
 
-
 // Lưu lịch sử vào localStorage
 function saveHistory() {
   const data = historyEl.innerHTML.replace('🧾 <b>Lịch sử kết quả:</b><br>', '');
   localStorage.setItem("historyData", data);
 }
-
 
 // Khôi phục lịch sử khi F5
   function loadHistory() {
@@ -1170,12 +1160,6 @@ function saveHistory() {
   saveHistory();
   }
 
-
-// --- Load lịch sử khi vào trang ---
-  let playHistory = JSON.parse(localStorage.getItem("playHistory")) || [];
-
-
-
 // Hàm hiển thị lịch sử ra giao diện
   function renderHistory() {
   const historyEl = document.getElementById("history");
@@ -1187,8 +1171,8 @@ function saveHistory() {
   span.textContent = icon + " ";
   historyEl.appendChild(span);
   });
+ 
 }
-
 
 
 
@@ -1275,11 +1259,13 @@ function saveHistory() {
   resultEl.textContent = `${selected.icon} - ${outcome}`;
  // ✅ Lưu icon kết quả vào localStorage
   localStorage.setItem("lastResultIcon", result.icon);
+  localStorage.setItem("lastResult", JSON.stringify(selected));
   } 
   else {
   resultEl.textContent = `${selected.icon}`;
  // ✅ Lưu icon kết quả vào localStorage
   localStorage.setItem("lastResultIcon", result.icon);
+  localStorage.setItem("lastResult", JSON.stringify(selected));
   }
   addHistory(result.icon);
  
@@ -1318,6 +1304,7 @@ function saveHistory() {
   }
   betLog += `→ Kết quả: ${selected.name} ${selected.icon} - ${outcome}`;
   betHistoryEl.innerHTML += `🧾 ${betLog}<br>`;
+  
   }
   }
   }, 1000);
@@ -1327,6 +1314,9 @@ function saveHistory() {
   function updateSpinCounter() {
   const spinNumber = getCurrentSpinNumber();
   spinCounterEl.textContent = `🎯 Phiên quay: ${spinNumber}`;
+  /*document.getElementById("spinCounter").textContent = `🎯 Phiên quay: ${spinCount}`;
+  localStorage.setItem("spinCount", spinCount);
+  localStorage.setItem("lastSpinDate", getToday());*/
 }
 
 // Khi load trang thì hiển thị số phiên đã lưu
@@ -1595,10 +1585,14 @@ function saveHistory() {
 // Gọi restore khi trang vừa load
   window.addEventListener("load", restoreBets);
   
-
-
-
-
+  window.addEventListener("load", () => {
+  let savedResult = localStorage.getItem("lastResult");
+  if (savedResult) {
+  let selected = JSON.parse(savedResult);
+  document.getElementById("result").innerHTML = 
+  `${selected.icon}`;
+  }
+});
 
 
 </script>
