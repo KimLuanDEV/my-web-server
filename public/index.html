@@ -1256,7 +1256,7 @@ function saveHistory() {
   showJackpotEffect();  // Hiển thị hiệu ứng pháo hoa + coin bay
   }
   if (totalBet > 0) {
-  resultEl.textContent = `${selected.icon} - ${outcome}`;
+  resultEl.textContent = `${selected.icon}`;
  // ✅ Lưu icon kết quả vào localStorage
   localStorage.setItem("lastResultIcon", result.icon);
   localStorage.setItem("lastResult", JSON.stringify(selected));
@@ -1302,7 +1302,7 @@ function saveHistory() {
   const val = parseFloat(bets[key]) || 0;
   if (val > 0) betLog += `${key}: ${val} xu, `;
   }
-  betLog += `→ Kết quả: ${selected.name} ${selected.icon} - ${outcome}`;
+  betLog += `→ Kết quả: ${selected.icon} - ${outcome}`;
   betHistoryEl.innerHTML += `🧾 ${betLog}<br>`;
   
   }
