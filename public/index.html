@@ -708,7 +708,7 @@ button:hover {
 
 <script>
 
-let countdownDuration = 35; // số giây mỗi phiên
+let countdownDuration = 40; // số giây mỗi phiên
 let lastSpinTime = parseInt(localStorage.getItem("lastSpinTime")) || Date.now();
 let pauseAfterSpin = false;
 let pauseTimer = 0;
@@ -818,8 +818,8 @@ if (!lastSpinTime) {
   const now = Date.now();
   const elapsed = Math.floor((now - lastSpinTime) / 1000); // số giây đã trôi qua
   let remaining = countdownDuration - elapsed;
+
   if (remaining <= 0) {
-  // Nếu hết giờ thì bắt đầu phiên mới
   lastSpinTime = now;
   localStorage.setItem("lastSpinTime", lastSpinTime);
   remaining = countdownDuration;
@@ -829,6 +829,15 @@ if (!lastSpinTime) {
 
 let countdownValue = getRemainingTime();
  
+// Hàm render ra giao diện ngay lập tức
+  function renderCountdown() {
+  const countdownEl = document.getElementById("autoCountdown");
+  countdownEl.innerHTML = `⏳ Quay thưởng sau: <span id="countdownValue">${countdownValue}</span> giây`;
+}
+
+//Hiển thị ngay khi load
+  renderCountdown();
+
 
   // Hiển thị đếm ngược
   function startCountdown() {
@@ -845,6 +854,7 @@ let countdownValue = getRemainingTime();
   countdownValue = 35; // reset về 35 giây
   pauseAfterSpin = false;
   countdownEl.classList.remove("blink-yellow");
+  renderCountdown(); // hiển thị lại
   countdownEl.innerHTML = `⏳ Quay thưởng sau: <span id="countdownValue">${countdownValue}</span> giây`;
   }
   return;
@@ -875,6 +885,7 @@ let countdownValue = getRemainingTime();
   localStorage.setItem("lastSpinTime", lastSpinTime);
   countdownValue = countdownDuration;
   }
+  renderCountdown(); // cập nhật mỗi giây
   countdownEl.innerHTML = `⏳ Quay thưởng sau: <span id="countdownValue">${countdownValue}</span> giây`;
   }, 1000);
 }
@@ -1050,7 +1061,6 @@ startCountdown();
   function confirmDeposit() {
   const amount = parseInt(document.getElementById("amount").value) || 0;
   if (amount > 0 && confirm(`Xác nhận nạp ${amount} xu?`)) {
-  /*deposit(amount);*/
   showBankInfo();
   
 // Hiện thông tin ngân hàng
@@ -1296,6 +1306,8 @@ function saveHistory() {
   setTimeout(() => {
   resultEl.classList.remove("big-win-effect", "small-win-effect");
   }, 2000);
+
+//Hiện thị lịch sử cược.
   if (totalBet > 0) {
   let betLog = `${new Date().toLocaleTimeString()} - Cược: `;
   for (let key in bets) {
