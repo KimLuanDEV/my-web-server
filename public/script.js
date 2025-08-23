@@ -122,7 +122,7 @@ let countdownValue = getRemainingTime();
 // Hàm render ra giao diện ngay lập tức
 function renderCountdown() {
     const countdownEl = document.getElementById("autoCountdown");
-    countdownEl.innerHTML = `⏳ Quay thưởng sau: <span id="countdownValue">${countdownValue}</span> giây`;
+    countdownEl.innerHTML = `<span id="countdownValue">${countdownValue}</span>`;
 }
 
 //Hiển thị ngay khi load
@@ -136,7 +136,7 @@ function startCountdown() {
         // Nếu đang trong thời gian chờ sau khi quay
         if (pauseAfterSpin) {
             if (pauseTimer > 0) {
-                countdownEl.innerHTML = `⏳ Đang chờ kết quả... <span>${pauseTimer}</span> giây`;
+                countdownEl.innerHTML = `<span>${pauseTimer}</span>`;
                 countdownEl.classList.add("blink-yellow"); // vàng nhấp nháy
                 pauseTimer--;
             }
@@ -145,12 +145,12 @@ function startCountdown() {
                 pauseAfterSpin = false;
                 countdownEl.classList.remove("blink-yellow");
                 renderCountdown(); // hiển thị lại
-                countdownEl.innerHTML = `⏳ Quay thưởng sau: <span id="countdownValue">${countdownValue}</span> giây`;
+                countdownEl.innerHTML = `<span id="countdownValue">${countdownValue}</span>`;
             }
             return;
         }
         countdownValue--;
-        countdownEl.textContent = `⏳ Quay thưởng sau: ${countdownValue} giây`;
+        countdownEl.textContent = `${countdownValue}`;
         if (countdownValue === 20) {
             suggestResult();
         }
@@ -160,7 +160,7 @@ function startCountdown() {
         else {
             countdownEl.classList.remove("blink");
         }
-        countdownEl.innerHTML = `⏳ Quay thưởng sau: <span id="countdownValue">${countdownValue}</span> giây`;
+        countdownEl.innerHTML = `<span id="countdownValue">${countdownValue}</span>`;
 
         if (countdownValue <= 0) {
             if (!isSpinning) {
@@ -176,7 +176,7 @@ function startCountdown() {
             countdownValue = countdownDuration;
         }
         renderCountdown(); // cập nhật mỗi giây
-        countdownEl.innerHTML = `⏳ Quay thưởng sau: <span id="countdownValue">${countdownValue}</span> giây`;
+        countdownEl.innerHTML = `<span id="countdownValue">${countdownValue}</span>`;
     }, 1000);
 }
 startCountdown();

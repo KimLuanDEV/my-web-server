@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -346,6 +347,7 @@ button:hover {
 
 
 #wheel-container {
+  display: none;
   position: relative;
   width: 300px;
   height: 300px;
@@ -353,6 +355,7 @@ button:hover {
 }
 
 #wheel {
+  display: none;
   width: 100%;
   height: 100%;
   border-radius: 50%;
@@ -574,6 +577,146 @@ button:hover {
   justify-content: center;
 }
 
+/*Trục 8 cửa*/
+.stage {
+ position: relative;
+ width: 450px;
+ height: 450px;
+ }
+
+.hub {
+  position: absolute;
+  left: 51%;
+  top: 50%;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 22px;
+  color: #333;
+  z-index: 3;
+
+  /* nền kim loại sáng */
+  background: radial-gradient(circle at 30% 30%, #ffffff, #d1d5db);
+
+  /* viền vàng + ánh sáng */
+  border: 6px solid transparent;
+  background-clip: padding-box;
+  box-shadow:
+    0 0 15px rgba(255, 215, 0, 0.7),
+    inset 0 2px 6px rgba(0,0,0,0.25);
+}
+
+/* vòng ngoài vàng */
+.hub::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #fbbf24, #f59e0b, #fbbf24);
+  z-index: -1;
+  box-shadow: 0 0 15px rgba(251,191,36,0.8);
+}
+
+/* chữ nổi 3D */
+.hub span {
+  color: #333;
+  text-shadow:
+    1px 1px 2px rgba(0,0,0,0.3),   /* bóng nhẹ */
+    -1px -1px 2px rgba(255,255,255,0.8); /* viền sáng */
+}
+
+.doors, .spokes {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 100%; height: 100%;
+  transform: translate(-50%, -50%);
+}
+ 
+.door {
+  position: absolute;
+  left: 40%;
+  top: 39%;
+  width: 100px;
+  height: 100px;
+  background: #fff;
+  border: 3px solid #2563eb;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  text-align: center;
+  transform-origin: center center;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  z-index: 2;
+}
+
+.door::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 70%;
+  padding: 4px;
+  background: linear-gradient(135deg, #fcd34d, #f59e0b, #fcd34d);
+  -webkit-mask: 
+  linear-gradient(#fff 0 0) content-box, 
+  linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.door img {
+  width: 45px;
+  height: 45px;
+  margin-bottom: 3px;
+}
+
+.door span {
+  font-size: 10px;
+  border-radius: 10px;
+  padding: 2px 5px;
+}
+
+//hiệu ứng hover 
+.door:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.35), inset 0 3px 6px rgba(255,255,255,0.5);
+}
+
+
+/* Nan đôi phát sáng */
+.spoke {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;    
+  height: 120px; 
+  background: repeating-linear-gradient(
+    to right,
+    #3b82f6, #3b82f6 2px,
+    transparent 2px, transparent 6px
+  );
+  transform-origin: center top;
+  z-index: 1;
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.8); /* glow xanh */
+}
+
+.door:nth-child(1) { background: radial-gradient(circle, #fde68a, #d97706); }
+.door:nth-child(2) { background: radial-gradient(circle, #fde68a, #d97706); }
+.door:nth-child(3) { background: radial-gradient(circle, #fde68a, #d97706); }
+.door:nth-child(4) { background: radial-gradient(circle, #fde68a, #d97706); }
+.door:nth-child(5) { background: radial-gradient(circle, #fde68a, #d97706); }
+.door:nth-child(6) { background: radial-gradient(circle, #fde68a, #d97706); }
+.door:nth-child(7) { background: radial-gradient(circle, #fde68a, #d97706); }
+.door:nth-child(8) { background: radial-gradient(circle, #fde68a, #d97706); }
+
 
   </style>
 </head>
@@ -590,10 +733,54 @@ button:hover {
 </div>
 </div>
 
+<div class="stage">
+    <!-- Nan -->
+    <div class="spokes">
+      <div class="spoke" style="transform: rotate(0deg);"></div>
+      <div class="spoke" style="transform: rotate(45deg);"></div>
+      <div class="spoke" style="transform: rotate(90deg);"></div>
+      <div class="spoke" style="transform: rotate(135deg);"></div>
+      <div class="spoke" style="transform: rotate(180deg);"></div>
+      <div class="spoke" style="transform: rotate(225deg);"></div>
+      <div class="spoke" style="transform: rotate(270deg);"></div>
+      <div class="spoke" style="transform: rotate(315deg);"></div>
+    </div>
 
-<div id="autoCountdown" style="margin-top:10px; font-weight:bold; color:#00ff95;">
-  ⏳ Quay thưởng sau: <span id="countdownValue"></span> giây
-</div>
+
+    <!-- Trục giữa -->
+    <div class="hub">
+    <div id="autoCountdown" style="margin-top:10px; font-weight:bold; color:#00ff95;"><span id="countdownValue"></span></div>
+    </div>
+
+   <!-- 8 cửa xung quanh -->
+    <div class="doors">
+      <div class="door" style="transform: rotate(0deg) translate(0, -150px)  rotate(0deg);">
+        <img src="https://img.icons8.com/?size=100&id=j1YyF5JJM5rE&format=png&color=000000">     
+      </div>
+      <div class="door" style="transform: rotate(45deg) translate(0, -150px)  rotate(-45deg);">
+        <img src="https://img.icons8.com/?size=100&id=80905&format=png&color=000000">      
+      </div>
+      <div class="door" style="transform: rotate(90deg) translate(0, -150px)  rotate(-90deg);">
+        <img src="https://img.icons8.com/?size=100&id=oKobmYkIk0qz&format=png&color=000000">     
+      </div>
+      <div class="door" style="transform: rotate(135deg) translate(0, -150px)  rotate(-135deg);">
+        <img src="https://img.icons8.com/?size=100&id=hwB2vUsbIvJ2&format=png&color=000000">      
+      </div>
+      <div class="door" style="transform: rotate(180deg) translate(0, -150px)  rotate(-180deg);">
+        <img src="https://img.icons8.com/?size=100&id=6f2WYNoYqbXP&format=png&color=000000">     
+      </div>
+      <div class="door" style="transform: rotate(225deg) translate(0, -150px)  rotate(-225deg);">
+        <img src="https://img.icons8.com/?size=100&id=8Sli9YJl0SaW&format=png&color=000000">      
+      </div>
+      <div class="door" style="transform: rotate(270deg) translate(0, -150px)  rotate(-270deg);">
+        <img src="https://img.icons8.com/emoji/48/leafy-green.png">      
+      </div>
+      <div class="door" style="transform: rotate(315deg) translate(0, -150px)  rotate(-315deg);">
+        <img src="https://img.icons8.com/?size=100&id=lPmL0NaypRwo&format=png&color=000000">      
+      </div>
+    </div>
+  </div>
+
 <div class="result" id="result">Kết quả trả thưởng...</div>
 <div class="history" id="history">🧾 <b>Lịch sử kết quả:</b><br></div>
 
@@ -832,7 +1019,7 @@ let countdownValue = getRemainingTime();
 // Hàm render ra giao diện ngay lập tức
   function renderCountdown() {
   const countdownEl = document.getElementById("autoCountdown");
-  countdownEl.innerHTML = `⏳ Quay thưởng sau: <span id="countdownValue">${countdownValue}</span> giây`;
+  countdownEl.innerHTML = `<span id="countdownValue">${countdownValue}</span>`;
 }
 
 //Hiển thị ngay khi load
@@ -846,7 +1033,7 @@ let countdownValue = getRemainingTime();
 // Nếu đang trong thời gian chờ sau khi quay
   if (pauseAfterSpin) {
   if (pauseTimer > 0) {
-  countdownEl.innerHTML = `⏳ Đang chờ kết quả... <span>${pauseTimer}</span> giây`;
+  countdownEl.innerHTML = `<span>${pauseTimer}</span>`;
   countdownEl.classList.add("blink-yellow"); // vàng nhấp nháy
   pauseTimer--;
   } 
@@ -855,12 +1042,12 @@ let countdownValue = getRemainingTime();
   pauseAfterSpin = false;
   countdownEl.classList.remove("blink-yellow");
   renderCountdown(); // hiển thị lại
-  countdownEl.innerHTML = `⏳ Quay thưởng sau: <span id="countdownValue">${countdownValue}</span> giây`;
+  countdownEl.innerHTML = `<span id="countdownValue">${countdownValue}</span>`;
   }
   return;
   }
   countdownValue--;
-  countdownEl.textContent = `⏳ Quay thưởng sau: ${countdownValue} giây`;
+  countdownEl.textContent = `${countdownValue}`;
   if (countdownValue === 20) {
     suggestResult();
   }
@@ -870,7 +1057,7 @@ let countdownValue = getRemainingTime();
   else {
   countdownEl.classList.remove("blink");
   }
-  countdownEl.innerHTML = `⏳ Quay thưởng sau: <span id="countdownValue">${countdownValue}</span> giây`;
+  countdownEl.innerHTML = `<span id="countdownValue">${countdownValue}</span>`;
 
   if (countdownValue <= 0) {
   if (!isSpinning) {
@@ -886,7 +1073,7 @@ let countdownValue = getRemainingTime();
   countdownValue = countdownDuration;
   }
   renderCountdown(); // cập nhật mỗi giây
-  countdownEl.innerHTML = `⏳ Quay thưởng sau: <span id="countdownValue">${countdownValue}</span> giây`;
+  countdownEl.innerHTML = `<span id="countdownValue">${countdownValue}</span>`;
   }, 1000);
 }
 startCountdown();
