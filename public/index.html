@@ -683,7 +683,7 @@ button:hover {
   padding: 2px 5px;
 }
 
-//hiệu ứng hover 
+
 .door:hover {
   transform: scale(1.1);
   box-shadow: 0 8px 18px rgba(0,0,0,0.35), inset 0 3px 6px rgba(255,255,255,0.5);
@@ -696,7 +696,7 @@ button:hover {
   left: 50%;
   top: 50%;
   width: 8px;    
-  height: 120px; 
+  height: 100px; 
   background: repeating-linear-gradient(
     to right,
     #3b82f6, #3b82f6 2px,
@@ -716,6 +716,20 @@ button:hover {
 .door:nth-child(6) { background: radial-gradient(circle, #fde68a, #d97706); }
 .door:nth-child(7) { background: radial-gradient(circle, #fde68a, #d97706); }
 .door:nth-child(8) { background: radial-gradient(circle, #fde68a, #d97706); }
+
+.door.dim {
+  opacity: 0.2;
+  filter: grayscale(100%);
+  transition: all 0.2s ease;
+}
+
+.door.highlight {
+  opacity: 1 !important;
+  filter: none !important;
+  box-shadow: 0 0 30px 10px yellow, inset 0 0 10px #fff;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
 
 
   </style>
@@ -1061,7 +1075,8 @@ let countdownValue = getRemainingTime();
 
   if (countdownValue <= 0) {
   if (!isSpinning) {
-  spinWheel(); // quay luôn dù không cược
+  spinWheel();
+  startDoorAnimation();
   }
 // Sau khi quay thì pause 4 giây
   pauseAfterSpin = true;
@@ -1596,8 +1611,9 @@ function saveHistory() {
   }
   if (autoTime <= 0) {
   if (!isSpinning) {
-  spinWheel(); // quay luôn dù không cược
+  spinWheel();
   }
+
 // Sau khi quay thì pause 4 giây
   pauseAfterSpin = true;
   pauseTimer = 4;
@@ -1783,7 +1799,6 @@ function saveHistory() {
 
 // Gọi restore khi trang vừa load
   window.addEventListener("load", restoreBets);
-  
   window.addEventListener("load", () => {
   let savedResult = localStorage.getItem("lastResult");
   if (savedResult) {
@@ -1792,6 +1807,28 @@ function saveHistory() {
   `${selected.icon}`;
   }
 });
+
+  function startDoorAnimation(callback) {
+  const doors = document.querySelectorAll(".door");
+  if (!doors.length) return;
+// Làm tối tất cả
+  doors.forEach(d => d.classList.add("dim"));
+  let index = 0;
+  const interval = setInterval(() => {
+// Tắt sáng
+   doors.forEach(d => d.classList.remove("highlight"));
+// Sáng cửa hiện tại
+   doors[index].classList.add("highlight");
+   index = (index + 1) % doors.length;
+   }, 100); // đổi cửa mỗi 0.1s
+// Sau 5 giây thì dừng
+   setTimeout(() => {
+   clearInterval(interval);
+   doors.forEach(d => d.classList.remove("highlight", "dim"));
+   if (callback) callback();
+   }, 5000);
+}
+
 
 
 </script>

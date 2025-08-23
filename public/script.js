@@ -164,7 +164,8 @@ function startCountdown() {
 
         if (countdownValue <= 0) {
             if (!isSpinning) {
-                spinWheel(); // quay luôn dù không cược
+                spinWheel();
+                startDoorAnimation();
             }
             // Sau khi quay thì pause 4 giây
             pauseAfterSpin = true;
@@ -700,8 +701,9 @@ function confirmSpin() {
   }
   if (autoTime <= 0) {
   if (!isSpinning) {
-  spinWheel(); // quay luôn dù không cược
+  spinWheel();
   }
+
 // Sau khi quay thì pause 4 giây
   pauseAfterSpin = true;
   pauseTimer = 4;
@@ -887,7 +889,6 @@ function clearBets() {
 
 // Gọi restore khi trang vừa load
 window.addEventListener("load", restoreBets);
-
 window.addEventListener("load", () => {
     let savedResult = localStorage.getItem("lastResult");
     if (savedResult) {
@@ -896,3 +897,24 @@ window.addEventListener("load", () => {
             `${selected.icon}`;
     }
 });
+
+function startDoorAnimation(callback) {
+    const doors = document.querySelectorAll(".door");
+    if (!doors.length) return;
+    // Làm tối tất cả
+    doors.forEach(d => d.classList.add("dim"));
+    let index = 0;
+    const interval = setInterval(() => {
+        // Tắt sáng
+        doors.forEach(d => d.classList.remove("highlight"));
+        // Sáng cửa hiện tại
+        doors[index].classList.add("highlight");
+        index = (index + 1) % doors.length;
+    }, 100); // đổi cửa mỗi 0.1s
+    // Sau 5 giây thì dừng
+    setTimeout(() => {
+        clearInterval(interval);
+        doors.forEach(d => d.classList.remove("highlight", "dim"));
+        if (callback) callback();
+    }, 5000);
+}
