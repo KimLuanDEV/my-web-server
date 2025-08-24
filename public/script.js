@@ -186,13 +186,47 @@ function suggestResult() {
     const totalWeight = options.reduce((sum, opt) => sum + opt.weight, 0);
     let rand = Math.random() * totalWeight;
     let cumWeight = 0;
+    let chosen = null;
+
     for (let opt of options) {
         cumWeight += opt.weight;
         if (rand <= cumWeight) {
-            const hotText = `🔥 Hot: ${opt.name} ${opt.icon}`;
-            document.getElementById("suggestion").textContent = hotText;
-            localStorage.setItem("lastHot", hotText); // 🔥 Lưu vào localStorage
-            return;
+            chosen = opt;
+            break;
+        }
+    }
+    if (chosen) {
+        const hotText = `🔥 Hot: ${chosen.name} ${chosen.icon}`;
+
+        //  1) Hiển thị ở khu vực suggestion
+        document.getElementById("suggestion").textContent = hotText;
+
+        //  2) Lưu lại vào localStorage
+        localStorage.setItem("lastHot", hotText);
+        localStorage.setItem("lastHotName", chosen.name);
+
+        // 3) Xóa nhãn cũ trong bet-box & cửa
+        document.querySelectorAll(".bet-box .hot-label").forEach(el => el.remove());
+        document.querySelectorAll(".door .hot-label").forEach(el => el.remove());
+
+
+        //Hiển thị ở bet-box
+        const box = document.querySelector(`.bet-box[data-name="${chosen.name}"]`);
+        if (box) {
+            const label = document.createElement("div");
+            label.className = "hot-label";
+            label.textContent = `🔥 Hot`;
+            box.prepend(label);
+        }
+
+
+        //Hiển thị trên ô quay thưởng
+        const door = document.querySelector(`.door[data-name="${chosen.name}"]`);
+        if (door) {
+            const label = document.createElement("div");
+            label.className = "hot-label";
+            label.textContent = "🔥 Hot";
+            door.appendChild(label);
         }
     }
 }
@@ -201,6 +235,29 @@ function suggestResult() {
 const savedHot = localStorage.getItem("lastHot");
 if (savedHot) {
     document.getElementById("suggestion").textContent = savedHot;
+}
+
+const savedHotName = localStorage.getItem("lastHotName");
+if (savedHotName) {
+    // Xóa Hot cũ
+    document.querySelectorAll(".bet-box .hot-label").forEach(el => el.remove());
+    document.querySelectorAll(".door .hot-label").forEach(el => el.remove());
+    // Hiển thị lại ở bet-box
+    const betBox = document.querySelector(`.bet-box[data-name="${savedHotName}"]`);
+    if (betBox) {
+        const label = document.createElement("div");
+        label.className = "hot-label";
+        label.textContent = "🔥 Hot";
+        betBox.prepend(label);
+    }
+    // Hiển thị lại ở cửa quay thưởng
+    const door = document.querySelector(`.door[data-name="${savedHotName}"]`);
+    if (door) {
+        const label = document.createElement("div");
+        label.className = "hot-label";
+        label.textContent = "🔥 Hot";
+        door.appendChild(label);
+    }
 }
 
 function updateBalance() {

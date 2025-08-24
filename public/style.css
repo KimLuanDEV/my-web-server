@@ -106,6 +106,38 @@ button:hover {
   color: #000; /* để chữ và input rõ hơn trên nền vàng */
 }
 
+.bet-box, .door {
+  position: relative;
+}
+
+
+/* Nhãn HOT chung */
+.bet-box .hot-label,
+.door .hot-label {
+  position: absolute;
+  top: -15px;               /* dán ngay trên viền trên */
+  left: 80%;
+  transform: translateX(-50%);
+  padding: 2px 4px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+  background: red;
+  border: 2px solid gold;  /* giống khung vàng */
+  border-radius: 6px;
+  text-shadow: 0 0 5px yellow, 0 0 10px orange;
+  animation: pulseHot 1s infinite;
+  pointer-events: none;    /* tránh che thao tác */
+  z-index: 5;
+}
+
+@keyframes pulseHot {
+  0%   { transform: scale(1); opacity: 1; }
+  50%  { transform: scale(1.1); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+
 .bet-box .icon {
   font-size: 2.5rem;  /* icon to hơn */
   display: block;
@@ -644,6 +676,25 @@ button:hover {
   box-shadow: 0 3px 8px rgba(0,0,0,0.15);
   z-index: 2;
 }
+
+.door .hot-label {
+  position: absolute;
+  top: -10px;             /* đặt sát ngay trên viền */
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 4px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #fff;
+  background: red;
+  border: 1px solid gold;  /* tạo khung vàng như viền ô */
+  border-radius: 20px;
+  text-shadow: 0 0 3px yellow, 0 0 10px orange;
+  animation: pulseHot 1s infinite;
+  pointer-events: none;   /* không che click vào ô */
+  z-index: 0;             /* nổi trên viền */
+}
+
 
 .door::before {
   content: "";

@@ -118,6 +118,38 @@ button:hover {
   color: #000; /* để chữ và input rõ hơn trên nền vàng */
 }
 
+.bet-box, .door {
+  position: relative;
+}
+
+
+/* Nhãn HOT chung */
+.bet-box .hot-label,
+.door .hot-label {
+  position: absolute;
+  top: -15px;               /* dán ngay trên viền trên */
+  left: 80%;
+  transform: translateX(-50%);
+  padding: 2px 4px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+  background: red;
+  border: 2px solid gold;  /* giống khung vàng */
+  border-radius: 6px;
+  text-shadow: 0 0 5px yellow, 0 0 10px orange;
+  animation: pulseHot 1s infinite;
+  pointer-events: none;    /* tránh che thao tác */
+  z-index: 5;
+}
+
+@keyframes pulseHot {
+  0%   { transform: scale(1); opacity: 1; }
+  50%  { transform: scale(1.1); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+
 .bet-box .icon {
   font-size: 2.5rem;  /* icon to hơn */
   display: block;
@@ -657,6 +689,25 @@ button:hover {
   z-index: 2;
 }
 
+.door .hot-label {
+  position: absolute;
+  top: -10px;             /* đặt sát ngay trên viền */
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 4px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #fff;
+  background: red;
+  border: 1px solid gold;  /* tạo khung vàng như viền ô */
+  border-radius: 20px;
+  text-shadow: 0 0 3px yellow, 0 0 10px orange;
+  animation: pulseHot 1s infinite;
+  pointer-events: none;   /* không che click vào ô */
+  z-index: 0;             /* nổi trên viền */
+}
+
+
 .door::before {
   content: "";
   position: absolute;
@@ -782,28 +833,28 @@ button:hover {
 
    <!-- 8 cửa xung quanh -->
     <div class="doors">
-      <div class="door" style="transform: rotate(0deg) translate(0, -150px)  rotate(0deg);">
+      <div class="door" data-name="Mỳ" style="transform: rotate(0deg) translate(0, -150px)  rotate(0deg);">
         <img src="https://img.icons8.com/?size=100&id=j1YyF5JJM5rE&format=png&color=000000" alt="Mỳ">     
       </div>
-      <div class="door" style="transform: rotate(45deg) translate(0, -150px)  rotate(-45deg);">
+      <div class="door" data-name="Xiên" style="transform: rotate(45deg) translate(0, -150px)  rotate(-45deg);">
         <img src="https://img.icons8.com/?size=100&id=80905&format=png&color=000000" alt="Xiên">      
       </div>
-      <div class="door" style="transform: rotate(90deg) translate(0, -150px)  rotate(-90deg);">
+      <div class="door" data-name="Đùi" style="transform: rotate(90deg) translate(0, -150px)  rotate(-90deg);">
         <img src="https://img.icons8.com/?size=100&id=oKobmYkIk0qz&format=png&color=000000" alt="Đùi">     
       </div>
-      <div class="door" style="transform: rotate(135deg) translate(0, -150px)  rotate(-135deg);">
+      <div class="door" data-name="Bò" style="transform: rotate(135deg) translate(0, -150px)  rotate(-135deg);">
         <img src="https://img.icons8.com/?size=100&id=hwB2vUsbIvJ2&format=png&color=000000" alt="Bò">      
       </div>
-      <div class="door" style="transform: rotate(180deg) translate(0, -150px)  rotate(-180deg);">
+      <div class="door" data-name="Rốt" style="transform: rotate(180deg) translate(0, -150px)  rotate(-180deg);">
         <img src="https://img.icons8.com/?size=100&id=6f2WYNoYqbXP&format=png&color=000000" alt="Rốt">     
       </div>
-      <div class="door" style="transform: rotate(225deg) translate(0, -150px)  rotate(-225deg);">
+      <div class="door" data-name="Ngô" style="transform: rotate(225deg) translate(0, -150px)  rotate(-225deg);">
         <img src="https://img.icons8.com/?size=100&id=8Sli9YJl0SaW&format=png&color=000000" alt="Ngô">      
       </div>
-      <div class="door" style="transform: rotate(270deg) translate(0, -150px)  rotate(-270deg);">
+      <div class="door" data-name="Cải" style="transform: rotate(270deg) translate(0, -150px)  rotate(-270deg);">
         <img src="https://img.icons8.com/?size=100&id=Bql9wRM8Aqkv&format=png&color=000000" alt="Cải">      
       </div>
-      <div class="door" style="transform: rotate(315deg) translate(0, -150px)  rotate(-315deg);">
+      <div class="door" data-name="Chua" style="transform: rotate(315deg) translate(0, -150px)  rotate(-315deg);">
         <img src="https://img.icons8.com/?size=100&id=lPmL0NaypRwo&format=png&color=000000" alt="Chua">      
       </div>
     </div>
@@ -909,14 +960,14 @@ button:hover {
 
 <!-- Modal xác nhận rút xu -->
 <div id="withdrawConfirmModal" class="modal" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:1000;">
-  <div style="background:#222; color:#fff; padding:20px; border-radius:12px; text-align:center; width:320px;">
-    <h3>⚠️ Xác nhận rút xu</h3>
-    <p id="withdrawConfirmText">Bạn có chắc chắn muốn rút ... xu?</p>
-    <div style="margin-top:15px; display:flex; justify-content:space-around;">
-      <button id="confirmYes" style="padding:8px 16px; background:green; color:#fff; border:none; border-radius:8px;">Xác nhận</button>
-      <button id="confirmNo" style="padding:8px 16px; background:red; color:#fff; border:none; border-radius:8px;">Hủy</button>
-    </div>
-  </div>
+<div style="background:#222; color:#fff; padding:20px; border-radius:12px; text-align:center; width:320px;">
+<h3>⚠️ Xác nhận rút xu</h3>
+<p id="withdrawConfirmText">Bạn có chắc chắn muốn rút ... xu?</p>
+<div style="margin-top:15px; display:flex; justify-content:space-around;">
+<button id="confirmYes" style="padding:8px 16px; background:green; color:#fff; border:none; border-radius:8px;">Xác nhận</button>
+<button id="confirmNo" style="padding:8px 16px; background:red; color:#fff; border:none; border-radius:8px;">Hủy</button>
+</div>
+</div>
 </div>
 
 
@@ -1110,13 +1161,47 @@ startCountdown();
   const totalWeight = options.reduce((sum, opt) => sum + opt.weight, 0);
   let rand = Math.random() * totalWeight;
   let cumWeight = 0;
+  let chosen = null;
+
   for (let opt of options) {
   cumWeight += opt.weight;
   if (rand <= cumWeight) {
-  const hotText = `🔥 Hot: ${opt.name} ${opt.icon}`;
+  chosen = opt;
+  break;
+  }
+  }
+  if (chosen) {
+  const hotText = `🔥 Hot: ${chosen.name} ${chosen.icon}`;
+
+//  1) Hiển thị ở khu vực suggestion
   document.getElementById("suggestion").textContent = hotText;
-  localStorage.setItem("lastHot", hotText); // 🔥 Lưu vào localStorage
-  return;
+
+//  2) Lưu lại vào localStorage
+  localStorage.setItem("lastHot", hotText);
+  localStorage.setItem("lastHotName", chosen.name);
+
+ // 3) Xóa nhãn cũ trong bet-box & cửa
+  document.querySelectorAll(".bet-box .hot-label").forEach(el => el.remove());
+  document.querySelectorAll(".door .hot-label").forEach(el => el.remove());
+
+
+//Hiển thị ở bet-box
+  const box = document.querySelector(`.bet-box[data-name="${chosen.name}"]`);
+  if (box) {
+  const label = document.createElement("div");
+  label.className = "hot-label";
+  label.textContent = `🔥 Hot`;
+  box.prepend(label);
+  }
+
+
+//Hiển thị trên ô quay thưởng
+  const door = document.querySelector(`.door[data-name="${chosen.name}"]`);
+  if (door) {
+  const label = document.createElement("div");
+  label.className = "hot-label";
+  label.textContent = "🔥 Hot";
+  door.appendChild(label);
   }
   }
 }
@@ -1125,6 +1210,29 @@ startCountdown();
   const savedHot = localStorage.getItem("lastHot");
   if (savedHot) {
   document.getElementById("suggestion").textContent = savedHot;
+}
+
+  const savedHotName = localStorage.getItem("lastHotName");
+  if (savedHotName) {
+// Xóa Hot cũ
+  document.querySelectorAll(".bet-box .hot-label").forEach(el => el.remove());
+  document.querySelectorAll(".door .hot-label").forEach(el => el.remove());
+// Hiển thị lại ở bet-box
+  const betBox = document.querySelector(`.bet-box[data-name="${savedHotName}"]`);
+  if (betBox) {
+  const label = document.createElement("div");
+  label.className = "hot-label";
+  label.textContent = "🔥 Hot";
+  betBox.prepend(label);
+  }
+// Hiển thị lại ở cửa quay thưởng
+  const door = document.querySelector(`.door[data-name="${savedHotName}"]`);
+  if (door) {
+  const label = document.createElement("div");
+  label.className = "hot-label";
+  label.textContent = "🔥 Hot";
+  door.appendChild(label);
+  }
 }
 
   function updateBalance() {
