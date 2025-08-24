@@ -1533,7 +1533,7 @@ function saveHistory() {
   setTimeout(() => {
   resultEl.classList.remove("spin-animating");
   highlightWinner(selected.name);
-  }, 3000);
+  }, 5000);
   const spinDuration = 5; // giây
   let countdown = spinDuration;
   const selected = weightedRandom(options, bets);
@@ -1548,9 +1548,6 @@ function saveHistory() {
   const animationInterval = setInterval(() => {
   const tempIcon = options[Math.floor(Math.random() * options.length)].icon;
   resultEl.textContent = `${tempIcon}`;
-
-  highlightWinner(selected.name);
-
   }, 100);
 
   
@@ -1962,6 +1959,10 @@ function saveHistory() {
   const img = door.querySelector("img");
   if (img && img.alt === name) {   // so sánh theo alt
   door.classList.add("winner");
+// 🔥 Sau 5 giây tự tắt sáng
+  setTimeout(() => {
+  door.classList.remove("winner");
+  }, 5000);
   }
   });
 }

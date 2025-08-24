@@ -559,7 +559,7 @@ function spinWheel() {
     setTimeout(() => {
         resultEl.classList.remove("spin-animating");
         highlightWinner(selected.name);
-    }, 3000);
+    }, 5000);
     const spinDuration = 5; // giây
     let countdown = spinDuration;
     const selected = weightedRandom(options, bets);
@@ -574,9 +574,6 @@ function spinWheel() {
     const animationInterval = setInterval(() => {
         const tempIcon = options[Math.floor(Math.random() * options.length)].icon;
         resultEl.textContent = `${tempIcon}`;
-
-        highlightWinner(selected.name);
-
     }, 100);
 
 
@@ -988,6 +985,10 @@ function highlightWinner(name) {
         const img = door.querySelector("img");
         if (img && img.alt === name) {   // so sánh theo alt
             door.classList.add("winner");
+            // 🔥 Sau 5 giây tự tắt sáng
+            setTimeout(() => {
+                door.classList.remove("winner");
+            }, 5000);
         }
     });
 }
