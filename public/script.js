@@ -63,6 +63,13 @@ window.addEventListener("load", () => {
             betHistoryEl.innerHTML += `⏰ ${entry.time} - Đặt ${entry.amount} xu vào ${entry.betName}<br>`;
         });
     }
+    document.querySelectorAll('.chip, .bet-box').forEach(el => el.classList.remove('lock-bets'));
+
+    renderHistory();
+    updateBalanceDisplay();
+    updateJackpotDisplay();
+    updateStatsDisplay();
+    restoreBets();
 });
 
 function resetHistoryDaily() {
@@ -196,13 +203,13 @@ function suggestResult() {
         }
     }
     if (chosen) {
-        const hotText = `🔥 Hot: ${chosen.name} ${chosen.icon}`;
-
+        /* const hotText = `🔥 Hot: ${chosen.name} ${chosen.icon}`;*/
+        /*
         //  1) Hiển thị ở khu vực suggestion
-        document.getElementById("suggestion").textContent = hotText;
-
+          document.getElementById("suggestion").textContent = hotText;
+        */
         //  2) Lưu lại vào localStorage
-        localStorage.setItem("lastHot", hotText);
+        /* localStorage.setItem("lastHot", hotText);*/
         localStorage.setItem("lastHotName", chosen.name);
 
         // 3) Xóa nhãn cũ trong bet-box & cửa
@@ -537,8 +544,7 @@ function renderHistory() {
 
 // gọi khi tải lại trang để load lịch sử cũ
 window.onload = () => {
-    renderHistory();
-    updateBalanceDisplay(); // cũng load lại số dư đã lưu
+    // cũng load lại số dư đã lưu
 };
 
 function spinWheel() {
@@ -636,6 +642,7 @@ function spinWheel() {
                 betBox.classList.add('highlight-win');
                 setTimeout(() => {
                     betBox.classList.remove('highlight-win');
+                    unlockBets();
                     document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.remove('lock-bets'));
                     //Tăng số phiên quay.
                     spinCount++;
@@ -643,10 +650,10 @@ function spinWheel() {
                     updateSpinCounter();
                     //Reset cược.
                     resetBets();
-
                     highlightWinner(selected.name);
                     isSpinning = false;
                     clearBets(); // 🔥 sang vòng mới thì không giữ cược nữa
+                    clearHot();  // 🔥 Xóa HOT sau 5 giây khi đã trả kết quả
                 }, 5000);
             }
             if (winAmount >= 1000) {
@@ -991,4 +998,30 @@ function highlightWinner(name) {
             }, 5000);
         }
     });
+}
+
+function unlockBets() {
+    document.querySelectorAll('.chip, .bet-box').forEach(el => {
+        el.classList.remove('lock-bets');
+    });
+    isSpinning = false;
+}
+
+window.addEventListener("load", () => {
+    // Mở khóa chip + bet box khi F5
+    document.querySelectorAll('.chip, .bet-box').forEach(el => {
+        el.classList.remove('lock-bets');
+    });
+});
+
+
+function clearHot() {
+    // Xóa nhãn trong bet-box & cửa
+    document.querySelectorAll(".bet-box .hot-label").forEach(el => el.remove());
+    document.querySelectorAll(".door .hot-label").forEach(el => el.remove());
+    // Xóa text ở khu vực suggestion
+    document.getElementById("suggestion").textContent = "";
+    // Xóa trong localStorage để lần sau suggestResult() sẽ tạo mới
+    localStorage.removeItem("lastHot");
+    localStorage.removeItem("lastHotName");
 }
