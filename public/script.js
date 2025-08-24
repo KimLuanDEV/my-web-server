@@ -274,23 +274,25 @@ function updateBalance() {
 
 // Hiển thị giao diện rút xu
 document.getElementById("withdrawBtn").onclick = () => {
-    document.getElementById("withdrawPanel").style.display = "block";
+    document.getElementById("withdrawInfoModal").style.display = "flex";
+};
+
+document.getElementById("closeWithdrawModal").onclick = () => {
+    document.getElementById("withdrawInfoModal").style.display = "none";
 };
 
 
 
-
 // Xử lý rút xu
-document.getElementById("confirmWithdraw").onclick = () => {
+document.getElementById("sendWithdrawBtn").onclick = () => {
     const name = document.getElementById("userName").value;
+    const bank = document.getElementById("bankName").value;
     const account = document.getElementById("userAccount").value;
     const amount = parseInt(document.getElementById("withdrawAmount").value);
     const status = document.getElementById("withdrawStatus");
-    const modal = document.getElementById("withdrawConfirmModal");
-    const confirmText = document.getElementById("withdrawConfirmText");
 
-    if (!name || !account || !amount || amount <= 0) {
-        status.textContent = "⚠️ Vui lòng điền đầy đủ thông tin hợp lệ.";
+    if (!name || !bank || !account || !amount || amount <= 0) {
+        status.textContent = "⚠️ Vui lòng điền đầy đủ thông tin.";
         status.style.color = "red";
         return;
     }
@@ -301,50 +303,41 @@ document.getElementById("confirmWithdraw").onclick = () => {
         return;
     }
 
-    // Hiển thị modal xác nhận
-    confirmText.textContent = `Bạn có chắc chắn muốn rút ${amount} xu không?`;
-    modal.style.display = "flex";
+    // Trừ xu ngay khi gửi yêu cầu
+    balance -= amount;
+    updateBalanceDisplay();
 
-    // Nếu bấm Hủy
-    document.getElementById("confirmNo").onclick = () => {
-        modal.style.display = "none";
-        status.textContent = "❌ Yêu cầu rút đã bị hủy.";
-        status.style.color = "red";
-    };
+    // Hiện trạng thái chờ xử lý
+    status.style.color = "orange";
+    status.textContent = "⏳ Gửi yêu cầu thành công, hệ thống đang xử lý...";
 
-    // Nếu bấm Xác nhận
-    document.getElementById("confirmYes").onclick = () => {
-        modal.style.display = "none";
+    // Thời gian xử lý ngẫu nhiên từ 90s -> 120s
+    let wait = Math.floor(Math.random() * (120 - 90 + 1)) + 90; // random 90-120 giây
 
-        // Trừ xu sau khi xác nhận
-        balance -= amount;
-        updateBalance();
+    const countdown = setInterval(() => {
+        wait--;
+        status.textContent = `⏳ Hệ thống đang xử lý...`;
+        if (wait <= 0) {
+            clearInterval(countdown);
+            status.textContent = "✅ Rút xu thành công!";
+            status.style.color = "lightgreen";
+            document.getElementById("notification").textContent = `Rút xu -${amount} thành công, tiền đang được chuyển tới tài khoản.`;
 
-        // Hiện thông báo chờ xử lý
-        let timeLeft = 35;
-        status.style.color = "orange";
-        status.textContent = `⏳ Gửi yêu cầu thành công, hệ thống đang xử lý...`;
-
-        const countdown = setInterval(() => {
-            timeLeft--;
-            status.textContent = `⏳ Gửi yêu cầu thành công, hệ thống đang xử lý...`;
-            if (timeLeft <= 0) {
-                clearInterval(countdown);
+            // Tắt notification sau 10s
+            setTimeout(() => {
+                document.getElementById("notification").textContent = "";
+            }, 10000);
 
 
-
-                status.textContent = `Yêu cầu rút xu đã được phê duyệt!`;
-                status.style.color = "lightgreen";
-                document.getElementById("notification").textContent = `Rút xu thành công, tiền đang được chuyển tới tài khoản, vui lòng đợi!`;
-                // Ẩn giao diện sau 5s
-                setTimeout(() => {
-                    document.getElementById("withdrawPanel").style.display = "none";
-                    status.textContent = "";
-                }, 5000);
-            }
-        }, 1000);
-    };
+            // Ẩn modal sau 5s
+            setTimeout(() => {
+                document.getElementById("withdrawInfoModal").style.display = "none";
+                status.textContent = "";
+            }, 5000);
+        }
+    }, 1000);
 };
+
 
 function showBankInfo() {
     const amount = parseInt(document.getElementById("amount").value) || 0;
@@ -401,12 +394,16 @@ function updateBetDisplay() {
 
 
 function updateJackpotDisplay() {
-    jackpotEl.textContent = jackpot.toFixed(0);
+    const oldVal = parseInt(jackpotEl.textContent.replace(/\D/g, '')) || 0;
+    animateNumber(jackpotEl, oldVal, jackpot, 600);
+    document.getElementById("jackpotProgress").value = jackpot;
+    localStorage.setItem("jackpot", jackpot);
 }
 
 function updateBalanceDisplay() {
-    balanceEl.textContent = balance;
-    localStorage.setItem("balance", balance); // lưu vào localStorage
+    const oldVal = parseInt(balanceEl.textContent.replace(/\D/g, '')) || 0;
+    animateNumber(balanceEl, oldVal, balance, 600);
+    localStorage.setItem("balance", balance);
 }
 
 function showNotification(message) {
@@ -414,14 +411,101 @@ function showNotification(message) {
     setTimeout(() => notificationEl.textContent = "", 3000);
 }
 
+//Hàm nạp xu.
 function confirmDeposit() {
     const amount = parseInt(document.getElementById("amount").value) || 0;
-    if (amount > 0 && confirm(`Xác nhận nạp ${amount} xu?`)) {
-        showBankInfo();
-
-        // Hiện thông tin ngân hàng
-        document.getElementById("bankInfo").style.display = "block";
+    if (amount <= 0) {
+        alert("Vui lòng nhập số xu muốn nạp!");
+        return;
     }
+
+    const modal = document.getElementById("depositConfirmModal");
+    document.getElementById("depositConfirmText").textContent =
+        `Bạn có chắc muốn nạp ${amount} xu không?`;
+
+    // Hiện modal với hiệu ứng fade-in
+    modal.style.display = "flex";
+    modal.classList.remove("hide");
+    modal.classList.add("show");
+
+    // Nút Hủy
+    document.getElementById("depositNo").onclick = () => {
+        modal.classList.remove("show");
+        modal.classList.add("hide");
+        setTimeout(() => { modal.style.display = "none"; }, 300); // đợi animation xong
+    };
+
+    // Nút Xác nhận
+    document.getElementById("depositYes").onclick = () => {
+        modal.classList.remove("show");
+        modal.classList.add("hide");
+        setTimeout(() => { modal.style.display = "none"; }, 300);
+        startDepositProcess(amount);
+    };
+}
+
+// Hàm xử lý nạp xu sau khi xác nhận
+function startDepositProcess(amount) {
+    const code = "NAP" + Math.floor(100000 + Math.random() * 900000);
+    const modal = document.getElementById("depositInfoModal");
+    const status = document.getElementById("depositStatus");
+
+    // Hiện modal thông tin nạp
+    document.getElementById("depositCode").textContent = code;
+    modal.style.display = "flex";
+    status.style.color = "orange";
+    status.innerHTML = `<br><span id="codeExpiry"></span>`;
+
+    // Đếm ngược thời gian hết hạn (30 phút)
+    let expiryTime = 10 * 60; // 10 phút
+    clearInterval(window.expiryTimer); // nếu trước đó còn chạy thì hủy
+    window.expiryTimer = setInterval(() => {
+        expiryTime--;
+        if (expiryTime > 0) {
+            const minutes = Math.floor(expiryTime / 60);
+            const seconds = expiryTime % 60;
+            document.getElementById("codeExpiry").textContent =
+                `Mã hết hạn sau ${minutes}:${seconds.toString().padStart(2, "0")}`;
+        } else {
+            clearInterval(window.expiryTimer);
+            document.getElementById("codeExpiry").textContent = "❌ Mã đã hết hạn!";
+            document.getElementById("codeExpiry").style.color = "red";
+        }
+    }, 1000);
+    // Thời gian xử lý nạp (ngẫu nhiên 60–90 giây)
+    let wait = Math.floor(Math.random() * (60 - 30 + 1)) + 60;
+    clearInterval(window.processTimer); // hủy nếu có timer cũ
+    window.processTimer = setInterval(() => {
+        wait--;
+        if (wait > 0) {
+            status.innerHTML = `
+ <span id="codeExpiry">Code hết hạn sau: ${Math.floor(expiryTime / 60)}:${(expiryTime % 60).toString().padStart(2, "0")}</span>
+ `;
+        } else {
+            clearInterval(window.processTimer);
+            deposit(amount);
+            status.innerHTML = `✅ Nạp thành công ${amount} xu vào tài khoản!<br>
+ `;
+            status.style.color = "lightgreen";
+            document.getElementById("notification").textContent = `Nạp thành công +${amount} xu.`;
+            setTimeout(() => {
+                document.getElementById("notification").textContent = "";
+            }, 10000);
+            // Modal fade-out sau 5s
+            setTimeout(() => {
+                modal.classList.remove("show");
+                modal.classList.add("hide");
+                setTimeout(() => { modal.style.display = "none"; }, 300);
+            }, 5000);
+        }
+    }, 1000);
+    document.getElementById("closeDepositModal").onclick = () => {
+        modal.classList.remove("show");
+        modal.classList.add("hide");
+        setTimeout(() => { modal.style.display = "none"; }, 300);
+        clearInterval(window.expiryTimer);
+        clearInterval(window.processTimer);
+    };
 }
 
 function confirmWithdraw() {
@@ -828,8 +912,15 @@ setInterval(updateTimeDisplay, 1000);
 updateTimeDisplay(); // chạy ngay khi load
 
 function updateStatsDisplay() {
-    document.getElementById("stats").textContent =
-        `📊 Lãi: ${netProfit} xu | Lỗ: ${netLoss} xu`;
+    const profitEl = document.querySelector(".stat-value.profit");
+    const lossEl = document.querySelector(".stat-value.loss");
+
+    const oldProfit = parseInt(profitEl.textContent.replace(/\D/g, '')) || 0;
+    const oldLoss = parseInt(lossEl.textContent.replace(/\D/g, '')) || 0;
+
+    animateNumber(profitEl, oldProfit, netProfit, 600);
+    animateNumber(lossEl, oldLoss, netLoss, 600);
+
     localStorage.setItem("netProfit", netProfit);
     localStorage.setItem("netLoss", netLoss);
 }
@@ -1069,5 +1160,40 @@ function closeResultModal() {
     // Chờ animation xong mới ẩn hẳn
     setTimeout(() => {
         modal.style.display = "none";
-    }, 500);
+        modal.classList.remove("hide");
+    }, 400);
+}
+
+// ESC để đóng modal
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+        const modal = document.getElementById("resultModal");
+        if (modal && modal.style.display !== "none") {
+            closeResultModal();
+        }
+    }
+});
+
+// Click ra ngoài modal-box để đóng
+document.getElementById("resultModal").addEventListener("click", function (e) {
+    if (e.target === this) {  // chỉ khi click đúng nền đen bên ngoài
+        closeResultModal();
+    }
+});
+
+function animateNumber(element, start, end, duration = 500) {
+    let startTime = null;
+    function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        const value = Math.floor(progress * (end - start) + start);
+        element.textContent = value.toLocaleString("vi-VN") + " xu";
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        }
+    }
+    requestAnimationFrame(step);
+    // Hiệu ứng flash
+    element.classList.add("flash-update");
+    setTimeout(() => element.classList.remove("flash-update"), 600);
 }

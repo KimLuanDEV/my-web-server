@@ -911,6 +911,128 @@ button:hover {
   box-shadow: 0 0 25px #fff000;
 }
 
+.wallet-display {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.balance-box, .jackpot-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-radius: 15px;
+  border: 2px solid #fff8dc;
+  background: linear-gradient(145deg, #ffd700, #ffcc00);
+  box-shadow: 0 0 20px rgba(255,215,0,0.6), inset 0 0 10px rgba(255,255,255,0.5);
+  animation: glowBox 2s infinite alternate;
+}
+
+.balance-icon, .jackpot-icon {
+  font-size: 2rem;
+}
+
+.balance-label, .jackpot-label {
+  font-size: 0.9rem;
+  color: #222;
+}
+
+.balance-value, .jackpot-value {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #000;
+  text-shadow: 0 0 5px #fff, 0 0 10px gold;
+}
+
+.jackpot-info progress {
+  width: 100%;
+  height: 12px;
+  border-radius: 8px;
+  margin-top: 6px;
+}
+
+.jackpot-info progress::-webkit-progress-value {
+  background: linear-gradient(90deg, gold, orange);
+  border-radius: 8px;
+}
+
+@keyframes glowBox {
+  from { box-shadow: 0 0 15px gold, inset 0 0 6px #fff; }
+  to   { box-shadow: 0 0 30px orange, inset 0 0 12px #fff8dc; }
+}
+
+
+.stats-box {
+  display: flex;
+  justify-content: space-between;
+  background: linear-gradient(145deg, #111, #222);
+  padding: 12px 18px;
+  border-radius: 15px;
+  border: 2px solid gold;
+  box-shadow: 0 0 12px rgba(255,215,0,0.3), inset 0 0 8px rgba(255,255,255,0.1);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-icon {
+  font-size: 1.3rem;
+}
+
+.stat-value.profit {
+  color: #00ff95;
+  text-shadow: 0 0 5px #00ff95, 0 0 10px #0f0;
+}
+
+.stat-value.loss {
+  color: #ff4d4d;
+  text-shadow: 0 0 5px #ff4d4d, 0 0 10px #f00;
+}
+
+.flash-update {
+ animation: flashUpdate 0.6s ease-in-out;
+}
+
+@keyframes flashUpdate {
+  0%   { color: #fff; text-shadow: 0 0 10px gold, 0 0 20px orange; transform: scale(1.1); }
+  50%  { color: #ffd700; text-shadow: 0 0 20px #fff000, 0 0 30px gold; transform: scale(1.2); }
+  100% { color: inherit; text-shadow: none; transform: scale(1); }
+}
+
+
+/* Fade + zoom khi mở */
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Fade-out khi đóng */
+@keyframes modalFadeOut {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.8); }
+}
+
+.modal-box {
+  animation: modalFadeIn 0.3s ease forwards;
+}
+
+#depositConfirmModal.show .modal-box {
+  animation: modalFadeIn 0.3s ease forwards;
+}
+
+#depositConfirmModal.hide .modal-box {
+  animation: modalFadeOut 0.3s ease forwards;
+}
+
+
+
   </style>
 </head>
 <body>
@@ -974,6 +1096,40 @@ button:hover {
     </div>
   </div>
 
+<div class="stats-box" id="stats">
+<div class="stat-item">
+<span class="stat-icon">📈</span>
+<span class="stat-label">Lãi:</span>
+<span class="stat-value profit">0 xu</span>
+</div>
+<div class="stat-item">
+<span class="stat-icon">📉</span>
+<span class="stat-label">Lỗ:</span>
+<span class="stat-value loss">0 xu</span>
+</div>
+</div>
+
+
+<div class="wallet-display">
+<div class="balance-box">
+<div class="balance-icon">💰</div>
+<div class="balance-info">
+<div class="balance-label">Số dư xu</div>
+<div class="balance-value"><span id="balance">0</span></div>
+</div>
+</div>
+
+<div class="jackpot-box">
+<div class="jackpot-icon">🎰</div>
+<div class="jackpot-info">
+<div class="jackpot-label">Jackpot</div>
+<div class="jackpot-value"><span id="jackpot">0</span></div>
+<progress id="jackpotProgress" max="5000" value="0"></progress>
+</div>
+</div>
+</div>
+
+
 <div class="result" id="result">Kết quả trả thưởng...</div>
 <div class="history" id="history">🧾 <b>Lịch sử kết quả:</b><br></div>
 
@@ -983,6 +1139,14 @@ button:hover {
 
 
 
+
+
+</div>
+
+
+<div class="right-panel">
+<h1>💎Jackpot💎</h1>
+<div class="time-display"> Săn hũ trúng lớn</div>
 
  <form id="betForm" class="bet-section">
   <div class="bet-box" data-name="Chua"><span class="icon">🍅</span><span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
@@ -995,32 +1159,24 @@ button:hover {
   <div class="bet-box" data-name="Bò"><span class="icon">🥩</span><span class="bet-amount">0</span><br><small>Win 45 times</small></div>
 
   <div class="chip-selector">
-    <div class="chip" data-value="10">10</div>
-    <div class="chip" data-value="50">50</div>
-    <div class="chip" data-value="100">100</div>
-    <div class="chip" data-value="1000">1000</div>
-    <div class="chip" data-value="10000">10000</div>
+  <div class="chip" data-value="10">10</div>
+  <div class="chip" data-value="50">50</div>
+  <div class="chip" data-value="100">100</div>
+  <div class="chip" data-value="1000">1000</div>
+  <div class="chip" data-value="10000">10000</div>
   </div>
-
   <div id="totalBetDisplay" style="margin-top: 10px; font-weight: bold;">Tổng cược: 0</div>
 </form>
-</div>
 
 
-<div class="right-panel">
-<h1>💎Jackpot💎</h1>
-<div class="time-display"> Săn hũ trúng lớn</div>
 
-  <div class="wallet">
+<div class="wallet">
 <div id="stats" style="margin-top: 10px; font-weight: bold; color: #ffc107;">
-  📊 Lãi: 0 xu | Lỗ: 0 xu
-  </div>
-    <div> <h3>💰Số dư xu: <span id="balance">0</span> <h3>
-    <h3>💰 Jackpot: <span id="jackpot">0</span></h3>
-    <progress id="jackpotProgress" max="5000" value="0" style="width: 100%;"></progress>
-    </div>
-    <div>
-    <input type="number" id="amount" placeholder="Nhập số xu muốn nạp">
+</div>
+<div> 
+</div>
+<div>
+    <input type="number" id="amount" placeholder="Nhập số xu">
       <button onclick="confirmDeposit()">Nạp xu</button>
       <button id="withdrawBtn" onclick="confirmWithdraw()">Rút xu</button>
     </div> <br>
@@ -1032,71 +1188,83 @@ button:hover {
   
   <div class="history" id="betHistory">🧾 <b>Lịch sử đặt cược:</b><br></div>
 
-<div id="bankInfo" style="display:none; margin-top:15px; text-align:left;">
-  <h3>🏦 Thông tin nạp tiền</h3>
-  <p><b>Ngân hàng:</b> Techcombank</p>
-  <p><b>Số tài khoản:</b> 9436789999</p>
-  <p><b>Chủ tài khoản:</b> Phan Văn Tuấn</p>
-  <p><b>Nội dung:</b> NAP KimDogCat</p>
-  <p id="depositStatus" style="color:orange; font-weight:bold; margin-top:10px;">Bấm gửi yêu cầu nạp sau khi chuyển khoản.</p>
-  <button onclick="sendDepositRequest()">📨 Gửi yêu cầu nạp</button>
-</div>
-
-
-<div id="withdrawPanel" style="display:none; background:#222; color:white; padding:20px; border-radius:10px;">
-  <h3>Thông tin rút xu</h3>
-  <label>Tên người dùng:</label><br>
-  <input type="text" id="userName" placeholder="Nhập tên chủ tài khoản"><br><br>
-
-  <label>Tên ngân hàng:</label><br>
-  <input type="text" id="bankName" placeholder="Nhập tên ngân hàng"><br><br>
-  
-  <label>Số tài khoản:</label><br>
-  <input type="text" id="userAccount" placeholder="Nhập số tài khoản"><br><br>
-  
-  <label>Số xu muốn rút:</label><br>
-  <input type="number" id="withdrawAmount" placeholder="Nhấp số xu"><br><br>
-  
-  <button id="confirmWithdraw">Gửi yêu cầu rút xu</button>
-  <p id="withdrawStatus"></p>
-</div>
 
 
 <audio id="spinSound" src="spin.mp3"></audio>
 <audio id="winSound" src="win.mp3"></audio>
 <audio id="bigWinSound" src="bigwin.mp3"></audio>
 
-<!--
-<div id="resultModal" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%;
-background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:2000;">
-<div style="background:#222; color:#fff; padding:20px; border-radius:12px; text-align:center; width:350px; border:2px solid gold; box-shadow:0 0 20px gold;">
-<h2>🎉 Kết quả trả thưởng 🎉</h2>
-<div id="modalResult" style="font-size:2rem; margin:10px 0;"></div>
-<p><b>🎯 Phiên quay:</b> <span id="modalSpin"></span></p>
-<p><b>Kết quả vòng này:</b> <span id="modalWinner"></span></p>
-<p><b>Chiến Thắng:</b> <span id="modalWin"></span></p>
-<p><b>Số xu đã cược trong vòng này:</b> <span id="modalBet"></span></p>
-<button onclick="closeResultModal()" style="margin-top:15px; padding:10px 20px; background:gold; color:black; font-weight:bold; border-radius:8px;">Đóng</button>
+<!-- Modal thông tin nạp xu -->
+<div id="depositInfoModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:6000;">
+<div class="modal-box" style="background:#111; color:#fff; padding:20px; border-radius:15px; text-align:left; width:400px; border:2px solid gold; box-shadow:0 0 20px gold;">
+<h3>🏦 Thông tin nạp tiền</h3>
+<p><b>Ngân hàng:</b> Techcombank</p>
+<p><b>Số tài khoản:</b> 9436789999</p>
+<p><b>Chủ tài khoản:</b> Phan Văn Tuấn</p>
+<p><b>Nội dung:</b> <span id="depositCode">--</span></p>
+<p id="depositStatus" style="color:orange; font-weight:bold; margin-top:10px;">⏳ Đang xử lý...</p>
+<div style="margin-top:15px; text-align:center;">
+<button id="closeDepositModal" style="padding:8px 16px; background:red; color:#fff; border:none; border-radius:8px;">Đóng</button>
 </div>
 </div>
--->
+</div>
+
+<!-- Modal thông tin rút xu -->
+<div id="withdrawInfoModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:6000;">
+<div class="modal-box" style="background:#111; color:#fff; padding:20px; border-radius:15px; text-align:left; width:400px; border:2px solid gold; box-shadow:0 0 20px gold;">
+    <h3>🏦 Thông tin rút xu</h3>
+    
+    <label>Chủ tài khoản:</label>
+    <input type="text" id="userName" placeholder="Nhập tên "><br><br>
+
+    <label>Tên ngân hàng:</label>
+    <input type="text" id="bankName" placeholder="Nhập tên ngân hàng"><br><br>
+
+    <label>Số tài khoản:</label>
+    <input type="text" id="userAccount" placeholder="Nhập số tài khoản"><br><br>
+
+    <label>Số xu muốn rút:</label>
+    <input type="number" id="withdrawAmount" placeholder="Nhập số xu"><br><br>
+
+    <p id="withdrawStatus" style="margin:10px 0; font-weight:bold; color:orange;"></p>
+    
+<div style="margin-top:15px; text-align:center;">
+<button id="sendWithdrawBtn" style="padding:8px 16px; background:green; color:#fff; border:none; border-radius:8px;">Gửi yêu cầu</button>
+<button id="closeWithdrawModal" style="padding:8px 16px; background:red; color:#fff; border:none; border-radius:8px;">Đóng</button>
+</div>
+</div>
+</div>
 
 <!-- Modal thông báo kết quả -->
 <div id="resultModal">
-  <div class="modal-box">
-    <h2>🎉 Kết quả quay 🎉</h2>
-    <div id="modalResult"></div>
-    <p><b>🎯 Phiên quay:</b> <span id="modalSpin"></span></p>
-    <p><b>Kết quả vòng này:</b> <span id="modalWinner"></span></p>
-    <p><b>Chiến thắng:</b> <span id="modalWin"></span></p>
-    <p><b>Số xu đã cược:</b> <span id="modalBet"></span></p>   
-    <button onclick="closeResultModal()">Đóng</button>
-  </div>
+<div class="modal-box">
+<h2>🎉 Kết quả quay 🎉</h2>
+<div id="modalResult"></div>
+<p><b>🎯 Phiên quay:</b> <span id="modalSpin"></span></p>
+<p><b>Kết quả vòng này:</b> <span id="modalWinner"></span></p>
+<p><b>Chiến thắng:</b> <span id="modalWin"></span></p>
+<p><b>Số xu đã cược:</b> <span id="modalBet"></span></p>   
+</div>
+</div>
 </div>
 
 
-
+<!-- Modal xác nhận nạp xu -->
+<div id="depositConfirmModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:5000;">
+<div class="modal-box" style="background:#111; color:#fff; padding:20px; border-radius:15px; text-align:center; width:350px; border:2px solid gold; box-shadow:0 0 20px gold;">
+<h3>⚠️ Xác nhận nạp xu</h3>
+<p id="depositConfirmText">Bạn có chắc muốn nạp ... xu?</p>
+<div style="margin-top:15px; display:flex; justify-content:space-around;">
+<button id="depositYes" style="padding:10px 20px; background:green; color:#fff; border:none; border-radius:8px;">Xác nhận</button>
+<button id="depositNo" style="padding:10px 20px; background:red; color:#fff; border:none; border-radius:8px;">Hủy</button>
 </div>
+</div>
+</div>
+
+
 
 
 <!-- Modal xác nhận rút xu -->
@@ -1393,77 +1561,70 @@ startCountdown();
 
 // Hiển thị giao diện rút xu
   document.getElementById("withdrawBtn").onclick = () => {
-  document.getElementById("withdrawPanel").style.display = "block";
+  document.getElementById("withdrawInfoModal").style.display = "flex";
 };
 
+  document.getElementById("closeWithdrawModal").onclick = () => {
+  document.getElementById("withdrawInfoModal").style.display = "none";
+};
 
 
 
 // Xử lý rút xu
-  document.getElementById("confirmWithdraw").onclick = () => {
+  document.getElementById("sendWithdrawBtn").onclick = () => {
   const name = document.getElementById("userName").value;
+  const bank = document.getElementById("bankName").value;
   const account = document.getElementById("userAccount").value;
   const amount = parseInt(document.getElementById("withdrawAmount").value);
   const status = document.getElementById("withdrawStatus");
-  const modal = document.getElementById("withdrawConfirmModal");
-  const confirmText = document.getElementById("withdrawConfirmText");
 
-  if (!name || !account || !amount || amount <= 0) {
-    status.textContent = "⚠️ Vui lòng điền đầy đủ thông tin hợp lệ.";
-    status.style.color = "red";
-    return;
+  if (!name || !bank || !account || !amount || amount <= 0) {
+  status.textContent = "⚠️ Vui lòng điền đầy đủ thông tin.";
+  status.style.color = "red";
+  return;
   }
 
   if (amount > balance) {
-    status.textContent = "⚠️ Số dư không đủ để rút.";
-    status.style.color = "red";
-    return;
+  status.textContent = "⚠️ Số dư không đủ để rút.";
+  status.style.color = "red";
+  return;
   }
 
-// Hiển thị modal xác nhận
-   confirmText.textContent = `Bạn có chắc chắn muốn rút ${amount} xu không?`;
-   modal.style.display = "flex";
+// Trừ xu ngay khi gửi yêu cầu
+  balance -= amount;
+  updateBalanceDisplay();
 
-// Nếu bấm Hủy
-   document.getElementById("confirmNo").onclick = () => {
-   modal.style.display = "none";
-   status.textContent = "❌ Yêu cầu rút đã bị hủy.";
-   status.style.color = "red";
-};
+  // Hiện trạng thái chờ xử lý
+  status.style.color = "orange";
+  status.textContent = "⏳ Gửi yêu cầu thành công, hệ thống đang xử lý...";
 
-// Nếu bấm Xác nhận
-   document.getElementById("confirmYes").onclick = () => {
-   modal.style.display = "none";
+// Thời gian xử lý ngẫu nhiên từ 90s -> 120s
+  let wait = Math.floor(Math.random() * (120 - 90 + 1)) + 90; // random 90-120 giây
 
-// Trừ xu sau khi xác nhận
-   balance -= amount;
-   updateBalance();
+  const countdown = setInterval(() => {
+  wait--;
+  status.textContent = `⏳ Hệ thống đang xử lý...`;
+  if (wait <= 0) {
+  clearInterval(countdown);
+  status.textContent = "✅ Rút xu thành công!";
+  status.style.color = "lightgreen";
+  document.getElementById("notification").textContent = `Rút xu -${amount} thành công, tiền đang được chuyển tới tài khoản.`;
 
-// Hiện thông báo chờ xử lý
-   let timeLeft = 35;
-   status.style.color = "orange";
-   status.textContent = `⏳ Gửi yêu cầu thành công, hệ thống đang xử lý...`;
-
-   const countdown = setInterval(() => {
-   timeLeft--;
-   status.textContent = `⏳ Gửi yêu cầu thành công, hệ thống đang xử lý...`;
-   if (timeLeft <= 0) {
-   clearInterval(countdown);
-
-
-
-   status.textContent = `Yêu cầu rút xu đã được phê duyệt!`;
-   status.style.color = "lightgreen";
-   document.getElementById("notification").textContent = `Rút xu thành công, tiền đang được chuyển tới tài khoản, vui lòng đợi!`;
-// Ẩn giao diện sau 5s
+// Tắt notification sau 10s
    setTimeout(() => {
-   document.getElementById("withdrawPanel").style.display = "none";
+   document.getElementById("notification").textContent = "";
+   }, 10000);
+
+
+// Ẩn modal sau 5s
+   setTimeout(() => {
+   document.getElementById("withdrawInfoModal").style.display = "none";
    status.textContent = "";
    }, 5000);
-   }
-   }, 1000);
-   };
+}
+}, 1000);
 };
+
 
   function showBankInfo() {
   const amount = parseInt(document.getElementById("amount").value) || 0;
@@ -1520,12 +1681,16 @@ startCountdown();
 
 
   function updateJackpotDisplay() {
-  jackpotEl.textContent = jackpot.toFixed(0);
+  const oldVal = parseInt(jackpotEl.textContent.replace(/\D/g,'')) || 0;
+  animateNumber(jackpotEl, oldVal, jackpot, 600);
+  document.getElementById("jackpotProgress").value = jackpot;
+  localStorage.setItem("jackpot", jackpot);
 }
  
   function updateBalanceDisplay() {
-  balanceEl.textContent = balance;
-  localStorage.setItem("balance", balance); // lưu vào localStorage
+  const oldVal = parseInt(balanceEl.textContent.replace(/\D/g,'')) || 0;
+  animateNumber(balanceEl, oldVal, balance, 600);
+  localStorage.setItem("balance", balance);
 }
    
   function showNotification(message) {
@@ -1533,14 +1698,101 @@ startCountdown();
   setTimeout(() => notificationEl.textContent = "", 3000);
 }
 
-  function confirmDeposit() {
-  const amount = parseInt(document.getElementById("amount").value) || 0;
-  if (amount > 0 && confirm(`Xác nhận nạp ${amount} xu?`)) {
-  showBankInfo();
-  
-// Hiện thông tin ngân hàng
-  document.getElementById("bankInfo").style.display = "block";
-  }
+//Hàm nạp xu.
+ function confirmDeposit() {
+ const amount = parseInt(document.getElementById("amount").value) || 0;
+ if (amount <= 0) {
+ alert("Vui lòng nhập số xu muốn nạp!");
+ return;
+ }
+
+ const modal = document.getElementById("depositConfirmModal");
+ document.getElementById("depositConfirmText").textContent =
+ `Bạn có chắc muốn nạp ${amount} xu không?`;
+
+// Hiện modal với hiệu ứng fade-in
+  modal.style.display = "flex";
+  modal.classList.remove("hide");
+  modal.classList.add("show");
+
+ // Nút Hủy
+  document.getElementById("depositNo").onclick = () => {
+  modal.classList.remove("show");
+  modal.classList.add("hide");
+  setTimeout(() => { modal.style.display = "none"; }, 300); // đợi animation xong
+  };
+
+  // Nút Xác nhận
+  document.getElementById("depositYes").onclick = () => {
+  modal.classList.remove("show");
+  modal.classList.add("hide");
+  setTimeout(() => { modal.style.display = "none"; }, 300);
+  startDepositProcess(amount);
+  };
+}
+
+ // Hàm xử lý nạp xu sau khi xác nhận
+ function startDepositProcess(amount) {
+ const code = "NAP" + Math.floor(100000 + Math.random() * 900000);
+ const modal = document.getElementById("depositInfoModal");
+ const status = document.getElementById("depositStatus");
+
+// Hiện modal thông tin nạp
+ document.getElementById("depositCode").textContent = code;
+ modal.style.display = "flex";
+ status.style.color = "orange";
+ status.innerHTML = `<br><span id="codeExpiry"></span>`;
+
+// Đếm ngược thời gian hết hạn (30 phút)
+ let expiryTime = 10 * 60; // 10 phút
+ clearInterval(window.expiryTimer); // nếu trước đó còn chạy thì hủy
+ window.expiryTimer = setInterval(() => {
+ expiryTime--;
+ if (expiryTime > 0) {
+ const minutes = Math.floor(expiryTime / 60);
+ const seconds = expiryTime % 60;
+ document.getElementById("codeExpiry").textContent =
+ `Mã hết hạn sau ${minutes}:${seconds.toString().padStart(2, "0")}`;
+ } else {
+ clearInterval(window.expiryTimer);
+ document.getElementById("codeExpiry").textContent = "❌ Mã đã hết hạn!";
+ document.getElementById("codeExpiry").style.color = "red";
+    }
+    }, 1000);
+// Thời gian xử lý nạp (ngẫu nhiên 60–90 giây)
+ let wait = Math.floor(Math.random() * (60 - 30 + 1)) + 60;
+ clearInterval(window.processTimer); // hủy nếu có timer cũ
+ window.processTimer = setInterval(() => {
+ wait--;
+ if (wait > 0) {
+ status.innerHTML = `
+ <span id="codeExpiry">Code hết hạn sau: ${Math.floor(expiryTime / 60)}:${(expiryTime % 60).toString().padStart(2,"0")}</span>
+ `;
+ } else {
+ clearInterval(window.processTimer);
+ deposit(amount);
+ status.innerHTML = `✅ Nạp thành công ${amount} xu vào tài khoản!<br>
+ `;
+ status.style.color = "lightgreen";
+ document.getElementById("notification").textContent = `Nạp thành công +${amount} xu.`;
+ setTimeout(() => {
+ document.getElementById("notification").textContent = "";
+ }, 10000);
+// Modal fade-out sau 5s
+ setTimeout(() => {
+ modal.classList.remove("show");
+ modal.classList.add("hide");
+ setTimeout(() => { modal.style.display = "none"; }, 300);
+ }, 5000);
+ }
+ }, 1000);
+ document.getElementById("closeDepositModal").onclick = () => {
+ modal.classList.remove("show");
+ modal.classList.add("hide");
+ setTimeout(() => { modal.style.display = "none"; }, 300);
+ clearInterval(window.expiryTimer);
+ clearInterval(window.processTimer);
+ };
 }
 
   function confirmWithdraw() {
@@ -1946,8 +2198,15 @@ function saveHistory() {
   updateTimeDisplay(); // chạy ngay khi load
 
   function updateStatsDisplay() {
-  document.getElementById("stats").textContent =
-  `📊 Lãi: ${netProfit} xu | Lỗ: ${netLoss} xu`;
+  const profitEl = document.querySelector(".stat-value.profit");
+  const lossEl   = document.querySelector(".stat-value.loss");
+
+  const oldProfit = parseInt(profitEl.textContent.replace(/\D/g,'')) || 0;
+  const oldLoss   = parseInt(lossEl.textContent.replace(/\D/g,'')) || 0;
+
+  animateNumber(profitEl, oldProfit, netProfit, 600);
+  animateNumber(lossEl, oldLoss, netLoss, 600);
+
   localStorage.setItem("netProfit", netProfit);
   localStorage.setItem("netLoss", netLoss);
 }
@@ -2187,9 +2446,43 @@ function saveHistory() {
   // Chờ animation xong mới ẩn hẳn
   setTimeout(() => {
   modal.style.display = "none";
-  }, 500);
+  modal.classList.remove("hide");
+  }, 400);
 }
 
+// ESC để đóng modal
+  document.addEventListener("keydown", function(event) {
+  if (event.key === "Escape") {
+  const modal = document.getElementById("resultModal");
+  if (modal && modal.style.display !== "none") {
+  closeResultModal();
+  }
+  }
+});
+
+// Click ra ngoài modal-box để đóng
+  document.getElementById("resultModal").addEventListener("click", function(e) {
+  if (e.target === this) {  // chỉ khi click đúng nền đen bên ngoài
+  closeResultModal();
+  }
+});
+
+  function animateNumber(element, start, end, duration = 500) {
+  let startTime = null;
+  function step(timestamp) {
+  if (!startTime) startTime = timestamp;
+  const progress = Math.min((timestamp - startTime) / duration, 1);
+  const value = Math.floor(progress * (end - start) + start);
+  element.textContent = value.toLocaleString("vi-VN") + " xu";
+  if (progress < 1) {
+  requestAnimationFrame(step);
+  }
+  }
+  requestAnimationFrame(step);
+// Hiệu ứng flash
+  element.classList.add("flash-update");
+  setTimeout(() => element.classList.remove("flash-update"), 600);
+}
 
 
 </script>
