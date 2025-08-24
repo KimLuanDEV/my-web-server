@@ -156,6 +156,7 @@ function startCountdown() {
             }
             return;
         }
+
         countdownValue--;
         countdownEl.textContent = `${countdownValue}`;
         if (countdownValue === 20) {
@@ -621,15 +622,8 @@ function spinWheel() {
                 outcome += ` 🎉 Nổ hũ! Nhận thêm ${jackpotWin} xu từ hũ!`;
                 showJackpotEffect();  // Hiển thị hiệu ứng pháo hoa + coin bay
             }
-            if (totalBet > 0) {
+            if (totalBet >= 0) {
                 resultEl.textContent = `${selected.icon}`;
-                // ✅ Lưu icon kết quả vào localStorage
-                localStorage.setItem("lastResultIcon", result.icon);
-                localStorage.setItem("lastResult", JSON.stringify(selected));
-            }
-            else {
-                resultEl.textContent = `${selected.icon}`;
-
                 // ✅ Lưu icon kết quả vào localStorage
                 localStorage.setItem("lastResultIcon", result.icon);
                 localStorage.setItem("lastResult", JSON.stringify(selected));
@@ -641,20 +635,22 @@ function spinWheel() {
             if (betBox) {
                 betBox.classList.add('highlight-win');
                 setTimeout(() => {
-                    betBox.classList.remove('highlight-win');
-                    unlockBets();
-                    document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.remove('lock-bets'));
-                    //Tăng số phiên quay.
-                    spinCount++;
-                    document.getElementById("spinCounter").textContent = `🎯 Phiên quay: ${spinCount}`;
-                    updateSpinCounter();
-                    //Reset cược.
-                    resetBets();
+                    setTimeout(() => {
+                        betBox.classList.remove('highlight-win');
+                        unlockBets();
+                        document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.remove('lock-bets'));
+                        //Tăng số phiên quay.
+                        spinCount++;
+                        document.getElementById("spinCounter").textContent = `🎯 Phiên quay: ${spinCount}`;
+                        updateSpinCounter();
+                        //Reset cược.
+                        resetBets();
+                        isSpinning = false;
+                        clearBets(); // 🔥 sang vòng mới thì không giữ cược nữa
+                        clearHot();  // 🔥 Xóa HOT sau 5 giây khi đã trả kết quả
+                    }, 5000);
                     highlightWinner(selected.name);
-                    isSpinning = false;
-                    clearBets(); // 🔥 sang vòng mới thì không giữ cược nữa
-                    clearHot();  // 🔥 Xóa HOT sau 5 giây khi đã trả kết quả
-                }, 5000);
+                }, 0); // bất sáng ô trúng và tắt ô trượt
             }
             if (winAmount >= 1000) {
                 resultEl.classList.add("big-win-effect");
@@ -985,20 +981,33 @@ function startDoorAnimation(callback) {
     }, 5000);
 }
 
-function highlightWinner(name) {
+
+function highlightWinner(winnerName) {
     const doors = document.querySelectorAll(".door");
-    doors.forEach(d => d.classList.remove("winner")); // bỏ highlight cũ
+    doors.forEach(d => d.classList.remove("winner"));
     doors.forEach(door => {
         const img = door.querySelector("img");
-        if (img && img.alt === name) {   // so sánh theo alt
+        if (img && img.alt === winnerName) {   // so sánh theo alt
             door.classList.add("winner");
-            // 🔥 Sau 5 giây tự tắt sáng
-            setTimeout(() => {
-                door.classList.remove("winner");
-            }, 5000);
+        }
+        door.classList.add("dim"); // làm mờ tất cả
+        if (door.dataset.name === winnerName) {
+            door.classList.remove("dim"); // bỏ mờ ô trúng
+            door.classList.add("highlight"); // sáng ô trúng
+        } else {
+            door.classList.remove("highlight");
         }
     });
+    // Sau 5s reset lại bình thường
+    setTimeout(() => {
+        doors.forEach(door => {
+            door.classList.remove("dim", "highlight");
+            door.classList.remove("winner");
+        });
+    }, 5000);
 }
+
+
 
 function unlockBets() {
     document.querySelectorAll('.chip, .bet-box').forEach(el => {

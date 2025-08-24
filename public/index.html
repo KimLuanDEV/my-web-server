@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -1131,6 +1129,7 @@ let countdownValue = getRemainingTime();
   }
   return;
   }
+
   countdownValue--;
   countdownEl.textContent = `${countdownValue}`;
   if (countdownValue === 20) {
@@ -1595,25 +1594,19 @@ function saveHistory() {
   outcome += ` 🎉 Nổ hũ! Nhận thêm ${jackpotWin} xu từ hũ!`;
   showJackpotEffect();  // Hiển thị hiệu ứng pháo hoa + coin bay
   }
-  if (totalBet > 0) {
+  if (totalBet >= 0) {
   resultEl.textContent = `${selected.icon}`;
  // ✅ Lưu icon kết quả vào localStorage
   localStorage.setItem("lastResultIcon", result.icon);
   localStorage.setItem("lastResult", JSON.stringify(selected));
   } 
-  else {
-  resultEl.textContent = `${selected.icon}`;
- 
- // ✅ Lưu icon kết quả vào localStorage
-  localStorage.setItem("lastResultIcon", result.icon);
-  localStorage.setItem("lastResult", JSON.stringify(selected));
-  }
   addHistory(result.icon);
- 
+  
 // Bật sáng cả ô đặt cược trúng
   const betBox = document.querySelector(`.bet-box[data-name="${selected.name}"]`);
   if (betBox) {
   betBox.classList.add('highlight-win');
+  setTimeout(() => {
   setTimeout(() => {
   betBox.classList.remove('highlight-win');
   unlockBets();  
@@ -1624,11 +1617,12 @@ function saveHistory() {
   updateSpinCounter();
 //Reset cược.
   resetBets();
-  highlightWinner(selected.name);
   isSpinning = false;
   clearBets(); // 🔥 sang vòng mới thì không giữ cược nữa
   clearHot();  // 🔥 Xóa HOT sau 5 giây khi đã trả kết quả
-  }, 5000);
+  },5000);
+  highlightWinner(selected.name);
+  }, 0); // bất sáng ô trúng và tắt ô trượt
   }
   if (winAmount >= 1000) {
   resultEl.classList.add("big-win-effect");
@@ -1959,20 +1953,33 @@ function saveHistory() {
    }, 5000);
 }
 
-  function highlightWinner(name) {
+  
+ function highlightWinner(winnerName) {
   const doors = document.querySelectorAll(".door");
-  doors.forEach(d => d.classList.remove("winner")); // bỏ highlight cũ
+  doors.forEach(d => d.classList.remove("winner"));
   doors.forEach(door => {
   const img = door.querySelector("img");
-  if (img && img.alt === name) {   // so sánh theo alt
+  if (img && img.alt === winnerName) {   // so sánh theo alt
   door.classList.add("winner");
-// 🔥 Sau 5 giây tự tắt sáng
-  setTimeout(() => {
-  door.classList.remove("winner");
-  }, 5000);
+  }
+  door.classList.add("dim"); // làm mờ tất cả
+  if (door.dataset.name === winnerName) {
+  door.classList.remove("dim"); // bỏ mờ ô trúng
+  door.classList.add("highlight"); // sáng ô trúng
+  } else {
+  door.classList.remove("highlight");
   }
   });
+// Sau 5s reset lại bình thường
+  setTimeout(() => {
+  doors.forEach(door => {
+  door.classList.remove("dim", "highlight");
+  door.classList.remove("winner");
+  });
+  }, 5000);
 }
+
+
 
   function unlockBets() {
   document.querySelectorAll('.chip, .bet-box').forEach(el => {
