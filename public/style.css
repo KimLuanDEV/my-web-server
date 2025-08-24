@@ -1,4 +1,4 @@
-* {
+  * {
       box-sizing: border-box;
       font-family: 'Poppins', sans-serif;
     }
@@ -717,4 +717,18 @@ button:hover {
   box-shadow: 0 0 30px 10px yellow, inset 0 0 10px #fff;
   border-radius: 50%;
   transition: all 0.2s ease;
+}
+
+/* Hiệu ứng cho ảnh trúng thưởng */
+.door.winner img {
+  border: 5px solid gold;
+  border-radius: 50%;
+  box-shadow: 0 0 30px 15px lime;
+  animation: blinkWinner 0.6s infinite;
+}
+
+@keyframes blinkWinner {
+  0%   { transform: scale(1);   box-shadow: 0 0 10px 5px yellow; }
+  50%  { transform: scale(1.2); box-shadow: 0 0 30px 15px lime; }
+  100% { transform: scale(1);   box-shadow: 0 0 10px 5px yellow; }
 }

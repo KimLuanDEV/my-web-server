@@ -731,6 +731,20 @@ button:hover {
   transition: all 0.2s ease;
 }
 
+/* Hiệu ứng cho ảnh trúng thưởng */
+.door.winner img {
+  border: 5px solid gold;
+  border-radius: 50%;
+  box-shadow: 0 0 30px 15px lime;
+  animation: blinkWinner 0.6s infinite;
+}
+
+@keyframes blinkWinner {
+  0%   { transform: scale(1);   box-shadow: 0 0 10px 5px yellow; }
+  50%  { transform: scale(1.2); box-shadow: 0 0 30px 15px lime; }
+  100% { transform: scale(1);   box-shadow: 0 0 10px 5px yellow; }
+}
+
 
   </style>
 </head>
@@ -1396,6 +1410,7 @@ function saveHistory() {
 };
 
   function spinWheel() {
+  let winningIndex = Math.floor(Math.random() * 8);
   if (isSpinning) return;
   isSpinning = true;
   document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.add('lock-bets'));
@@ -1411,6 +1426,7 @@ function saveHistory() {
   resultEl.classList.add("spin-animating");
   setTimeout(() => {
   resultEl.classList.remove("spin-animating");
+  highlightWinner(winningIndex);
   }, 3000);
   const spinDuration = 5; // giây
   let countdown = spinDuration;
@@ -1426,6 +1442,9 @@ function saveHistory() {
   const animationInterval = setInterval(() => {
   const tempIcon = options[Math.floor(Math.random() * options.length)].icon;
   resultEl.textContent = `${tempIcon}`;
+
+  highlightWinner(winningIndex);
+
   }, 100);
 
   
@@ -1475,6 +1494,7 @@ function saveHistory() {
   } 
   else {
   resultEl.textContent = `${selected.icon}`;
+ 
  // ✅ Lưu icon kết quả vào localStorage
   localStorage.setItem("lastResultIcon", result.icon);
   localStorage.setItem("lastResult", JSON.stringify(selected));
@@ -1495,6 +1515,7 @@ function saveHistory() {
 //Reset cược.
   resetBets();
   
+  highlightWinner(winningIndex);
   isSpinning = false;
   clearBets(); // 🔥 sang vòng mới thì không giữ cược nữa
   }, 5000);
@@ -1518,7 +1539,6 @@ function saveHistory() {
   }
   betLog += `→ Kết quả: ${selected.icon} - ${outcome}`;
   betHistoryEl.innerHTML += `🧾 ${betLog}<br>`;
-  
   }
   }
   }, 1000);
@@ -1829,7 +1849,13 @@ function saveHistory() {
    }, 5000);
 }
 
-
+  function highlightWinner(index) {
+  const doors = document.querySelectorAll(".door");
+  doors.forEach(d => d.classList.remove("winner")); // bỏ highlight cũ
+  if (doors[index]) {
+  doors[index].classList.add("winner");
+  }
+}
 
 </script>
 <div id="jackpotEffect"></div>
