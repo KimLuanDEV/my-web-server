@@ -612,6 +612,7 @@ function spinWheel() {
             updateStatsDisplay();
             addResultToHistory(selected.icon);
             let outcome = winAmount > 0 ? `✅ Thắng ${winAmount}` : `❌ Thua`;
+            showResultModal(selected, totalBet, winAmount);
             let jackpotWin = 0;
             if (jackpot >= JACKPOT_THRESHOLD && Math.random() < JACKPOT_CHANCE) {
                 jackpotWin = Math.floor(jackpot * 0.8);
@@ -1033,4 +1034,40 @@ function clearHot() {
     // Xóa trong localStorage để lần sau suggestResult() sẽ tạo mới
     localStorage.removeItem("lastHot");
     localStorage.removeItem("lastHotName");
+}
+
+function showResultModal(selected, totalBet, winAmount) {
+    const modal = document.getElementById("resultModal");
+
+    const spinNumber = getCurrentSpinNumber();
+    document.getElementById("modalSpin").textContent = spinNumber;
+
+    document.getElementById("modalResult").textContent = selected.icon;
+    document.getElementById("modalWinner").textContent = `${selected.name}`;
+    document.getElementById("modalBet").textContent = totalBet;
+    document.getElementById("modalWin").textContent = winAmount;
+
+    modal.classList.remove("hide");
+    modal.style.display = "flex";
+
+    // dùng setTimeout để đảm bảo transition chạy
+    setTimeout(() => {
+        modal.classList.add("show");
+    }, 10);
+
+    // Tự động ẩn sau 5 giây
+    setTimeout(() => {
+        closeResultModal();
+    }, 5000);
+}
+
+function closeResultModal() {
+    const modal = document.getElementById("resultModal");
+    modal.classList.remove("show");
+    modal.classList.add("hide");
+
+    // Chờ animation xong mới ẩn hẳn
+    setTimeout(() => {
+        modal.style.display = "none";
+    }, 500);
 }

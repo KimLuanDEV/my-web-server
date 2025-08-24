@@ -796,6 +796,121 @@ button:hover {
 }
 
 
+/* Animation viền sáng */
+@keyframes glowBox {
+  0% {
+  box-shadow: 0 0 10px gold, 0 0 20px #ffcc00, 0 0 30px #ff9900;
+  }
+  100% {
+  box-shadow: 0 0 20px #fff000, 0 0 35px gold, 0 0 50px orange;
+  }
+}
+
+/* Overlay */
+#resultModal {
+  display: none;
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.7);
+  justify-content:center;
+  align-items:center;
+  z-index:3000;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+/* Khi hiển thị */
+#resultModal.show {
+  display: flex;
+  opacity: 1;
+}
+
+/* Khi ẩn */
+#resultModal.hide {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+/* Hộp thông báo sang trọng */
+#resultModal .modal-box {
+  background: linear-gradient(145deg, #111, #222);
+  color:#fff; 
+  padding:25px; 
+  border-radius:20px; 
+  text-align:center; 
+  width:380px; 
+  border:3px solid gold; 
+  box-shadow: 0 0 30px gold, inset 0 0 15px #ffecb3;
+  animation: glowBox 1.5s infinite alternate;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hiệu ứng ánh sáng di chuyển */
+#resultModal .modal-box::before {
+  content: "";
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: conic-gradient(from 180deg, gold, transparent 80%);
+  animation: rotateShine 6s linear infinite;
+  opacity: 0.3;
+}
+
+@keyframes rotateShine {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Animation viền sáng */
+@keyframes glowBox {
+  0% {
+    box-shadow: 0 0 15px gold, 0 0 30px #ffcc00, 0 0 45px #ff9900;
+  }
+  100% {
+    box-shadow: 0 0 25px #fff000, 0 0 50px gold, 0 0 70px orange;
+  }
+}
+
+/* Tiêu đề */
+#resultModal h2 {
+  font-size: 1.8rem;
+  color: gold;
+  text-shadow: 0 0 10px gold, 0 0 20px orange;
+  margin-bottom: 15px;
+}
+
+/* Icon kết quả */
+#modalResult {
+  font-size: 3rem;
+  margin: 15px 0;
+  animation: pulseIcon 1s infinite alternate;
+}
+
+@keyframes pulseIcon {
+  from { transform: scale(1); text-shadow: 0 0 10px gold; }
+  to   { transform: scale(1.2); text-shadow: 0 0 25px yellow; }
+}
+
+/* Nút đóng */
+#resultModal button {
+  margin-top:15px; 
+  padding:10px 20px; 
+  background: linear-gradient(145deg, gold, orange);
+  color:black; 
+  font-weight:bold; 
+  border-radius:12px; 
+  border:none;
+  cursor:pointer;
+  box-shadow: 0 0 15px gold;
+  transition: transform 0.2s ease;
+}
+#resultModal button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 25px #fff000;
+}
+
   </style>
 </head>
 <body>
@@ -951,6 +1066,34 @@ button:hover {
 <audio id="winSound" src="win.mp3"></audio>
 <audio id="bigWinSound" src="bigwin.mp3"></audio>
 
+<!--
+<div id="resultModal" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%;
+background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:2000;">
+<div style="background:#222; color:#fff; padding:20px; border-radius:12px; text-align:center; width:350px; border:2px solid gold; box-shadow:0 0 20px gold;">
+<h2>🎉 Kết quả trả thưởng 🎉</h2>
+<div id="modalResult" style="font-size:2rem; margin:10px 0;"></div>
+<p><b>🎯 Phiên quay:</b> <span id="modalSpin"></span></p>
+<p><b>Kết quả vòng này:</b> <span id="modalWinner"></span></p>
+<p><b>Chiến Thắng:</b> <span id="modalWin"></span></p>
+<p><b>Số xu đã cược trong vòng này:</b> <span id="modalBet"></span></p>
+<button onclick="closeResultModal()" style="margin-top:15px; padding:10px 20px; background:gold; color:black; font-weight:bold; border-radius:8px;">Đóng</button>
+</div>
+</div>
+-->
+
+<!-- Modal thông báo kết quả -->
+<div id="resultModal">
+  <div class="modal-box">
+    <h2>🎉 Kết quả quay 🎉</h2>
+    <div id="modalResult"></div>
+    <p><b>🎯 Phiên quay:</b> <span id="modalSpin"></span></p>
+    <p><b>Kết quả vòng này:</b> <span id="modalWinner"></span></p>
+    <p><b>Chiến thắng:</b> <span id="modalWin"></span></p>
+    <p><b>Số xu đã cược:</b> <span id="modalBet"></span></p>   
+    <button onclick="closeResultModal()">Đóng</button>
+  </div>
+</div>
+
 
 
 </div>
@@ -967,6 +1110,9 @@ button:hover {
 </div>
 </div>
 </div>
+
+
+
 
 
 <script>
@@ -1584,6 +1730,7 @@ function saveHistory() {
   updateStatsDisplay();
   addResultToHistory(selected.icon);
   let outcome = winAmount > 0 ? `✅ Thắng ${winAmount}` : `❌ Thua`;
+  showResultModal(selected, totalBet, winAmount);
   let jackpotWin = 0;
   if (jackpot >= JACKPOT_THRESHOLD && Math.random() < JACKPOT_CHANCE) {
   jackpotWin = Math.floor(jackpot * 0.8);
@@ -2006,6 +2153,44 @@ function saveHistory() {
   localStorage.removeItem("lastHot");
   localStorage.removeItem("lastHotName");
 }
+
+  function showResultModal(selected, totalBet, winAmount) {
+  const modal = document.getElementById("resultModal");
+
+  const spinNumber = getCurrentSpinNumber(); 
+  document.getElementById("modalSpin").textContent = spinNumber;
+
+  document.getElementById("modalResult").textContent = selected.icon;
+  document.getElementById("modalWinner").textContent = `${selected.name}`;
+  document.getElementById("modalBet").textContent = totalBet;
+  document.getElementById("modalWin").textContent = winAmount;
+
+  modal.classList.remove("hide");
+  modal.style.display = "flex";
+
+  // dùng setTimeout để đảm bảo transition chạy
+  setTimeout(() => {
+    modal.classList.add("show");
+  }, 10);
+
+  // Tự động ẩn sau 5 giây
+  setTimeout(() => {
+    closeResultModal();
+  }, 5000);
+}
+
+  function closeResultModal() {
+  const modal = document.getElementById("resultModal");
+  modal.classList.remove("show");
+  modal.classList.add("hide");
+
+  // Chờ animation xong mới ẩn hẳn
+  setTimeout(() => {
+  modal.style.display = "none";
+  }, 500);
+}
+
+
 
 </script>
 <div id="jackpotEffect"></div>

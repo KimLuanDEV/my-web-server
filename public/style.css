@@ -1,4 +1,4 @@
-* {
+  * {
       box-sizing: border-box;
       font-family: 'Poppins', sans-serif;
     }
@@ -782,4 +782,120 @@ button:hover {
   0%   { transform: scale(1);   box-shadow: 0 0 10px 5px yellow; }
   50%  { transform: scale(1.2); box-shadow: 0 0 30px 15px lime; }
   100% { transform: scale(1);   box-shadow: 0 0 10px 5px yellow; }
+}
+
+
+/* Animation viền sáng */
+@keyframes glowBox {
+  0% {
+  box-shadow: 0 0 10px gold, 0 0 20px #ffcc00, 0 0 30px #ff9900;
+  }
+  100% {
+  box-shadow: 0 0 20px #fff000, 0 0 35px gold, 0 0 50px orange;
+  }
+}
+
+/* Overlay */
+#resultModal {
+  display: none;
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.7);
+  justify-content:center;
+  align-items:center;
+  z-index:3000;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+/* Khi hiển thị */
+#resultModal.show {
+  display: flex;
+  opacity: 1;
+}
+
+/* Khi ẩn */
+#resultModal.hide {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+/* Hộp thông báo sang trọng */
+#resultModal .modal-box {
+  background: linear-gradient(145deg, #111, #222);
+  color:#fff; 
+  padding:25px; 
+  border-radius:20px; 
+  text-align:center; 
+  width:380px; 
+  border:3px solid gold; 
+  box-shadow: 0 0 30px gold, inset 0 0 15px #ffecb3;
+  animation: glowBox 1.5s infinite alternate;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hiệu ứng ánh sáng di chuyển */
+#resultModal .modal-box::before {
+  content: "";
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: conic-gradient(from 180deg, gold, transparent 80%);
+  animation: rotateShine 6s linear infinite;
+  opacity: 0.3;
+}
+
+@keyframes rotateShine {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Animation viền sáng */
+@keyframes glowBox {
+  0% {
+    box-shadow: 0 0 15px gold, 0 0 30px #ffcc00, 0 0 45px #ff9900;
+  }
+  100% {
+    box-shadow: 0 0 25px #fff000, 0 0 50px gold, 0 0 70px orange;
+  }
+}
+
+/* Tiêu đề */
+#resultModal h2 {
+  font-size: 1.8rem;
+  color: gold;
+  text-shadow: 0 0 10px gold, 0 0 20px orange;
+  margin-bottom: 15px;
+}
+
+/* Icon kết quả */
+#modalResult {
+  font-size: 3rem;
+  margin: 15px 0;
+  animation: pulseIcon 1s infinite alternate;
+}
+
+@keyframes pulseIcon {
+  from { transform: scale(1); text-shadow: 0 0 10px gold; }
+  to   { transform: scale(1.2); text-shadow: 0 0 25px yellow; }
+}
+
+/* Nút đóng */
+#resultModal button {
+  margin-top:15px; 
+  padding:10px 20px; 
+  background: linear-gradient(145deg, gold, orange);
+  color:black; 
+  font-weight:bold; 
+  border-radius:12px; 
+  border:none;
+  cursor:pointer;
+  box-shadow: 0 0 15px gold;
+  transition: transform 0.2s ease;
+}
+#resultModal button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 25px #fff000;
 }
