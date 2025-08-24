@@ -783,28 +783,28 @@ button:hover {
    <!-- 8 cửa xung quanh -->
     <div class="doors">
       <div class="door" style="transform: rotate(0deg) translate(0, -150px)  rotate(0deg);">
-        <img src="https://img.icons8.com/?size=100&id=j1YyF5JJM5rE&format=png&color=000000">     
+        <img src="https://img.icons8.com/?size=100&id=j1YyF5JJM5rE&format=png&color=000000" alt="Mỳ">     
       </div>
       <div class="door" style="transform: rotate(45deg) translate(0, -150px)  rotate(-45deg);">
-        <img src="https://img.icons8.com/?size=100&id=80905&format=png&color=000000">      
+        <img src="https://img.icons8.com/?size=100&id=80905&format=png&color=000000" alt="Xiên">      
       </div>
       <div class="door" style="transform: rotate(90deg) translate(0, -150px)  rotate(-90deg);">
-        <img src="https://img.icons8.com/?size=100&id=oKobmYkIk0qz&format=png&color=000000">     
+        <img src="https://img.icons8.com/?size=100&id=oKobmYkIk0qz&format=png&color=000000" alt="Đùi">     
       </div>
       <div class="door" style="transform: rotate(135deg) translate(0, -150px)  rotate(-135deg);">
-        <img src="https://img.icons8.com/?size=100&id=hwB2vUsbIvJ2&format=png&color=000000">      
+        <img src="https://img.icons8.com/?size=100&id=hwB2vUsbIvJ2&format=png&color=000000" alt="Bò">      
       </div>
       <div class="door" style="transform: rotate(180deg) translate(0, -150px)  rotate(-180deg);">
-        <img src="https://img.icons8.com/?size=100&id=6f2WYNoYqbXP&format=png&color=000000">     
+        <img src="https://img.icons8.com/?size=100&id=6f2WYNoYqbXP&format=png&color=000000" alt="Rốt">     
       </div>
       <div class="door" style="transform: rotate(225deg) translate(0, -150px)  rotate(-225deg);">
-        <img src="https://img.icons8.com/?size=100&id=8Sli9YJl0SaW&format=png&color=000000">      
+        <img src="https://img.icons8.com/?size=100&id=8Sli9YJl0SaW&format=png&color=000000" alt="Ngô">      
       </div>
       <div class="door" style="transform: rotate(270deg) translate(0, -150px)  rotate(-270deg);">
-        <img src="https://img.icons8.com/emoji/48/leafy-green.png">      
+        <img src="https://img.icons8.com/?size=100&id=Bql9wRM8Aqkv&format=png&color=000000" alt="Cải">      
       </div>
       <div class="door" style="transform: rotate(315deg) translate(0, -150px)  rotate(-315deg);">
-        <img src="https://img.icons8.com/?size=100&id=lPmL0NaypRwo&format=png&color=000000">      
+        <img src="https://img.icons8.com/?size=100&id=lPmL0NaypRwo&format=png&color=000000" alt="Chua">      
       </div>
     </div>
   </div>
@@ -816,7 +816,6 @@ button:hover {
  🔥 Hot: Hế thống đang phân tích...
  </div>
 </div>
-
 
 
 
@@ -1410,7 +1409,6 @@ function saveHistory() {
 };
 
   function spinWheel() {
-  let winningIndex = Math.floor(Math.random() * 8);
   if (isSpinning) return;
   isSpinning = true;
   document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.add('lock-bets'));
@@ -1426,7 +1424,7 @@ function saveHistory() {
   resultEl.classList.add("spin-animating");
   setTimeout(() => {
   resultEl.classList.remove("spin-animating");
-  highlightWinner(winningIndex);
+  highlightWinner(selected.name);
   }, 3000);
   const spinDuration = 5; // giây
   let countdown = spinDuration;
@@ -1443,7 +1441,7 @@ function saveHistory() {
   const tempIcon = options[Math.floor(Math.random() * options.length)].icon;
   resultEl.textContent = `${tempIcon}`;
 
-  highlightWinner(winningIndex);
+  highlightWinner(selected.name);
 
   }, 100);
 
@@ -1515,7 +1513,7 @@ function saveHistory() {
 //Reset cược.
   resetBets();
   
-  highlightWinner(winningIndex);
+  highlightWinner(selected.name);
   isSpinning = false;
   clearBets(); // 🔥 sang vòng mới thì không giữ cược nữa
   }, 5000);
@@ -1849,12 +1847,15 @@ function saveHistory() {
    }, 5000);
 }
 
-  function highlightWinner(index) {
+  function highlightWinner(name) {
   const doors = document.querySelectorAll(".door");
   doors.forEach(d => d.classList.remove("winner")); // bỏ highlight cũ
-  if (doors[index]) {
-  doors[index].classList.add("winner");
+  doors.forEach(door => {
+  const img = door.querySelector("img");
+  if (img && img.alt === name) {   // so sánh theo alt
+  door.classList.add("winner");
   }
+  });
 }
 
 </script>

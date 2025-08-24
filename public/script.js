@@ -485,7 +485,6 @@ window.onload = () => {
 };
 
 function spinWheel() {
-    let winningIndex = Math.floor(Math.random() * 8);
     if (isSpinning) return;
     isSpinning = true;
     document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.add('lock-bets'));
@@ -502,7 +501,7 @@ function spinWheel() {
     resultEl.classList.add("spin-animating");
     setTimeout(() => {
         resultEl.classList.remove("spin-animating");
-        highlightWinner(winningIndex);
+        highlightWinner(selected.name);
     }, 3000);
     const spinDuration = 5; // giây
     let countdown = spinDuration;
@@ -519,7 +518,7 @@ function spinWheel() {
         const tempIcon = options[Math.floor(Math.random() * options.length)].icon;
         resultEl.textContent = `${tempIcon}`;
 
-        highlightWinner(winningIndex);
+        highlightWinner(selected.name);
 
     }, 100);
 
@@ -591,7 +590,7 @@ function spinWheel() {
                     //Reset cược.
                     resetBets();
 
-                    highlightWinner(winningIndex);
+                    highlightWinner(selected.name);
                     isSpinning = false;
                     clearBets(); // 🔥 sang vòng mới thì không giữ cược nữa
                 }, 5000);
@@ -925,10 +924,13 @@ function startDoorAnimation(callback) {
     }, 5000);
 }
 
-function highlightWinner(index) {
+function highlightWinner(name) {
     const doors = document.querySelectorAll(".door");
     doors.forEach(d => d.classList.remove("winner")); // bỏ highlight cũ
-    if (doors[index]) {
-        doors[index].classList.add("winner");
-    }
+    doors.forEach(door => {
+        const img = door.querySelector("img");
+        if (img && img.alt === name) {   // so sánh theo alt
+            door.classList.add("winner");
+        }
+    });
 }
