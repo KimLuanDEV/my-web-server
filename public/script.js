@@ -171,6 +171,7 @@ function startCountdown() {
         countdownEl.innerHTML = `<span id="countdownValue">${countdownValue}</span>`;
 
         if (countdownValue <= 0) {
+            lockDoors();   // khóa đặt cược
             if (!isSpinning) {
                 spinWheel();
                 startDoorAnimation();
@@ -388,6 +389,7 @@ function updateBetDisplay() {
         const name = box.dataset.name;
         box.querySelector(".bet-amount").textContent = bets[name];
     });
+
     const total = Object.values(bets).reduce((a, b) => a + b, 0);
     document.getElementById("totalBetDisplay").textContent = `Tổng cược: ${total}`;
 }
@@ -730,6 +732,7 @@ function spinWheel() {
                         updateSpinCounter();
                         //Reset cược.
                         resetBets();
+                        unlockDoors();
                         isSpinning = false;
                         clearBets(); // 🔥 sang vòng mới thì không giữ cược nữa
                         clearHot();  // 🔥 Xóa HOT sau 5 giây khi đã trả kết quả
@@ -965,6 +968,7 @@ document.querySelectorAll(".chip").forEach(chip => {
     });
 });
 
+
 // --- đặt cược bằng click ô ---
 document.querySelectorAll(".bet-box").forEach(box => {
     box.addEventListener("click", () => {
@@ -987,8 +991,35 @@ document.querySelectorAll(".bet-box").forEach(box => {
     });
 });
 
+document.querySelectorAll(".door").forEach(door => {
+    door.addEventListener("click", () => {
+        if (!currentChip) {
+            alert("Hãy chọn mệnh giá chip trước!");
+            return;
+        }
+        if (balance < currentChip) {
+            alert("Không đủ số dư để đặt cược!");
+            return;
+        }
+        const name = door.dataset.name;
+        if (!bets[name]) bets[name] = 0;
+        bets[name] += currentChip;
+        const betDisplay = door.querySelector(".bet-display");
+        betDisplay.textContent = bets[name];
+        localStorage.setItem("currentBets", JSON.stringify(bets));
+        balance -= currentChip;
+        updateBalanceDisplay();
+    });
+});
+
+
 // --- reset cược ---
 function resetBets() {
+    bets = {}; // reset object lưu cược
+    document.querySelectorAll(".door .bet-display").forEach(el => {
+        el.textContent = "0"; // reset hiển thị về 0
+    });
+    localStorage.removeItem("currentBets"); // nếu bạn có lưu vào localStorage
     for (let k in bets) bets[k] = 0;
     updateBetDisplay();
 }
@@ -1023,6 +1054,12 @@ function restoreBets() {
         bets[name] = Number(bets[name]); // ép về số
         const bet = document.querySelector(`.bet-box[data-name="${name}"] .bet-amount`);
         if (bet) bet.textContent = bets[name];
+
+        document.querySelectorAll(".door").forEach(door => {
+            const name = door.dataset.name;
+            const betDisplay = door.querySelector(".bet-display");
+            betDisplay.textContent = bets[name] || 0;
+        });
     });
 
     // Tổng cược
@@ -1196,4 +1233,12 @@ function animateNumber(element, start, end, duration = 500) {
     // Hiệu ứng flash
     element.classList.add("flash-update");
     setTimeout(() => element.classList.remove("flash-update"), 600);
+}
+
+function lockDoors() {
+    document.querySelectorAll(".door").forEach(door => door.classList.add("locked"));
+}
+
+function unlockDoors() {
+    document.querySelectorAll(".door").forEach(door => door.classList.remove("locked"));
 }

@@ -1019,3 +1019,22 @@ button:hover {
 #depositConfirmModal.hide .modal-box {
   animation: modalFadeOut 0.3s ease forwards;
 }
+
+.door .bet-display {
+  position: absolute;
+  bottom: -5px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+  background: rgba(0,0,0,0.6);
+  padding: 2px 6px;
+  border-radius: 8px;
+  border: 1px solid gold;
+  text-shadow: 0 0 5px gold;
+}
+
+.door.locked {
+  pointer-events: none;
+  opacity: 0.5;
+  filter: grayscale(100%);
+}

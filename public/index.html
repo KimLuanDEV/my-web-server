@@ -1031,6 +1031,24 @@ button:hover {
   animation: modalFadeOut 0.3s ease forwards;
 }
 
+.door .bet-display {
+  position: absolute;
+  bottom: -5px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+  background: rgba(0,0,0,0.6);
+  padding: 2px 6px;
+  border-radius: 8px;
+  border: 1px solid gold;
+  text-shadow: 0 0 5px gold;
+}
+
+.door.locked {
+  pointer-events: none;
+  opacity: 0.5;
+  filter: grayscale(100%);
+}
 
 
   </style>
@@ -1070,28 +1088,36 @@ button:hover {
    <!-- 8 cửa xung quanh -->
     <div class="doors">
       <div class="door" data-name="Mỳ" style="transform: rotate(0deg) translate(0, -150px)  rotate(0deg);">
-        <img src="https://img.icons8.com/?size=100&id=j1YyF5JJM5rE&format=png&color=000000" alt="Mỳ">     
+        <img src="https://img.icons8.com/?size=100&id=j1YyF5JJM5rE&format=png&color=000000" alt="Mỳ"> 
+        <span class="bet-display">0</span>    
       </div>
       <div class="door" data-name="Xiên" style="transform: rotate(45deg) translate(0, -150px)  rotate(-45deg);">
-        <img src="https://img.icons8.com/?size=100&id=80905&format=png&color=000000" alt="Xiên">      
+        <img src="https://img.icons8.com/?size=100&id=80905&format=png&color=000000" alt="Xiên">   
+        <span class="bet-display">0</span>       
       </div>
       <div class="door" data-name="Đùi" style="transform: rotate(90deg) translate(0, -150px)  rotate(-90deg);">
-        <img src="https://img.icons8.com/?size=100&id=oKobmYkIk0qz&format=png&color=000000" alt="Đùi">     
+        <img src="https://img.icons8.com/?size=100&id=oKobmYkIk0qz&format=png&color=000000" alt="Đùi"> 
+        <span class="bet-display">0</span>        
       </div>
       <div class="door" data-name="Bò" style="transform: rotate(135deg) translate(0, -150px)  rotate(-135deg);">
-        <img src="https://img.icons8.com/?size=100&id=hwB2vUsbIvJ2&format=png&color=000000" alt="Bò">      
+        <img src="https://img.icons8.com/?size=100&id=hwB2vUsbIvJ2&format=png&color=000000" alt="Bò">
+        <span class="bet-display">0</span>          
       </div>
       <div class="door" data-name="Rốt" style="transform: rotate(180deg) translate(0, -150px)  rotate(-180deg);">
-        <img src="https://img.icons8.com/?size=100&id=6f2WYNoYqbXP&format=png&color=000000" alt="Rốt">     
+        <img src="https://img.icons8.com/?size=100&id=6f2WYNoYqbXP&format=png&color=000000" alt="Rốt">  
+        <span class="bet-display">0</span>       
       </div>
       <div class="door" data-name="Ngô" style="transform: rotate(225deg) translate(0, -150px)  rotate(-225deg);">
-        <img src="https://img.icons8.com/?size=100&id=8Sli9YJl0SaW&format=png&color=000000" alt="Ngô">      
+        <img src="https://img.icons8.com/?size=100&id=8Sli9YJl0SaW&format=png&color=000000" alt="Ngô">  
+        <span class="bet-display">0</span>        
       </div>
       <div class="door" data-name="Cải" style="transform: rotate(270deg) translate(0, -150px)  rotate(-270deg);">
-        <img src="https://img.icons8.com/?size=100&id=Bql9wRM8Aqkv&format=png&color=000000" alt="Cải">      
+        <img src="https://img.icons8.com/?size=100&id=Bql9wRM8Aqkv&format=png&color=000000" alt="Cải"> 
+        <span class="bet-display">0</span>         
       </div>
       <div class="door" data-name="Chua" style="transform: rotate(315deg) translate(0, -150px)  rotate(-315deg);">
-        <img src="https://img.icons8.com/?size=100&id=lPmL0NaypRwo&format=png&color=000000" alt="Chua">      
+        <img src="https://img.icons8.com/?size=100&id=lPmL0NaypRwo&format=png&color=000000" alt="Chua"> 
+        <span class="bet-display">0</span>         
       </div>
     </div>
   </div>
@@ -1458,6 +1484,7 @@ let countdownValue = getRemainingTime();
   countdownEl.innerHTML = `<span id="countdownValue">${countdownValue}</span>`;
 
   if (countdownValue <= 0) {
+  lockDoors();   // khóa đặt cược
   if (!isSpinning) {
   spinWheel();
   startDoorAnimation();
@@ -1675,6 +1702,7 @@ startCountdown();
   const name = box.dataset.name;
   box.querySelector(".bet-amount").textContent = bets[name];
   });
+
   const total = Object.values(bets).reduce((a,b)=>a+b,0);
   document.getElementById("totalBetDisplay").textContent = `Tổng cược: ${total}`;
 }
@@ -2016,6 +2044,7 @@ function saveHistory() {
   updateSpinCounter();
 //Reset cược.
   resetBets();
+  unlockDoors();
   isSpinning = false;
   clearBets(); // 🔥 sang vòng mới thì không giữ cược nữa
   clearHot();  // 🔥 Xóa HOT sau 5 giây khi đã trả kết quả
@@ -2251,6 +2280,7 @@ function saveHistory() {
   });
 });
 
+
 // --- đặt cược bằng click ô ---
   document.querySelectorAll(".bet-box").forEach(box => {
   box.addEventListener("click", () => {
@@ -2273,8 +2303,35 @@ function saveHistory() {
   });
 });
 
+  document.querySelectorAll(".door").forEach(door => {
+  door.addEventListener("click", () => {
+   if (!currentChip) {
+  alert("Hãy chọn mệnh giá chip trước!");
+  return;
+  }
+  if (balance < currentChip) {
+  alert("Không đủ số dư để đặt cược!");
+  return;
+  }
+  const name = door.dataset.name;
+  if (!bets[name]) bets[name] = 0;
+  bets[name] += currentChip;
+  const betDisplay = door.querySelector(".bet-display");
+  betDisplay.textContent = bets[name];
+  localStorage.setItem("currentBets", JSON.stringify(bets));
+  balance -= currentChip;
+  updateBalanceDisplay();
+  });
+});
+
+
 // --- reset cược ---
   function resetBets() {
+  bets = {}; // reset object lưu cược
+  document.querySelectorAll(".door .bet-display").forEach(el => {
+  el.textContent = "0"; // reset hiển thị về 0
+  });
+  localStorage.removeItem("currentBets"); // nếu bạn có lưu vào localStorage
   for (let k in bets) bets[k] = 0;
   updateBetDisplay();
 }
@@ -2309,6 +2366,12 @@ function saveHistory() {
   bets[name] = Number(bets[name]); // ép về số
   const bet = document.querySelector(`.bet-box[data-name="${name}"] .bet-amount`);
   if (bet) bet.textContent = bets[name];
+
+  document.querySelectorAll(".door").forEach(door => {
+  const name = door.dataset.name;
+  const betDisplay = door.querySelector(".bet-display");
+  betDisplay.textContent = bets[name] || 0;
+  });
   });
 
   // Tổng cược
@@ -2483,6 +2546,16 @@ function saveHistory() {
   element.classList.add("flash-update");
   setTimeout(() => element.classList.remove("flash-update"), 600);
 }
+
+function lockDoors() {
+  document.querySelectorAll(".door").forEach(door => door.classList.add("locked"));
+}
+
+function unlockDoors() {
+  document.querySelectorAll(".door").forEach(door => door.classList.remove("locked"));
+}
+
+ 
 
 
 </script>
