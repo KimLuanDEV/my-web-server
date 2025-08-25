@@ -159,6 +159,7 @@ function startCountdown() {
 
         countdownValue--;
         countdownEl.textContent = `${countdownValue}`;
+
         if (countdownValue === 20) {
             suggestResult();
         }
@@ -176,6 +177,7 @@ function startCountdown() {
                 spinWheel();
                 startDoorAnimation();
             }
+
             // Sau khi quay thì pause 4 giây
             pauseAfterSpin = true;
             pauseTimer = 4;
@@ -190,6 +192,7 @@ function startCountdown() {
     }, 1000);
 }
 startCountdown();
+
 
 function suggestResult() {
     const totalWeight = options.reduce((sum, opt) => sum + opt.weight, 0);
@@ -572,16 +575,16 @@ function renderWheel() {
 }
 renderWheel();
 
-/// Hàm thêm kết quả vào lịch sử (giữ tối đa 8)
+/// Hàm thêm kết quả vào lịch sử (giữ tối đa 9)
 function addResultToHistory(icon) {
     let Results = JSON.parse(localStorage.getItem("Results")) || [];
 
     // thêm kết quả mới vào đầu mảng
     Results.unshift(icon);
 
-    // giới hạn 8 kết quả
-    if (Results.length > 8) {
-        Results = Results.slice(0, 8);
+    // giới hạn 9 kết quả
+    if (Results.length > 9) {
+        Results = Results.slice(0, 9);
     }
 
     // lưu lại
@@ -1244,3 +1247,31 @@ function lockDoors() {
 function unlockDoors() {
     document.querySelectorAll(".door").forEach(door => door.classList.remove("locked"));
 }
+
+
+// Khóa chuột phải
+document.addEventListener("contextmenu", e => e.preventDefault());
+
+// Chặn các phím tắt DevTools
+document.addEventListener("keydown", function (e) {
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key === "I") {
+        e.preventDefault();
+        return false;
+    }
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key === "J") {
+        e.preventDefault();
+        return false;
+    }
+    // Ctrl+U (view source)
+    if (e.ctrlKey && e.key === "u") {
+        e.preventDefault();
+        return false;
+    }
+});
