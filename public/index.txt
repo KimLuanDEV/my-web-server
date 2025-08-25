@@ -2,20 +2,30 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🎰 Lucky Spin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Greedy</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
- 
+
+
 </head>
 
  <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
+
+.door, .chip, .wallet-display {
+  flex-shrink: 0;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  }
+
+html {
+  overflow-y: scroll; /* luôn hiển thị thanh cuộn dọc */
+}
 
 
-   body {
+  body {
   margin: 0;
   padding: 20px;
   font-family: 'Poppins', sans-serif;
@@ -433,7 +443,7 @@ button:hover {
   box-shadow: 0 0 25px 5px gold, inset 0 0 15px #fff5cc;
   display: flex;
   flex-direction: row; /* <-- CHIA NGANG */
-  gap: 25px;
+  gap: 20px;
   justify-content: space-between;
   align-items: flex-start;
   border-radius: 20px;    /* bo góc đẹp hơn */
@@ -441,11 +451,11 @@ button:hover {
 
 /* Bên trái (vòng quay + kết quả) */
 .left-panel {
-  flex: 1;
+  flex: 1.5;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
 }
 
 /* Bên phải (cược + ví + lịch sử) */
@@ -453,7 +463,7 @@ button:hover {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 10px;
 }
 
 
@@ -613,6 +623,7 @@ button:hover {
  position: relative;
  width: 450px;
  height: 450px;
+ flex-shrink: 0; /* không bị co khi màn hình hẹp */
  }
 
 .hub {
@@ -1056,11 +1067,11 @@ button:hover {
 <body>
  <div class="game-container">
  <div class="left-panel">
- <h1>💎Lucky Spin💎</h1>
+ <h1>🥗Greedy🥗</h1>
  <div class="time-display">🕒 <span id="currentTime">--:--:--</span></div>
 
 <div class = result>
-<div id="spinCounter">🎯 Phiên quay: 0</div>
+<div id="spinCounter"></div>
 <div id="wheel-container">
   <div id="wheel">
 </div>
@@ -1122,6 +1133,27 @@ button:hover {
     </div>
   </div>
 
+
+ <div class="chip-selector">
+  <div class="chip" data-value="10">10</div>
+  <div class="chip" data-value="50">50</div>
+  <div class="chip" data-value="100">100</div>
+  <div class="chip" data-value="1000">1000</div>
+  <div class="chip" data-value="10000">10000</div>
+ </div>
+ <div id="totalBetDisplay" style="margin-top: 10px; font-weight: bold;"></div>
+
+<div class="wallet-display">
+<div class="balance-box">
+<div class="balance-icon">💰</div>
+<div class="balance-info">
+<div class="balance-label">Số dư xu</div>
+<div class="balance-value"><span id="balance">0</span></div>
+</div>
+</div>
+
+<div class="history" id="history"><b>Result</b><br></div>
+
 <div class="stats-box" id="stats">
 <div class="stat-item">
 <span class="stat-icon">📈</span>
@@ -1136,15 +1168,6 @@ button:hover {
 </div>
 
 
-<div class="wallet-display">
-<div class="balance-box">
-<div class="balance-icon">💰</div>
-<div class="balance-info">
-<div class="balance-label">Số dư xu</div>
-<div class="balance-value"><span id="balance">0</span></div>
-</div>
-</div>
-
 <div class="jackpot-box">
 <div class="jackpot-icon">🎰</div>
 <div class="jackpot-info">
@@ -1156,9 +1179,7 @@ button:hover {
 </div>
 
 
-<div class="result" id="result">Kết quả trả thưởng...</div>
-<div class="history" id="history">🧾 <b>Lịch sử kết quả:</b><br></div>
-
+<div class="result" id="result" style="display:none"></div>
 <div id="suggestion" style="font-weight:bold; color:#00ccff; margin:10px 0;">
 </div>
 </div>
@@ -1174,7 +1195,7 @@ button:hover {
 <h1>💎Jackpot💎</h1>
 <div class="time-display"> Săn hũ trúng lớn</div>
 
- <form id="betForm" class="bet-section">
+ <form id="betForm" class="bet-section" style ="display:none">
   <div class="bet-box" data-name="Chua"><span class="icon">🍅</span><span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
   <div class="bet-box" data-name="Cải"><span class="icon">🥬</span><span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
   <div class="bet-box" data-name="Ngô"><span class="icon">🌽</span><span class="bet-amount">0</span><br><small>Win 5 times</small></div>  
@@ -1183,15 +1204,6 @@ button:hover {
   <div class="bet-box" data-name="Xiên"><span class="icon">🍢</span><span class="bet-amount">0</span><br><small>Win 15 times</small></div>
   <div class="bet-box" data-name="Đùi"><span class="icon">🍖</span><span class="bet-amount">0</span><br><small>Win 25 times</small></div>
   <div class="bet-box" data-name="Bò"><span class="icon">🥩</span><span class="bet-amount">0</span><br><small>Win 45 times</small></div>
-
-  <div class="chip-selector">
-  <div class="chip" data-value="10">10</div>
-  <div class="chip" data-value="50">50</div>
-  <div class="chip" data-value="100">100</div>
-  <div class="chip" data-value="1000">1000</div>
-  <div class="chip" data-value="10000">10000</div>
-  </div>
-  <div id="totalBetDisplay" style="margin-top: 10px; font-weight: bold;">Tổng cược: 0</div>
 </form>
 
 
@@ -1202,19 +1214,14 @@ button:hover {
 <div> 
 </div>
 <div>
-    <input type="number" id="amount" placeholder="Nhập số xu">
-      <button onclick="confirmDeposit()">Nạp xu</button>
-      <button id="withdrawBtn" onclick="confirmWithdraw()">Rút xu</button>
-    </div> <br>
+<input type="number" id="amount" placeholder="Nhập số xu">
+<button onclick="confirmDeposit()">Nạp xu</button>
+<button id="withdrawBtn" onclick="confirmWithdraw()">Rút xu</button>
+</div> <br>
+<div class="notification" id="notification"></div>
+</div>
 
-    <div class="notification" id="notification"></div>
-  </div>
-
- 
-  
-  <div class="history" id="betHistory">🧾 <b>Lịch sử đặt cược:</b><br></div>
-
-
+<div class="history" id="betHistory">🧾 <b>Lịch sử đặt cược:</b><br></div>
 
 <audio id="spinSound" src="spin.mp3"></audio>
 <audio id="winSound" src="win.mp3"></audio>
@@ -1704,7 +1711,7 @@ startCountdown();
   });
 
   const total = Object.values(bets).reduce((a,b)=>a+b,0);
-  document.getElementById("totalBetDisplay").textContent = `Tổng cược: ${total}`;
+  document.getElementById("totalBetDisplay").textContent = `${total}`;
 }
 
 
@@ -1869,7 +1876,7 @@ startCountdown();
 }
     
   function clearResultHistory() {
-  historyEl.innerHTML = "🌡 <b>Lịch sử kết quả:</b><br>";
+  historyEl.innerHTML = "🌡 <b>Result</b><br>";
 }
     
   function renderWheel() {
@@ -1906,7 +1913,7 @@ startCountdown();
 
 // Lưu lịch sử vào localStorage
 function saveHistory() {
-  const data = historyEl.innerHTML.replace('🧾 <b>Lịch sử kết quả:</b><br>', '');
+  const data = historyEl.innerHTML.replace(' <b>Result</b><br>', '');
   localStorage.setItem("historyData", data);
 }
 
@@ -1914,7 +1921,7 @@ function saveHistory() {
   function loadHistory() {
   const saved = localStorage.getItem("historyData");
   if (saved) {
-   historyEl.innerHTML = '🧾 <b>Lịch sử kết quả:</b><br>' + saved;
+   historyEl.innerHTML = ' <b>Result</b><br>' + saved;
   }
 }
 
@@ -1928,7 +1935,7 @@ function saveHistory() {
 // Hàm hiển thị lịch sử ra giao diện
   function renderHistory() {
   const historyEl = document.getElementById("history");
-  historyEl.innerHTML = "🧾 <b>Lịch sử kết quả:</b><br>";
+  historyEl.innerHTML = " <b>Result</b><br>";
   let Results = JSON.parse(localStorage.getItem("Results")) || [];
   Results.forEach(icon => {
   const span = document.createElement("span");
@@ -2040,7 +2047,7 @@ function saveHistory() {
   document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.remove('lock-bets'));
 //Tăng số phiên quay.
   spinCount++;
-  document.getElementById("spinCounter").textContent = `🎯 Phiên quay: ${spinCount}`;
+  document.getElementById("spinCounter").textContent = `🎯 Round: ${spinCount}`;
   updateSpinCounter();
 //Reset cược.
   resetBets();
@@ -2079,8 +2086,8 @@ function saveHistory() {
   // Hàm cập nhật giao diện + lưu
   function updateSpinCounter() {
   const spinNumber = getCurrentSpinNumber();
-  spinCounterEl.textContent = `🎯 Phiên quay: ${spinNumber}`;
-  /*document.getElementById("spinCounter").textContent = `🎯 Phiên quay: ${spinCount}`;
+  spinCounterEl.textContent = `🎯 Round: ${spinNumber}`;
+  /*document.getElementById("spinCounter").textContent = `🎯 Round: ${spinCount}`;
   localStorage.setItem("spinCount", spinCount);
   localStorage.setItem("lastSpinDate", getToday());*/
 }
@@ -2385,7 +2392,7 @@ function saveHistory() {
   function clearBets() {
   bets = {};
   document.querySelectorAll(".bet-amount").forEach(el => el.textContent = "0");
-  document.getElementById("totalBetDisplay").textContent = "Tổng cược: 0";
+  document.getElementById("totalBetDisplay").textContent = "";
   localStorage.removeItem("currentBets");
   localStorage.removeItem("totalBet");
 }
@@ -2478,6 +2485,7 @@ function saveHistory() {
 
   function showResultModal(selected, totalBet, winAmount) {
   const modal = document.getElementById("resultModal");
+  document.body.style.overflow = "hidden";   // khoá cuộn
 
   const spinNumber = getCurrentSpinNumber(); 
   document.getElementById("modalSpin").textContent = spinNumber;
@@ -2503,6 +2511,7 @@ function saveHistory() {
 
   function closeResultModal() {
   const modal = document.getElementById("resultModal");
+  document.body.style.overflow = "";   
   modal.classList.remove("show");
   modal.classList.add("hide");
 
@@ -2536,7 +2545,7 @@ function saveHistory() {
   if (!startTime) startTime = timestamp;
   const progress = Math.min((timestamp - startTime) / duration, 1);
   const value = Math.floor(progress * (end - start) + start);
-  element.textContent = value.toLocaleString("vi-VN") + " xu";
+  element.textContent = value.toLocaleString("vi-VN") + " ";
   if (progress < 1) {
   requestAnimationFrame(step);
   }

@@ -391,7 +391,7 @@ function updateBetDisplay() {
     });
 
     const total = Object.values(bets).reduce((a, b) => a + b, 0);
-    document.getElementById("totalBetDisplay").textContent = `Tổng cược: ${total}`;
+    document.getElementById("totalBetDisplay").textContent = `${total}`;
 }
 
 
@@ -556,7 +556,7 @@ function clearBetHistory() {
 }
 
 function clearResultHistory() {
-    historyEl.innerHTML = "🌡 <b>Lịch sử kết quả:</b><br>";
+    historyEl.innerHTML = "🌡 <b>Result</b><br>";
 }
 
 function renderWheel() {
@@ -593,7 +593,7 @@ function addResultToHistory(icon) {
 
 // Lưu lịch sử vào localStorage
 function saveHistory() {
-    const data = historyEl.innerHTML.replace('🧾 <b>Lịch sử kết quả:</b><br>', '');
+    const data = historyEl.innerHTML.replace(' <b>Result</b><br>', '');
     localStorage.setItem("historyData", data);
 }
 
@@ -601,7 +601,7 @@ function saveHistory() {
 function loadHistory() {
     const saved = localStorage.getItem("historyData");
     if (saved) {
-        historyEl.innerHTML = '🧾 <b>Lịch sử kết quả:</b><br>' + saved;
+        historyEl.innerHTML = ' <b>Result</b><br>' + saved;
     }
 }
 
@@ -615,7 +615,7 @@ function addHistory(resultIcon) {
 // Hàm hiển thị lịch sử ra giao diện
 function renderHistory() {
     const historyEl = document.getElementById("history");
-    historyEl.innerHTML = "🧾 <b>Lịch sử kết quả:</b><br>";
+    historyEl.innerHTML = " <b>Result</b><br>";
     let Results = JSON.parse(localStorage.getItem("Results")) || [];
     Results.forEach(icon => {
         const span = document.createElement("span");
@@ -728,7 +728,7 @@ function spinWheel() {
                         document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.remove('lock-bets'));
                         //Tăng số phiên quay.
                         spinCount++;
-                        document.getElementById("spinCounter").textContent = `🎯 Phiên quay: ${spinCount}`;
+                        document.getElementById("spinCounter").textContent = `🎯 Round: ${spinCount}`;
                         updateSpinCounter();
                         //Reset cược.
                         resetBets();
@@ -767,8 +767,8 @@ function spinWheel() {
 // Hàm cập nhật giao diện + lưu
 function updateSpinCounter() {
     const spinNumber = getCurrentSpinNumber();
-    spinCounterEl.textContent = `🎯 Phiên quay: ${spinNumber}`;
-    /*document.getElementById("spinCounter").textContent = `🎯 Phiên quay: ${spinCount}`;
+    spinCounterEl.textContent = `🎯 Round: ${spinNumber}`;
+    /*document.getElementById("spinCounter").textContent = `🎯 Round: ${spinCount}`;
     localStorage.setItem("spinCount", spinCount);
     localStorage.setItem("lastSpinDate", getToday());*/
 }
@@ -1073,7 +1073,7 @@ function restoreBets() {
 function clearBets() {
     bets = {};
     document.querySelectorAll(".bet-amount").forEach(el => el.textContent = "0");
-    document.getElementById("totalBetDisplay").textContent = "Tổng cược: 0";
+    document.getElementById("totalBetDisplay").textContent = "";
     localStorage.removeItem("currentBets");
     localStorage.removeItem("totalBet");
 }
@@ -1166,6 +1166,7 @@ function clearHot() {
 
 function showResultModal(selected, totalBet, winAmount) {
     const modal = document.getElementById("resultModal");
+    document.body.style.overflow = "hidden";   // khoá cuộn
 
     const spinNumber = getCurrentSpinNumber();
     document.getElementById("modalSpin").textContent = spinNumber;
@@ -1191,6 +1192,7 @@ function showResultModal(selected, totalBet, winAmount) {
 
 function closeResultModal() {
     const modal = document.getElementById("resultModal");
+    document.body.style.overflow = "";
     modal.classList.remove("show");
     modal.classList.add("hide");
 
@@ -1224,7 +1226,7 @@ function animateNumber(element, start, end, duration = 500) {
         if (!startTime) startTime = timestamp;
         const progress = Math.min((timestamp - startTime) / duration, 1);
         const value = Math.floor(progress * (end - start) + start);
-        element.textContent = value.toLocaleString("vi-VN") + " xu";
+        element.textContent = value.toLocaleString("vi-VN") + " ";
         if (progress < 1) {
             requestAnimationFrame(step);
         }
