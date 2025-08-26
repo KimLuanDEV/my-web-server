@@ -1135,6 +1135,30 @@ button:hover {
   filter: grayscale(100%);
 }
 
+/* Modal History Bet */
+.historyBetModal {
+  display: none;
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.6);
+  justify-content:center;
+  align-items:center;
+  z-index:6000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Khi hiển thị */
+.historyBetModal.show {
+  display: flex;
+  opacity: 1;
+}
+
+/* Khi ẩn */
+.historyBetModal.hide {
+  opacity: 0;
+}
 
 
 
@@ -1288,6 +1312,22 @@ button:hover {
 
 
 <div class="wallet">
+
+<!-- Nút mở History Bet -->
+<button id="openHistoryBtn">📜 Xem lịch sử cược</button>
+
+<!-- Modal History Bet -->
+<div id="historyBetModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:6000;">
+<div class="modal-box" style="background:#111; color:#fff; padding:20px; border-radius:15px; text-align:left; width:450px; border:2px solid gold; box-shadow:0 0 20px gold;">
+<h3>📜 Lịch sử cược</h3>
+<div id="betHistory" style="max-height:300px; overflow-y:auto; background:#1d1d2c; padding:10px; border-radius:10px;"></div>
+<div style="margin-top:15px; text-align:center;">
+<button id="closeHistoryBtn" style="padding:8px 16px; background:red; color:#fff; border:none; border-radius:8px;">Đóng</button>
+</div>
+</div>
+</div>
+
 <div id="stats" style="margin-top: 10px; font-weight: bold; color: #ffc107;">
 </div>
 <div> 
@@ -1300,7 +1340,7 @@ button:hover {
 <div class="notification" id="notification"></div>
 </div>
 
-<div class="historyB" id="betHistory"><b>History Bet</b><br></div>
+<div class="historyB" id="betHistory" style="display:none"></div>
 
 <audio id="spinSound" src="spin.mp3"></audio>
 <audio id="winSound" src="win.mp3"></audio>
@@ -1467,43 +1507,46 @@ const options = [
 
 
 // Hàm thêm lịch sử đặt cược
-  function addBetHistory(betName, amount) {
+  function addBetHistory(betName, amount, result = "Chờ kết quả", payout = 0) {
   const time = new Date().toLocaleTimeString();
-  const entry = { time, betName, amount };
+  const spin = getCurrentSpinNumber(); // số phiên hiện tại
+  const entry = { time, spin, betName, amount, result, payout };
 
-/*
-  // Thêm vào giao diện
-  betHistoryEl.innerHTML += `⏰ ${time} - Đặt ${amount} xu vào ${betName}<br>`;
-*/
-
-  // Lưu vào localStorage
   let betHistory = JSON.parse(localStorage.getItem("betHistory")) || [];
   betHistory.push(entry);
   localStorage.setItem("betHistory", JSON.stringify(betHistory));
 
- // Cập nhật UI ngay
-  renderBetHistory();
+  renderBetHistory(); // cập nhật UI ngay
 }
 
   function renderBetHistory() {
   let betHistory = JSON.parse(localStorage.getItem("betHistory")) || [];
-  betHistoryEl.innerHTML = "<b>History Bet</b><br>";
+  const modalEl = document.getElementById("modalBetHistory");
+  if (!modalEl) return; // nếu modal chưa load
+
+  modalEl.innerHTML = "";
+
   if (betHistory.length === 0) {
-  betHistoryEl.innerHTML += "";
+  modalEl.innerHTML = "<p>⚠️ Chưa có lịch sử cược nào.</p>";
   return;
   }
+
   betHistory.forEach(entry => {
-  betHistoryEl.innerHTML += `⏰ ${entry.time} - Đặt ${entry.amount} xu vào ${entry.betName}<br>`;
+  modalEl.innerHTML += `
+  <div style="margin-bottom:8px; border-bottom:1px solid #444; padding-bottom:5px;">
+  ⏰ ${entry.time} | 🎯 Phiên ${entry.spin}<br>
+  👉 Đặt <b>${entry.amount}</b> xu vào <b>${entry.betName}</b><br>
+  🏆 Kết quả: ${entry.result} | 💰 Xu nhận: ${entry.payout}
+  </div>
+    `;
   });
-// 🔒 Lưu lại 1 lần nữa để chắc chắn không bị mất
-  localStorage.setItem("betHistory", JSON.stringify(betHistory));
 }
 
 // Khôi phục khi load lại trang
   window.addEventListener("load", () => {
   
   let betHistory = JSON.parse(localStorage.getItem("betHistory")) || [];
-  betHistoryEl.innerHTML = " <b>History Bet</b><br>";
+  betHistoryEl.innerHTML = " <b></b>";
   betHistory.forEach(entry => {
   betHistoryEl.innerHTML += `⏰ ${entry.time} - Đặt ${entry.amount} xu vào ${entry.betName}<br>`;
   });
@@ -1621,6 +1664,8 @@ let countdownValue = getRemainingTime();
   }
   if (countdownValue <= 5) {
   countdownEl.classList.add("blink"); // đỏ nhấp nháy
+  window.addEventListener("keydown", disableF5);
+  window.addEventListener("beforeunload", blockReload);
   } 
   else {
   countdownEl.classList.remove("blink");
@@ -2128,7 +2173,22 @@ function saveHistory() {
   clearInterval(animationInterval);
   const betAmount = bets[selected.name] || 0;
   const winAmount = betAmount > 0 ? betAmount * selected.reward : 0;
-  balance += winAmount;
+  balance += winAmount; //trả thưởng
+
+  // 📝 Cập nhật lịch sử cược (thắng / thua)
+  const finishedSpinId = getCurrentSpinNumber();  // số phiên quay hiện tại
+  let betHistory = JSON.parse(localStorage.getItem("betHistory")) || [];
+  betHistory = betHistory.map(entry => {
+  if (entry.spin !== finishedSpinId || entry.result !== "Chờ kết quả") return entry;
+  const isWin = entry.betName === selected.name;
+  entry.result = isWin ? "✅ Thắng" : "❌ Thua";
+  entry.payout = isWin ? entry.amount * selected.reward : 0;
+  return entry;
+});
+
+localStorage.setItem("betHistory", JSON.stringify(betHistory));
+renderBetHistory(); // đẩy vào modal
+
   updateBalanceDisplay();
   const lostAmount = totalBet - winAmount;
   let profitOrLoss = winAmount - totalBet;
@@ -2161,6 +2221,7 @@ function saveHistory() {
   }
   if (totalBet >= 0) {
   resultEl.textContent = `${selected.icon}`;
+
  // ✅ Lưu icon kết quả vào localStorage
   localStorage.setItem("lastResultIcon", result.icon);
   localStorage.setItem("lastResult", JSON.stringify(selected));
@@ -2186,6 +2247,8 @@ function saveHistory() {
   isSpinning = false;
   clearBets(); // 🔥 sang vòng mới thì không giữ cược nữa
   clearHot();  // 🔥 Xóa HOT sau 5 giây khi đã trả kết quả
+  window.removeEventListener("keydown", disableF5);
+  window.removeEventListener("beforeunload", blockReload);
   },5000);
   highlightWinner(selected.name);
   }, 0); // bất sáng ô trúng và tắt ô trượt
@@ -2819,6 +2882,42 @@ const hotkeyMap = {
   select.value = hotkeyMap[e.key];
   adminResult = hotkeyMap[e.key] || null;
 }
+});
+
+
+ function disableF5(e) {
+ if ((e.which || e.keyCode) === 116) {  // 116 = F5
+ e.preventDefault();
+ return false;
+ }
+}
+
+ function blockReload(event) {
+ event.preventDefault();
+ event.returnValue = "";
+}
+
+// Nút mở modal
+document.getElementById("openHistoryBtn").onclick = () => {
+  renderBetHistory(); // luôn load mới nhất trước khi show
+  const modal = document.getElementById("historyBetModal");
+  modal.style.display = "flex";
+  setTimeout(() => modal.classList.add("show"), 10);
+};
+
+// Nút đóng modal
+ document.getElementById("closeHistoryBtn").onclick = () => {
+ document.getElementById("historyBetModal").style.display = "none";
+};
+
+// Đóng modal khi nhấn ESC
+ document.addEventListener("keydown", (e) => {
+ if (e.key === "Escape") {
+ const historyModal = document.getElementById("historyBetModal");
+ if (historyModal.style.display === "flex") {
+ historyModal.style.display = "none";
+ }
+ }
 });
 
 

@@ -1121,3 +1121,29 @@ button:hover {
   opacity: 0.5;
   filter: grayscale(100%);
 }
+
+/* Modal History Bet */
+.historyBetModal {
+  display: none;
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.6);
+  justify-content:center;
+  align-items:center;
+  z-index:6000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Khi hiển thị */
+.historyBetModal.show {
+  display: flex;
+  opacity: 1;
+}
+
+/* Khi ẩn */
+.historyBetModal.hide {
+  opacity: 0;
+}
+
