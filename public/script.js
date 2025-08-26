@@ -45,42 +45,63 @@ function addBetHistory(betName, amount) {
     const time = new Date().toLocaleTimeString();
     const entry = { time, betName, amount };
 
-    // Thêm vào giao diện
-    betHistoryEl.innerHTML += `⏰ ${time} - Đặt ${amount} xu vào ${betName}<br>`;
+    /*
+      // Thêm vào giao diện
+      betHistoryEl.innerHTML += `⏰ ${time} - Đặt ${amount} xu vào ${betName}<br>`;
+    */
 
     // Lưu vào localStorage
     let betHistory = JSON.parse(localStorage.getItem("betHistory")) || [];
     betHistory.push(entry);
     localStorage.setItem("betHistory", JSON.stringify(betHistory));
+
+    // Cập nhật UI ngay
+    renderBetHistory();
+}
+
+function renderBetHistory() {
+    let betHistory = JSON.parse(localStorage.getItem("betHistory")) || [];
+    betHistoryEl.innerHTML = "<b>History Bet</b><br>";
+    if (betHistory.length === 0) {
+        betHistoryEl.innerHTML += "";
+        return;
+    }
+    betHistory.forEach(entry => {
+        betHistoryEl.innerHTML += `⏰ ${entry.time} - Đặt ${entry.amount} xu vào ${entry.betName}<br>`;
+    });
+    // 🔒 Lưu lại 1 lần nữa để chắc chắn không bị mất
+    localStorage.setItem("betHistory", JSON.stringify(betHistory));
 }
 
 // Khôi phục khi load lại trang
 window.addEventListener("load", () => {
+
     let betHistory = JSON.parse(localStorage.getItem("betHistory")) || [];
-    if (betHistory.length > 0) {
-        betHistoryEl.innerHTML = "🧾 <b>Lịch sử đặt cược:</b><br>";
-        betHistory.forEach(entry => {
-            betHistoryEl.innerHTML += `⏰ ${entry.time} - Đặt ${entry.amount} xu vào ${entry.betName}<br>`;
-        });
-    }
+    betHistoryEl.innerHTML = " <b>History Bet</b><br>";
+    betHistory.forEach(entry => {
+        betHistoryEl.innerHTML += `⏰ ${entry.time} - Đặt ${entry.amount} xu vào ${entry.betName}<br>`;
+    });
     document.querySelectorAll('.chip, .bet-box').forEach(el => el.classList.remove('lock-bets'));
 
-    renderHistory();
+    resetHistoryDaily();   // chỉ xóa khi sang ngày
+    renderBetHistory();    // hiển thị lại ngay lập tức
     updateBalanceDisplay();
     updateJackpotDisplay();
     updateStatsDisplay();
     restoreBets();
 });
 
+
 function resetHistoryDaily() {
     let today = new Date().toLocaleDateString();
     let savedDate = localStorage.getItem("betHistoryDate");
     if (savedDate !== today) {
-        localStorage.removeItem("betHistory");
+        localStorage.setItem("betHistory", JSON.stringify([])); // reset rỗng, KHÔNG remove hẳn
         localStorage.setItem("betHistoryDate", today);
     }
 }
 resetHistoryDaily();
+
 
 // Lấy mốc 0h hôm nay
 function getStartOfDay() {
@@ -93,7 +114,7 @@ function getCurrentSpinNumber() {
     const startTime = getStartOfDay();
     const now = Date.now();
     const elapsedSeconds = Math.floor((now - startTime) / 1000);
-    return Math.floor(elapsedSeconds / SPIN_DURATION) + 1;
+    return Math.floor(elapsedSeconds / countdownDuration) + 1;
 }
 
 
@@ -112,9 +133,12 @@ if (!lastSpinTime) {
 
 // Tính thời gian còn lại khi load lại trang
 function getRemainingTime() {
+    const startTime = getStartOfDay();
     const now = Date.now();
-    const elapsed = Math.floor((now - lastSpinTime) / 1000); // số giây đã trôi qua
-    let remaining = countdownDuration - elapsed;
+    const elapsedSeconds = Math.floor((now - startTime) / 1000);
+    const remaining = countdownDuration - (elapsedSeconds % countdownDuration);
+    return remaining;
+
 
     if (remaining <= 0) {
         lastSpinTime = now;
@@ -125,6 +149,8 @@ function getRemainingTime() {
 }
 
 let countdownValue = getRemainingTime();
+//Hiển thị ngay khi load
+renderCountdown();
 
 // Hàm render ra giao diện ngay lập tức
 function renderCountdown() {
@@ -132,34 +158,38 @@ function renderCountdown() {
     countdownEl.innerHTML = `<span id="countdownValue">${countdownValue}</span>`;
 }
 
-//Hiển thị ngay khi load
-renderCountdown();
 
 
 // Hiển thị đếm ngược
 function startCountdown() {
     const timer = setInterval(() => {
+        countdownValue = getRemainingTime();
         const countdownEl = document.getElementById("autoCountdown");
+        const spinNumber = getCurrentSpinNumber();
+
         // Nếu đang trong thời gian chờ sau khi quay
         if (pauseAfterSpin) {
             if (pauseTimer > 0) {
                 countdownEl.innerHTML = `<span>${pauseTimer}</span>`;
                 countdownEl.classList.add("blink-yellow"); // vàng nhấp nháy
                 pauseTimer--;
+                // lưu lại số giây còn chờ
+                localStorage.setItem("pauseTimer", pauseTimer);
             }
             else {
-                countdownValue = 35; // reset về 35 giây
                 pauseAfterSpin = false;
+                localStorage.setItem("pauseAfterSpin", "false");
+                localStorage.removeItem("pauseTimer");
+                countdownValue = 35; // reset về 35 giây
                 countdownEl.classList.remove("blink-yellow");
                 renderCountdown(); // hiển thị lại
                 countdownEl.innerHTML = `<span id="countdownValue">${countdownValue}</span>`;
             }
             return;
         }
-
         countdownValue--;
         countdownEl.textContent = `${countdownValue}`;
-
+        countdownEl.innerHTML = `<span id="countdownValue">${countdownValue}</span>`;
         if (countdownValue === 20) {
             suggestResult();
         }
@@ -169,7 +199,7 @@ function startCountdown() {
         else {
             countdownEl.classList.remove("blink");
         }
-        countdownEl.innerHTML = `<span id="countdownValue">${countdownValue}</span>`;
+
 
         if (countdownValue <= 0) {
             lockDoors();   // khóa đặt cược
@@ -181,14 +211,19 @@ function startCountdown() {
             // Sau khi quay thì pause 4 giây
             pauseAfterSpin = true;
             pauseTimer = 4;
-            countdownEl.classList.remove("blink"); // tắt đỏ nhấp nháy
+            // lưu trạng thái vào localStorage
+            localStorage.setItem("pauseAfterSpin", "true");
+            localStorage.setItem("pauseTimer", pauseTimer);
 
+            countdownEl.classList.remove("blink"); // tắt đỏ nhấp nháy
             lastSpinTime = Date.now();
             localStorage.setItem("lastSpinTime", lastSpinTime);
             countdownValue = countdownDuration;
         }
         renderCountdown(); // cập nhật mỗi giây
         countdownEl.innerHTML = `<span id="countdownValue">${countdownValue}</span>`;
+        // Cập nhật số phiên (nếu cần hiển thị)
+        document.getElementById("spinCounter").textContent = `Phiên: ${spinNumber}`;
     }, 1000);
 }
 startCountdown();
@@ -542,25 +577,10 @@ function withdraw(amount) {
     showNotification(`-${amount} xu đã được rút.`);
 }
 
-function confirmClearBetHistory() {
-    if (confirm("Bạn có chắc muốn xóa lịch sử đặt cược?")) {
-        clearBetHistory();
-    }
-}
 
-function confirmClearResultHistory() {
-    if (confirm("Bạn có chắc muốn xóa lịch sử kết quả?")) {
-        clearResultHistory();
-    }
-}
 
-function clearBetHistory() {
-    betHistoryEl.innerHTML = "🧾 <b>Lịch sử đặt cược:</b><br>";
-}
 
-function clearResultHistory() {
-    historyEl.innerHTML = "🌡 <b>Result</b><br>";
-}
+
 
 function renderWheel() {
     const angleStep = 360 / options.length;
@@ -640,6 +660,8 @@ window.onload = () => {
 function spinWheel() {
     if (isSpinning) return;
     isSpinning = true;
+
+
     document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.add('lock-bets'));
     const resultEl = document.getElementById("result");
     let totalBet = Object.values(bets).reduce((a, b) => a + b, 0);
@@ -658,7 +680,7 @@ function spinWheel() {
     }, 5000);
     const spinDuration = 5; // giây
     let countdown = spinDuration;
-    const selected = weightedRandom(options, bets);
+    const selected = chooseResult();
     const anglePerSegment = 360 / options.length;
     const selectedIndex = options.findIndex(opt => opt.name === selected.name);
     const randomOffset = Math.random() * anglePerSegment; // giúp kết quả trông tự nhiên hơn
@@ -790,6 +812,9 @@ function weightedRandom(items, bets) {
         return { ...item, weight: item.weight * penaltyFactor };
     });
     const totalWeight = adjustedItems.reduce((sum, item) => sum + item.weight, 0);
+
+
+    //Random kết quả.
     let rand = Math.random() * totalWeight;
     let cumWeight = 0;
     for (let item of adjustedItems) {
@@ -798,6 +823,7 @@ function weightedRandom(items, bets) {
             return item;
         }
     }
+
 }
 
 function confirmSpin() {
@@ -1089,6 +1115,12 @@ window.addEventListener("load", () => {
         let selected = JSON.parse(savedResult);
         document.getElementById("result").innerHTML =
             `${selected.icon}`;
+
+        const savedResult = localStorage.getItem("lastResult");
+        if (savedResult) {
+            startDoorAnimation(parseInt(savedResult, 10));
+        }
+
     }
 });
 
@@ -1153,6 +1185,16 @@ window.addEventListener("load", () => {
     document.querySelectorAll('.chip, .bet-box').forEach(el => {
         el.classList.remove('lock-bets');
     });
+    // khôi phục pause 4s
+    const savedPause = localStorage.getItem("pauseAfterSpin") === "true";
+    const savedPauseTimer = parseInt(localStorage.getItem("pauseTimer")) || 0;
+    if (savedPause && savedPauseTimer > 0) {
+        pauseAfterSpin = true;
+        pauseTimer = savedPauseTimer;
+    } else {
+        pauseAfterSpin = false;
+        pauseTimer = 0;
+    }
 });
 
 
@@ -1273,5 +1315,83 @@ document.addEventListener("keydown", function (e) {
     if (e.ctrlKey && e.key === "u") {
         e.preventDefault();
         return false;
+    }
+});
+
+let adminResult = null; // null = random, khác null = cửa do admin chọn
+
+// Lắng nghe admin chọn
+document.getElementById("adminSelect").addEventListener("change", (e) => {
+    adminResult = e.target.value || null;
+});
+// Hàm chọn kết quả (hiện tại dùng random)
+function chooseResult() {
+    if (adminResult) {
+        // Nếu admin chỉ định thì lấy kết quả đó
+        return options.find(opt => opt.name === adminResult);
+    } else {
+        // Random như cũ
+        const totalWeight = options.reduce((sum, opt) => sum + opt.weight, 0);
+        let rand = Math.random() * totalWeight;
+        let cumWeight = 0;
+        for (let opt of options) {
+            cumWeight += opt.weight;
+            if (rand <= cumWeight) return opt;
+        }
+    }
+}
+
+// Drag & Drop cho adminPanel
+(function makeDraggable() {
+    const panel = document.getElementById("adminPanel");
+    let offsetX = 0, offsetY = 0, isDown = false;
+
+    panel.addEventListener("mousedown", (e) => {
+        isDown = true;
+        offsetX = e.clientX - panel.offsetLeft;
+        offsetY = e.clientY - panel.offsetTop;
+        panel.style.cursor = "grabbing";
+    });
+    document.addEventListener("mouseup", () => {
+        isDown = false;
+        panel.style.cursor = "move";
+    });
+    document.addEventListener("mousemove", (e) => {
+        if (!isDown) return;
+        panel.style.left = (e.clientX - offsetX) + "px";
+        panel.style.top = (e.clientY - offsetY) + "px";
+    });
+})();
+
+
+// Bản đồ phím tắt chọn kết quả
+const hotkeyMap = {
+    "0": "",       // Random
+    "1": "Chua",
+    "2": "Cải",
+    "3": "Ngô",
+    "4": "Rốt",
+    "5": "Mỳ",
+    "6": "Xiên",
+    "7": "Đùi",
+    "8": "Bò",
+};
+
+
+
+// Toggle panel bằng phím tắt Ctrl + A
+document.addEventListener("keydown", (e) => {
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault(); // tránh select all
+        const panel = document.getElementById("adminPanel");
+        panel.style.display = (panel.style.display === "none" || panel.style.display === "")
+            ? "block" : "none";
+        return;
+    }
+    // Chọn kết quả bằng phím số
+    if (hotkeyMap.hasOwnProperty(e.key)) {
+        const select = document.getElementById("adminSelect");
+        select.value = hotkeyMap[e.key];
+        adminResult = hotkeyMap[e.key] || null;
     }
 });
