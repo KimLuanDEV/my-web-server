@@ -1684,3 +1684,111 @@ document.getElementById("openHistoryModal").onclick = () => {
 document.getElementById("closeHistoryModal").onclick = () => {
     document.getElementById("historyModal").style.display = "none";
 };
+
+
+
+
+
+// Ẩn game trước khi login
+document.querySelector(".game-container").style.display = "none";
+
+// Chuyển form
+function showRegister() {
+    document.getElementById("loginForm").style.display = "none";
+    document.getElementById("registerForm").style.display = "block";
+}
+function showLogin() {
+    document.getElementById("registerForm").style.display = "none";
+    document.getElementById("loginForm").style.display = "block";
+}
+
+// Đăng nhập
+function handleLogin() {
+    const user = document.getElementById("loginUser").value.trim();
+    const pass = document.getElementById("loginPass").value.trim();
+    const msgEl = document.getElementById("loginMsg");
+
+    let users = JSON.parse(localStorage.getItem("users")) || {};
+
+    if (users[user] && users[user] === pass) {
+        localStorage.setItem("loggedIn", "true");
+        localStorage.setItem("currentUser", user);
+        document.getElementById("loginOverlay").style.display = "none";
+        document.querySelector(".game-container").style.display = "flex";
+        msgEl.textContent = "";
+    } else {
+        msgEl.textContent = "❌ Sai tài khoản hoặc mật khẩu!";
+    }
+}
+
+// Đăng ký
+function handleRegister() {
+    const user = document.getElementById("regUser").value.trim();
+    const pass = document.getElementById("regPass").value.trim();
+    const pass2 = document.getElementById("regPass2").value.trim();
+    const msgEl = document.getElementById("registerMsg");
+
+    if (user === "" || pass === "" || pass2 === "") {
+        msgEl.style.color = "red";
+        msgEl.textContent = "⚠️ Vui lòng nhập đầy đủ!";
+        return;
+    }
+
+    if (user.length < 8) {
+        msgEl.style.color = "red";
+        msgEl.textContent = "⚠️ Tài khoản phải từ 8 ký tự trở lên!";
+        return;
+    }
+
+    if (pass.length < 6) {
+        msgEl.style.color = "red";
+        msgEl.textContent = "⚠️ Mật khẩu phải từ 6 ký tự trở lên!";
+        return;
+    }
+
+    if (pass !== pass2) {
+        msgEl.style.color = "red";
+        msgEl.textContent = "❌ Mật khẩu xác nhận không khớp!";
+        return;
+    }
+
+    let users = JSON.parse(localStorage.getItem("users")) || {};
+    if (users[user]) {
+        msgEl.style.color = "red";
+        msgEl.textContent = "⚠️ Tài khoản đã tồn tại!";
+        return;
+    }
+
+    // Lưu tài khoản mới
+    users[user] = pass;
+    localStorage.setItem("users", JSON.stringify(users));
+
+    // Thông báo thành công
+    msgEl.style.color = "lime";
+    msgEl.textContent = "✅ Đăng ký thành công! Đang chuyển sang đăng nhập...";
+
+    // Sau 1.5 giây tự động quay về form login
+    setTimeout(() => {
+        showLogin();
+        document.getElementById("loginUser").value = user; // điền sẵn username
+        document.getElementById("loginPass").focus();
+    }, 1500);
+}
+
+
+// Đăng xuất
+document.getElementById("logoutBtn").addEventListener("click", () => {
+    localStorage.removeItem("loggedIn");
+    localStorage.removeItem("currentUser");
+    document.querySelector(".game-container").style.display = "none";
+    document.getElementById("loginOverlay").style.display = "flex";
+    showLogin(); // trở về form login
+});
+
+// Giữ trạng thái đăng nhập khi load lại
+window.addEventListener("load", () => {
+    if (localStorage.getItem("loggedIn") === "true") {
+        document.getElementById("loginOverlay").style.display = "none";
+        document.querySelector(".game-container").style.display = "flex";
+    }
+});

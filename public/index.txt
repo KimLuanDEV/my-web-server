@@ -1199,6 +1199,64 @@ button:hover {
   </style>
 </head>
 <body>
+
+<!-- Overlay Đăng nhập / Đăng ký -->
+  <div id="loginOverlay" style="
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:linear-gradient(135deg,#111,#222);
+  display:flex; justify-content:center; align-items:center;
+  z-index:10000;
+  ">
+  <div style="background:#000; padding:30px; border-radius:15px;
+  border:2px solid gold; text-align:center; width:320px;
+  box-shadow:0 0 25px gold;">
+    
+    <!-- Form Đăng nhập -->
+    <div id="loginForm">
+    <h2 style="color:gold; margin-bottom:20px;">🔑 Đăng nhập</h2>
+    <input type="text" id="loginUser" placeholder="Tài khoản" 
+    style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #555;">
+    <input type="password" id="loginPass" placeholder="Mật khẩu"
+    style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #555;">
+    <button onclick="handleLogin()"
+    style="width:100%; padding:10px; margin-top:10px; border:none;
+    border-radius:8px; font-weight:bold;
+    background:linear-gradient(145deg,gold,orange);">
+    Đăng nhập
+    </button>
+    <p style="margin-top:10px; font-size:14px;">
+    Chưa có tài khoản? 
+    <a href="#" onclick="showRegister()" style="color:deepskyblue;">Đăng ký</a>
+    </p>
+    <p id="loginMsg" style="margin-top:10px; color:red;"></p>
+    </div>
+
+    <!-- Form Đăng ký -->
+    <div id="registerForm" style="display:none;">
+    <h2 style="color:lime; margin-bottom:20px;">📝 Đăng ký</h2>
+    <input type="text" id="regUser" placeholder="Tài khoản mới" 
+    style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #555;">
+    <input type="password" id="regPass" placeholder="Mật khẩu"
+    style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #555;">
+    <input type="password" id="regPass2" placeholder="Xác nhận mật khẩu"
+    style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #555;">
+    <button onclick="handleRegister()"
+    style="width:100%; padding:10px; margin-top:10px; border:none;
+    border-radius:8px; font-weight:bold; background:deepskyblue;">
+    Đăng ký
+    </button>
+    <p style="margin-top:10px; font-size:14px;">
+    Đã có tài khoản? 
+    <a href="#" onclick="showLogin()" style="color:gold;">Đăng nhập</a>
+    </p>
+    <p id="registerMsg" style="margin-top:10px; color:red;"></p>
+    </div>
+
+</div>
+</div>
+
+
+
  <div class="game-container">
  <div class="left-panel">
  <h1>🥗Greedy🥗</h1>
@@ -1359,13 +1417,16 @@ button:hover {
   style="padding:8px 16px; background:purple; color:#fff; border:none; border-radius:8px; font-weight:bold;">
   📜 Lịch sử code
 </button>
+<br>
+<button id="logoutBtn" 
+style="margin-top:10px; padding:8px 16px; background:#ff4444; 
+color:#fff; border:none; border-radius:8px; font-weight:bold;">
+🚪 Đăng xuất
+</button>
 
 <!-- Modal History Bet -->
 <div id="historyBetModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
 background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:6000;">
-
-
-
 <div class="modal-box" style="background:#111; color:#fff; padding:20px; border-radius:15px; text-align:left; width:450px; border:2px solid gold; box-shadow:0 0 20px gold;">
 <h3>📜 Lịch sử cược</h3>
 <div id="betHistory" style="max-height:300px; overflow-y:auto; background:#1d1d2c; padding:10px; border-radius:10px;"></div>
@@ -1374,6 +1435,8 @@ background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index
 </div>
 </div>
 </div>
+
+
 
 <div id="stats" style="margin-top: 10px; font-weight: bold; color: #ffc107;">
 </div>
@@ -3246,6 +3309,112 @@ function createCode(amount) {
 };
 
 
+
+
+
+// Ẩn game trước khi login
+  document.querySelector(".game-container").style.display = "none";
+
+// Chuyển form
+  function showRegister() {
+  document.getElementById("loginForm").style.display = "none";
+  document.getElementById("registerForm").style.display = "block";
+}
+function showLogin() {
+  document.getElementById("registerForm").style.display = "none";
+  document.getElementById("loginForm").style.display = "block";
+}
+
+// Đăng nhập
+  function handleLogin() {
+  const user = document.getElementById("loginUser").value.trim();
+  const pass = document.getElementById("loginPass").value.trim();
+  const msgEl = document.getElementById("loginMsg");
+
+  let users = JSON.parse(localStorage.getItem("users")) || {};
+
+  if (users[user] && users[user] === pass) {
+  localStorage.setItem("loggedIn", "true");
+  localStorage.setItem("currentUser", user);
+  document.getElementById("loginOverlay").style.display = "none";
+  document.querySelector(".game-container").style.display = "flex";
+  msgEl.textContent = "";
+  } else {
+  msgEl.textContent = "❌ Sai tài khoản hoặc mật khẩu!";
+  }
+}
+
+// Đăng ký
+  function handleRegister() {
+  const user = document.getElementById("regUser").value.trim();
+  const pass = document.getElementById("regPass").value.trim();
+  const pass2 = document.getElementById("regPass2").value.trim();
+  const msgEl = document.getElementById("registerMsg");
+
+  if (user === "" || pass === "" || pass2 === "") {
+    msgEl.style.color = "red";
+    msgEl.textContent = "⚠️ Vui lòng nhập đầy đủ!";
+    return;
+  }
+
+  if (user.length < 8) {
+    msgEl.style.color = "red";
+    msgEl.textContent = "⚠️ Tài khoản phải từ 8 ký tự trở lên!";
+    return;
+  }
+
+  if (pass.length < 6) {
+    msgEl.style.color = "red";
+    msgEl.textContent = "⚠️ Mật khẩu phải từ 6 ký tự trở lên!";
+    return;
+  }
+
+  if (pass !== pass2) {
+    msgEl.style.color = "red";
+    msgEl.textContent = "❌ Mật khẩu xác nhận không khớp!";
+    return;
+  }
+
+  let users = JSON.parse(localStorage.getItem("users")) || {};
+  if (users[user]) {
+    msgEl.style.color = "red";
+    msgEl.textContent = "⚠️ Tài khoản đã tồn tại!";
+    return;
+  }
+
+  // Lưu tài khoản mới
+  users[user] = pass;
+  localStorage.setItem("users", JSON.stringify(users));
+
+  // Thông báo thành công
+  msgEl.style.color = "lime";
+  msgEl.textContent = "✅ Đăng ký thành công! Đang chuyển sang đăng nhập...";
+
+  // Sau 1.5 giây tự động quay về form login
+  setTimeout(() => {
+    showLogin();
+    document.getElementById("loginUser").value = user; // điền sẵn username
+    document.getElementById("loginPass").focus();
+  }, 1500);
+}
+
+
+// Đăng xuất
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+  localStorage.removeItem("loggedIn");
+  localStorage.removeItem("currentUser");
+  document.querySelector(".game-container").style.display = "none";
+  document.getElementById("loginOverlay").style.display = "flex";
+  showLogin(); // trở về form login
+});
+
+// Giữ trạng thái đăng nhập khi load lại
+  window.addEventListener("load", () => {
+  if (localStorage.getItem("loggedIn") === "true") {
+  document.getElementById("loginOverlay").style.display = "none";
+  document.querySelector(".game-container").style.display = "flex";
+  }
+});
 
 </script>
 <div id="jackpotEffect"></div>
