@@ -1160,6 +1160,40 @@ button:hover {
   opacity: 0;
 }
 
+.arrow-icon {
+  cursor: pointer;
+  margin-left: 6px;
+  transition: transform 0.3s ease;
+}
+
+.arrow-icon.open {
+  transform: rotate(90deg); /* quay sang xuống dưới */
+}
+
+/* Ẩn modal mặc định */
+#confirmConvertModal {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Hộp modal (zoom-in khi hiện) */
+#confirmConvertModal .modal-box {
+  transform: scale(0.8);
+  transition: transform 0.3s ease;
+}
+
+/* Khi modal hiện */
+#confirmConvertModal.show {
+  display: flex;
+  opacity: 1;
+}
+
+#confirmConvertModal.show .modal-box {
+  transform: scale(1);
+}
+
+
 
 
   </style>
@@ -1251,7 +1285,12 @@ button:hover {
 <div class="balance-icon">💰</div>
 <div class="balance-info">
 <div class="balance-label">Số dư xu</div>
-<div class="balance-value"><span id="balance">0</span></div>
+<div class="balance-value">
+<span id="balance">0</span>
+  <svg id="openDepositArrow" class="arrow-icon" width="14" height="14" viewBox="0 0 24 24">
+  <path d="M8 5l8 7-8 7" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</div>
 </div>
 </div>
 
@@ -1315,10 +1354,18 @@ button:hover {
 
 <!-- Nút mở History Bet -->
 <button id="openHistoryBtn">📜 Xem lịch sử cược</button>
+<br>
+<button id="openHistoryModal" 
+  style="padding:8px 16px; background:purple; color:#fff; border:none; border-radius:8px; font-weight:bold;">
+  📜 Lịch sử code
+</button>
 
 <!-- Modal History Bet -->
 <div id="historyBetModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
 background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:6000;">
+
+
+
 <div class="modal-box" style="background:#111; color:#fff; padding:20px; border-radius:15px; text-align:left; width:450px; border:2px solid gold; box-shadow:0 0 20px gold;">
 <h3>📜 Lịch sử cược</h3>
 <div id="betHistory" style="max-height:300px; overflow-y:auto; background:#1d1d2c; padding:10px; border-radius:10px;"></div>
@@ -1332,7 +1379,8 @@ background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index
 </div>
 <div> 
 </div>
-<div>
+
+<div style = "display :none;">
 <input type="number" id="amount" placeholder="Nhập số xu">
 <button onclick="confirmDeposit()">Nạp xu</button>
 <button id="withdrawBtn" onclick="confirmWithdraw()">Rút xu</button>
@@ -1350,14 +1398,61 @@ background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index
 <div id="depositInfoModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
 background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:6000;">
 <div class="modal-box" style="background:#111; color:#fff; padding:20px; border-radius:15px; text-align:left; width:400px; border:2px solid gold; box-shadow:0 0 20px gold;">
-<h3>🏦 Thông tin nạp tiền</h3>
-<p><b>Ngân hàng:</b> Techcombank</p>
-<p><b>Số tài khoản:</b> 9436789999</p>
-<p><b>Chủ tài khoản:</b> Phan Văn Tuấn</p>
-<p><b>Nội dung:</b> <span id="depositCode">--</span></p>
-<p id="depositStatus" style="color:orange; font-weight:bold; margin-top:10px;">⏳ Đang xử lý...</p>
+
+
+<p id="depositStatus" style="color:orange; font-weight:bold; margin-top:10px;"></p>
+<!-- 🔥 Thêm hạng mục nhập code -->
+<div style="margin-top:15px;">
+<label for="depositUserCode">🔑 Đổi code:</label><br>
+<!-- Input nhập tay -->
+<input type="text" id="depositUserCode" placeholder="Nhập mã code..." style="width:100%; padding:8px; border-radius:8px; border:1px solid gold; margin-top:10px;">
+<!-- Nút xác nhận -->
+<button id="verifyDepositCodeBtn" style="margin-top:10px; padding:8px 16px; background:gold; color:#000; border:none; border-radius:8px; font-weight:bold;">Xác nhận</button>
+</div>
+
+<!-- 🔄 Đổi xu thành code -->
+<hr style="margin:15px 0; border:1px solid gold;">
+<div style="margin-top:15px;">
+<label for="convertAmount">🔑 Tạo Code:</label><br>
+<input type="number" id="convertAmount" placeholder="Nhập số xu..." style="width:100%; padding:8px; border-radius:8px; border:1px solid gold; margin-top:10px;">
+<button id="convertToCodeBtn" style="margin-top:10px; padding:8px 16px; background:deepskyblue; color:#fff; border:none; border-radius:8px; font-weight:bold;">Xác nhận</button>
+<p id="generatedCode" style="margin-top:10px; font-weight:bold; color:lime;"></p>
+</div>
+<!-- Nút đóng -->
 <div style="margin-top:15px; text-align:center;">
 <button id="closeDepositModal" style="padding:8px 16px; background:red; color:#fff; border:none; border-radius:8px;">Đóng</button>
+</div>
+</div>
+</div>
+
+<!-- Modal xác nhận đổi xu thành code -->
+<div id="confirmConvertModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:8000;">
+<div class="modal-box" style="background:#111; color:#fff; padding:20px; border-radius:15px; text-align:center; width:400px; border:2px solid gold; box-shadow:0 0 20px gold;">
+<h3 style="margin-bottom:15px;">⚠️ Xác nhận</h3>
+<p id="confirmMessage" style="margin-bottom:20px;">Bạn có chắc chắn muốn đổi ?</p>
+<div style="display:flex; justify-content:space-around;">
+<button id="confirmYes" style="padding:8px 16px; background:lime; color:#000; border:none; border-radius:8px; font-weight:bold;">✅ Đồng ý</button>
+<button id="confirmNo" style="padding:8px 16px; background:red; color:#fff; border:none; border-radius:8px;">❌ Huỷ</button>
+</div>
+</div>
+</div>
+
+
+<!-- Modal lịch sử code -->
+<div id="historyModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:7000;">
+<div class="modal-box" style="background:#111; color:#fff; padding:20px; border-radius:15px; 
+text-align:left; width:450px; border:2px solid gold; box-shadow:0 0 20px gold;">
+<h3>📜 Lịch sử đổi code</h3>
+<div id="codeHistoryList" 
+style="max-height:300px; overflow-y:auto; background:#1d1d2c; padding:10px; border-radius:10px;">
+</div>
+<div style="margin-top:15px; text-align:center;">
+<button id="closeHistoryModal" 
+style="padding:8px 16px; background:red; color:#fff; border:none; border-radius:8px;">
+Đóng
+</button>
 </div>
 </div>
 </div>
@@ -1491,7 +1586,7 @@ const notificationEl = document.getElementById("notification");
 const historyEl = document.getElementById("history");
 const betHistoryEl = document.getElementById("betHistory");
 const JACKPOT_THRESHOLD = 5000;
-const JACKPOT_CHANCE = 0.01;
+const JACKPOT_CHANCE = 0.005;
 const wheelEl = document.getElementById("wheel");
 const options = [
   { name: "Chua", icon: "🍅", weight: 19.2, reward: 5 },
@@ -2885,6 +2980,7 @@ const hotkeyMap = {
 });
 
 
+
  function disableF5(e) {
  if ((e.which || e.keyCode) === 116) {  // 116 = F5
  e.preventDefault();
@@ -2919,6 +3015,236 @@ document.getElementById("openHistoryBtn").onclick = () => {
  }
  }
 });
+
+//Mũi tên nạp
+const arrow = document.getElementById("openDepositArrow");
+const depositModal = document.getElementById("depositInfoModal");
+const closeDepositBtn = document.getElementById("closeDepositModal");
+
+arrow.onclick = () => {
+  depositModal.style.display = "flex";
+  arrow.classList.add("open");
+};
+
+closeDepositBtn.onclick = () => {
+  depositModal.style.display = "none";
+  arrow.classList.remove("open");
+};
+
+
+// Danh sách code hợp lệ + số xu nhận được
+const codeRewards = {
+  "NAP50": 50,
+  "NAP100": 100,
+  "NAP200": 200,
+  "NAP300": 300,
+  "NAP400": 400,
+  "NAP500": 500,
+  "NAP1000": 1000,
+  "NAP2000": 2000,
+  "NAP3000": 3000,
+  "NAP4000": 4000,
+  "NAP5000": 5000,
+  "NAP10000": 10000,
+  "NAP20000": 20000,
+  "NAP30000": 30000,
+  "NAP40000": 40000,
+  "NAP50000": 50000,
+};
+
+// Lấy danh sách code đã sử dụng từ localStorage
+  let usedCodes = JSON.parse(localStorage.getItem("usedCodes")) || [];
+
+  document.getElementById("verifyDepositCodeBtn").onclick = () => {
+  const codeInput = document.getElementById("depositUserCode").value.trim();
+  const statusEl = document.getElementById("depositStatus");
+
+  if (!codeInput) {
+    statusEl.textContent = "⚠️ Vui lòng nhập code!";
+    statusEl.style.color = "red";
+    return;
+  }
+
+  // Kiểm tra code đã dùng chưa
+  if (usedCodes.includes(codeInput)) {
+  statusEl.textContent = "❌ Mã code này đã được sử dụng.";
+  statusEl.style.color = "red";
+  return;
+  }
+
+  if (codeRewards[codeInput]) {
+    const reward = codeRewards[codeInput];
+    balance += reward;
+    localStorage.setItem("balance", balance);
+    updateBalance();
+
+    statusEl.textContent = `✅ Đổi code thành công. +${reward} xu vào tài khoản.`;
+    statusEl.style.color = "lightgreen";
+
+ // Lưu lại code đã dùng
+    usedCodes.push(codeInput);
+    localStorage.setItem("usedCodes", JSON.stringify(usedCodes));
+
+    document.getElementById("notification").textContent = `🎉 Nạp thành công +${reward} xu qua code ${codeInput}!`;
+
+    setTimeout(() => {
+    document.getElementById("notification").textContent = "";
+    }, 10000);
+
+    delete codeRewards[codeInput];
+    localStorage.setItem("validCodes", JSON.stringify(validCodes));
+  } else {
+    statusEl.textContent = "❌ Code không hợp lệ!";
+    statusEl.style.color = "red";
+  }
+};
+
+let validCodes = JSON.parse(localStorage.getItem("validCodes")) || {};
+
+// Hàm tạo code ngẫu nhiên
+  function generateRandomCode(length = 8) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  for (let i = 0; i < length; i++) {
+  code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+
+// Lấy lịch sử đổi code từ localStorage
+  let codeHistory = JSON.parse(localStorage.getItem("codeHistory")) || [];
+
+// Hàm hiển thị lịch sử code
+  function renderCodeHistory() {
+  const listEl = document.getElementById("codeHistoryList");
+  if (!listEl) return;
+
+  if (codeHistory.length === 0) {
+  listEl.innerHTML = "<p>⚠️ Chưa có code nào được tạo.</p>";
+  return;
+  }
+
+   listEl.innerHTML = "";
+  codeHistory.slice().reverse().forEach((entry, index) => {
+  listEl.innerHTML += `
+  <div style="margin-bottom:8px; border-bottom:1px solid #444; padding-bottom:5px; display:flex; justify-content:space-between; align-items:center;">
+  <div>
+  ⏰ ${entry.time}<br>
+  🔑 <b>${entry.code}</b> | 💰 ${entry.amount} xu
+  </div>
+  <button class="copyBtn" data-code="${entry.code}" 
+  style="padding:4px 8px; background:gold; color:#000; border:none; border-radius:6px; font-size:0.8em; cursor:pointer;">
+  📋 Copy
+  </button>
+  </div>
+  `;
+  });
+// Gắn sự kiện copy cho tất cả nút
+  document.querySelectorAll(".copyBtn").forEach(btn => {
+  btn.onclick = () => {
+  const code = btn.getAttribute("data-code");
+  navigator.clipboard.writeText(code).then(() => {
+  btn.textContent = "✅ Copied";
+  setTimeout(() => (btn.textContent = "📋 Copy"), 10000);
+  });
+  };
+  });
+}
+
+let pendingAmount = 0; // số xu chuẩn bị đổi
+
+// Xử lý chuyển xu thành code
+  document.getElementById("convertToCodeBtn").onclick = () => {
+  const amount = parseInt(document.getElementById("convertAmount").value);
+  const statusEl = document.getElementById("generatedCode");
+
+  if (!amount || amount <= 0) {
+  statusEl.textContent = "⚠️ Nhập số xu hợp lệ.";
+  statusEl.style.color = "red";
+  return;
+  }
+  if (amount > balance) {
+  statusEl.textContent = "❌ Số dư không đủ.";
+  statusEl.style.color = "red";
+  return;
+  }
+
+ // Lưu tạm số xu cần đổi
+  pendingAmount = amount;
+
+
+ // Hiển thị modal xác nhận (có hiệu ứng)
+  document.getElementById("confirmMessage").textContent = 
+  `Bạn có chắc chắn muốn đổi ${amount} xu thành code không?`;
+  const modal = document.getElementById("confirmConvertModal");
+  modal.style.display = "flex"; // bật flex trước
+  setTimeout(() => modal.classList.add("show"), 10); // thêm class để chạy animation
+
+
+// Nếu bấm "Huỷ"
+  document.getElementById("confirmNo").onclick = () => {
+  const modal = document.getElementById("confirmConvertModal");
+  modal.classList.remove("show");
+  setTimeout(() => { modal.style.display = "none"; }, 300);
+  pendingAmount = 0;
+};
+
+// Nếu bấm "Đồng ý"
+  document.getElementById("confirmYes").onclick = () => {
+  if (pendingAmount > 0) {
+  createCode(pendingAmount);
+  }
+  const modal = document.getElementById("confirmConvertModal");
+  modal.classList.remove("show");
+  setTimeout(() => { modal.style.display = "none"; }, 300);
+  pendingAmount = 0;
+};
+
+
+function createCode(amount) {
+  const statusEl = document.getElementById("generatedCode");
+
+  // Trừ xu
+  balance -= amount;
+  updateBalance();
+
+  // Sinh mã code
+  const newCode = generateRandomCode(10);
+  codeRewards[newCode] = amount;
+
+  // Lưu vào localStorage
+  localStorage.setItem("codeRewards", JSON.stringify(validCodes));
+
+  // Hiển thị cho người dùng copy
+  statusEl.textContent = `✅ Code đã được chuyển vào lịch sử!`;
+  statusEl.style.color = "lime";
+
+ // Lưu lịch sử
+  const entry = {
+  code: newCode,
+  amount: amount,
+  time: new Date().toLocaleString()
+  };
+  codeHistory.push(entry);
+  localStorage.setItem("codeHistory", JSON.stringify(codeHistory));
+
+  // Cập nhật giao diện lịch sử
+  renderCodeHistory();
+};
+}
+
+// Mở modal lịch sử
+  document.getElementById("openHistoryModal").onclick = () => {
+  document.getElementById("historyModal").style.display = "flex";
+  renderCodeHistory();
+};
+
+// Đóng modal
+  document.getElementById("closeHistoryModal").onclick = () => {
+  document.getElementById("historyModal").style.display = "none";
+};
+
 
 
 </script>

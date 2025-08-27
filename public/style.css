@@ -1147,3 +1147,35 @@ button:hover {
   opacity: 0;
 }
 
+.arrow-icon {
+  cursor: pointer;
+  margin-left: 6px;
+  transition: transform 0.3s ease;
+}
+
+.arrow-icon.open {
+  transform: rotate(90deg); /* quay sang xuống dưới */
+}
+
+/* Ẩn modal mặc định */
+#confirmConvertModal {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Hộp modal (zoom-in khi hiện) */
+#confirmConvertModal .modal-box {
+  transform: scale(0.8);
+  transition: transform 0.3s ease;
+}
+
+/* Khi modal hiện */
+#confirmConvertModal.show {
+  display: flex;
+  opacity: 1;
+}
+
+#confirmConvertModal.show .modal-box {
+  transform: scale(1);
+}
