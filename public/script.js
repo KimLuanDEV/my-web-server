@@ -666,7 +666,6 @@ function spinWheel() {
     if (isSpinning) return;
     isSpinning = true;
 
-
     document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.add('lock-bets'));
     const resultEl = document.getElementById("result");
     let totalBet = Object.values(bets).reduce((a, b) => a + b, 0);
@@ -780,6 +779,9 @@ function spinWheel() {
                         resetBets();
                         unlockDoors();
                         isSpinning = false;
+                        adminResult = null;
+                        document.getElementById("adminSelect").value = "";
+
                         clearBets(); // 🔥 sang vòng mới thì không giữ cược nữa
                         clearHot();  // 🔥 Xóa HOT sau 5 giây khi đã trả kết quả
                         window.removeEventListener("keydown", disableF5);
@@ -846,7 +848,6 @@ function weightedRandom(items, bets) {
             return item;
         }
     }
-
 }
 
 function confirmSpin() {
@@ -1402,9 +1403,9 @@ const hotkeyMap = {
 
 
 
-// Toggle panel bằng phím tắt Ctrl + A
+// Toggle panel bằng phím tắt Ctrl + M
 document.addEventListener("keydown", (e) => {
-    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "m") {
         e.preventDefault(); // tránh select all
         const panel = document.getElementById("adminPanel");
         panel.style.display = (panel.style.display === "none" || panel.style.display === "")

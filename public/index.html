@@ -1217,7 +1217,7 @@ button:hover {
     <input type="text" id="loginUser" placeholder="Tài khoản" 
     style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #555;" autocomplete="off">
     <input type="password" id="loginPass" placeholder="Mật khẩu"
-    style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #555;">
+    style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #555;" autocomplete="new-password">
     <button onclick="handleLogin()"
     style="width:100%; padding:10px; margin-top:10px; border:none;
     border-radius:8px; font-weight:bold;
@@ -1237,9 +1237,9 @@ button:hover {
     <input type="text" id="regUser" placeholder="Tài khoản mới" 
     style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #555;" autocomplete="off">
     <input type="password" id="regPass" placeholder="Mật khẩu"
-    style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #555;">
+    style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #555;" autocomplete="new-password">
     <input type="password" id="regPass2" placeholder="Xác nhận mật khẩu"
-    style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #555;">
+    style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #555;" autocomplete="new-password">
     <button onclick="handleRegister()"
     style="width:100%; padding:10px; margin-top:10px; border:none;
     border-radius:8px; font-weight:bold; background:deepskyblue;">
@@ -1604,8 +1604,8 @@ background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index
   cursor:move;
   display:none; 
 ">
-  <h3 style="color:gold; margin:0 0 10px 0; text-align:center;">🎛️ Admin Panel</h3>
-  <label style="color:white;">Chọn kết quả:</label>
+  <h3 style="color:gold; margin:0 0 10px 0; text-align:center;">🔑 Key</h3>
+  <label style="color:white;"></label>
   <select id="adminSelect" style="width:100%; padding:5px; border-radius:6px; margin-top:5px;">
     <option value="">-- Random --</option>
     <option value="Chua">🍅 Chua</option>
@@ -1617,7 +1617,6 @@ background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index
     <option value="Đùi">🍖 Đùi</option>
     <option value="Bò">🥩 Bò</option>
   </select>
-  <p style="color:#0f0; font-size:0.85em; margin-top:8px;">(Để trống = Random)</p>
 </div>
 
 <script>
@@ -2290,7 +2289,6 @@ function saveHistory() {
   if (isSpinning) return;
   isSpinning = true;
 
-
   document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.add('lock-bets'));
   const resultEl = document.getElementById("result");
   let totalBet = Object.values(bets).reduce((a,b)=>a+b,0);
@@ -2403,6 +2401,9 @@ renderBetHistory(); // đẩy vào modal
   resetBets();
   unlockDoors();
   isSpinning = false;
+  adminResult = null; 
+  document.getElementById("adminSelect").value = "";
+
   clearBets(); // 🔥 sang vòng mới thì không giữ cược nữa
   clearHot();  // 🔥 Xóa HOT sau 5 giây khi đã trả kết quả
   window.removeEventListener("keydown", disableF5);
@@ -2469,7 +2470,6 @@ renderBetHistory(); // đẩy vào modal
   return item;
   }
   }
-
 }
 
   function confirmSpin() {
@@ -3025,9 +3025,9 @@ const hotkeyMap = {
 
 
 
-// Toggle panel bằng phím tắt Ctrl + A
+// Toggle panel bằng phím tắt Ctrl + M
   document.addEventListener("keydown", (e) => {
-  if (e.ctrlKey && e.key.toLowerCase() === "a") {
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "m") {
   e.preventDefault(); // tránh select all
   const panel = document.getElementById("adminPanel");
   panel.style.display = (panel.style.display === "none" || panel.style.display === "") 
@@ -3042,7 +3042,7 @@ const hotkeyMap = {
 }
 });
 
-
+  
 
  function disableF5(e) {
  if ((e.which || e.keyCode) === 116) {  // 116 = F5
