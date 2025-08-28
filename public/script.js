@@ -1793,3 +1793,252 @@ window.addEventListener("load", () => {
         document.querySelector(".game-container").style.display = "flex";
     }
 });
+
+
+
+function handleLogin() {
+    let user = document.getElementById("loginUser").value.trim();
+    let pass = document.getElementById("loginPass").value.trim();
+
+    if (user && pass) {
+        // Giả sử login thành công
+        document.getElementById("loginOverlay").style.display = "none";
+        document.querySelector(".game-container").style.display = "flex";
+
+        // Giữ ID nếu đã có, nếu chưa thì tạo mới 1 lần
+        let userId = localStorage.getItem("userId");
+        if (!userId) {
+            userId = "UID" + Math.floor(100000 + Math.random() * 900000);
+            localStorage.setItem("userId", userId);
+        }
+
+
+
+        // --- xử lý tên ---
+        // Nếu chưa có userName trong localStorage thì mới set từ input login
+        if (!localStorage.getItem("userName")) {
+            localStorage.setItem("userName", user);
+        }
+
+        // --- xử lý avatar ---
+        if (!localStorage.getItem("userAvatar")) {
+            localStorage.setItem("userAvatar", "https://i.pravatar.cc/80?u=" + encodeURIComponent(user));
+        }
+
+        // Cập nhật giao diện
+        setUserInfo(
+            localStorage.getItem("userName"),
+            localStorage.getItem("userId"),
+            localStorage.getItem("userAvatar")
+        );
+    } else {
+        document.getElementById("loginMsg").textContent = "⚠️ Vui lòng nhập đầy đủ tài khoản và mật khẩu!";
+    }
+}
+
+// Hàm hiển thị thông tin user
+function setUserInfo(name, id, avatarUrl) {
+    document.getElementById("userNameDisplay").textContent = name;
+    document.getElementById("userIdDisplay").textContent = id;
+    document.querySelector(".user-avatar").src = avatarUrl;
+    document.getElementById("userInfo").style.display = "flex";
+}
+
+// Tự động load lại khi F5
+window.addEventListener("load", () => {
+    if (localStorage.getItem("userName")) {
+        setUserInfo(
+            localStorage.getItem("userName"),
+            localStorage.getItem("userId"),
+            localStorage.getItem("userAvatar")
+        );
+    }
+});
+
+
+//Đổi tên
+(() => {
+    const modal = document.getElementById("changeNameModal");
+    const input = document.getElementById("newNameInput");
+    const saveBtn = document.getElementById("saveNameBtn");
+    const cancelBtn = document.getElementById("cancelNameBtn");
+    const counter = document.getElementById("nameCounter");
+    const err = document.getElementById("nameError");
+    const avatarImg = document.querySelector(".rename-avatar");
+
+    const nameDisplay = document.getElementById("userNameDisplay"); // nơi hiển thị tên hiện tại
+    const openBtn = document.getElementById("changeNameBtn");       // nút mở modal
+
+    // regex: cho phép chữ (kể cả có dấu), số, khoảng trắng; tối thiểu 2 ký tự sau khi trim
+    const NAME_OK = (s) => {
+        const t = s.trim();
+        if (t.length < 2 || t.length > 20) return false;
+        // không cho toàn khoảng trắng; cho unicode letter/number/space
+        return /^[\p{L}\p{N} ]+$/u.test(t);
+    };
+
+    function openModal() {
+        // gợi ý avatar hiện tại nếu có
+        try {
+            const current = (localStorage.getItem("userName") || nameDisplay?.textContent || "").trim();
+            input.value = current;
+            counter.textContent = `${input.value.length}/20`;
+            avatarImg && (avatarImg.src = (localStorage.getItem("userAvatar") || `https://i.pravatar.cc/80?u=${encodeURIComponent(current)}`));
+        } catch { }
+        err.style.display = "none";
+        input.classList.remove("input-error");
+
+        modal.style.display = "flex";
+        requestAnimationFrame(() => modal.classList.add("show"));
+        setTimeout(() => input.focus(), 50);
+    }
+
+    function closeModal() {
+        modal.classList.remove("show");
+        setTimeout(() => { modal.style.display = "none"; }, 200);
+    }
+
+    // mở từ nút "Đổi tên"
+    if (openBtn) {
+        openBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            openModal();
+        });
+    }
+
+    // cập nhật counter + preview avatar theo tên gõ vào
+    input.addEventListener("input", () => {
+        counter.textContent = `${input.value.length}/20`;
+        if (avatarImg) avatarImg.src = `https://i.pravatar.cc/80?u=${encodeURIComponent(input.value.trim() || "preview")}`;
+        if (NAME_OK(input.value)) {
+            err.style.display = "none";
+            input.classList.remove("input-error");
+        }
+    });
+
+    // Lưu
+    saveBtn.addEventListener("click", () => {
+        const newName = input.value;
+        if (!NAME_OK(newName)) {
+            err.textContent = "⚠️ Tên phải 2–20 ký tự (chữ/số/khoảng trắng).";
+            err.style.display = "block";
+            input.classList.add("input-error");
+            input.focus();
+            return;
+        }
+
+        const finalName = newName.trim().replace(/\s+/g, " "); // gom khoảng trắng đôi
+
+        // --- xử lý ID ---
+        let userId = localStorage.getItem("userId");
+        if (!userId) {
+            userId = "UID" + Math.floor(100000 + Math.random() * 900000);
+            localStorage.setItem("userId", userId);
+        }
+
+        // --- xử lý avatar ---
+        const newAvatar = `https://i.pravatar.cc/80?u=${encodeURIComponent(finalName)}`;
+
+        // --- lưu vào localStorage ---
+        localStorage.setItem("userName", finalName);
+        localStorage.setItem("userAvatar", newAvatar);
+
+        // --- cập nhật UI ---
+        const nameEl = document.getElementById("userNameDisplay");
+        if (nameEl) nameEl.textContent = finalName;
+
+        const idEl = document.getElementById("userIdDisplay");
+        if (idEl) idEl.textContent = userId;
+
+        const avatarEl = document.querySelector(".user-avatar");
+        if (avatarEl) avatarEl.src = newAvatar;
+
+        closeModal();
+
+        // thông báo
+        const note = document.getElementById("notification");
+        if (note) {
+            note.textContent = `✅ Đã đổi tên thành “${finalName}”`;
+            setTimeout(() => (note.textContent = ""), 3000);
+        }
+    });
+
+
+    // Hủy/đóng
+    cancelBtn.addEventListener("click", closeModal);
+
+    // đóng khi click ra ngoài
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) closeModal();
+    });
+
+    // ESC để đóng
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modal.style.display === "flex") closeModal();
+    });
+})();
+
+document.addEventListener("DOMContentLoaded", () => {
+    // lấy dữ liệu từ localStorage
+    let name = localStorage.getItem("userName");
+    let userId = localStorage.getItem("userId");
+    let avatar = localStorage.getItem("userAvatar");
+
+    // nếu chưa có thì set mặc định
+    if (!name) {
+        name = "Người chơi";
+        localStorage.setItem("userName", name);
+    }
+    if (!userId) {
+        userId = "UID" + Math.floor(100000 + Math.random() * 900000);
+        localStorage.setItem("userId", userId);
+    }
+    if (!avatar) {
+        avatar = `https://i.pravatar.cc/80?u=${encodeURIComponent(userId)}`;
+        localStorage.setItem("userAvatar", avatar);
+    }
+
+    // gán ra UI
+    const nameEl = document.getElementById("userNameDisplay");
+    if (nameEl) nameEl.textContent = name;
+
+    const idEl = document.getElementById("userIdDisplay");
+    if (idEl) idEl.textContent = userId;
+
+    const avatarEl = document.querySelector(".user-avatar");
+    if (avatarEl) avatarEl.src = avatar;
+});
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const avatarEl = document.querySelector(".user-avatar");
+    const fileInput = document.getElementById("avatarUpload");
+
+    if (avatarEl && fileInput) {
+        // Khi click avatar thì mở chọn file
+        avatarEl.addEventListener("click", () => fileInput.click());
+
+        // Khi chọn ảnh mới
+        fileInput.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (ev) {
+                const newAvatar = ev.target.result; // base64 string
+
+                // cập nhật UI
+                avatarEl.src = newAvatar;
+                // lưu vào localStorage
+                localStorage.setItem("userAvatar", newAvatar);
+                // thông báo
+                const note = document.getElementById("notification");
+                if (note) {
+                    note.textContent = "✅ Đã cập nhật avatar!";
+                    setTimeout(() => (note.textContent = ""), 3000);
+                }
+            };
+            reader.readAsDataURL(file); // chuyển ảnh thành base64
+        });
+    }
+});

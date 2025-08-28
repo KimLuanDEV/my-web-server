@@ -1179,3 +1179,69 @@ button:hover {
 #confirmConvertModal.show .modal-box {
   transform: scale(1);
 }
+
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-radius: 15px;
+  border: 2px solid #fff8dc;
+  background: linear-gradient(145deg, #222, #111);
+  box-shadow: 0 0 15px rgba(255,215,0,0.4);
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.user-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid gold;
+  box-shadow: 0 0 10px gold;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  font-weight: bold;
+}
+
+.user-name, .user-id {
+  font-size: 1rem;
+}
+
+
+.avatar-btn {
+  margin-top: 6px;
+  padding: 5px 10px;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(145deg, gold, orange);
+  color: #000;
+  font-weight: bold;
+  box-shadow: 0 0 10px gold;
+  transition: transform 0.2s ease;
+  width: 130px;
+  text-align: center;
+}
+
+.avatar-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px #fff000;
+}
+
+
+/* Hiệu ứng modal xuất hiện/biến mất */
+#changeNameModal { opacity:0; transition: opacity .25s ease; }
+#changeNameModal.show { display:flex !important; opacity:1; }
+
+.rename-box { transform: scale(.94); transition: transform .25s ease; }
+#changeNameModal.show .rename-box { transform: scale(1); }
+
+/* Trạng thái lỗi input */
+#newNameInput.input-error { border-color:#ff6b6b !important; box-shadow:0 0 0 3px rgba(255,107,107,.15); }
