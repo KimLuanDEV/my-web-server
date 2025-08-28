@@ -3598,7 +3598,7 @@ function showLogin() {
   id: userId,
   user: user,
   pass: pass,
-  balance: Number(startBalance) || 0
+  balance: 0
   };
 
   // Lưu tài khoản mới
