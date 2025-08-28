@@ -1932,7 +1932,7 @@ window.addEventListener("load", () => {
         // --- xử lý ID ---
         let userId = localStorage.getItem("userId");
         if (!userId) {
-            userId = "UID" + Math.floor(100000 + Math.random() * 900000);
+            userId = "GRD" + Math.floor(10000000 + Math.random() * 900000);
             localStorage.setItem("userId", userId);
         }
 
