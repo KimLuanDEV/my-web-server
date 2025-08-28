@@ -2014,8 +2014,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-
-
 //Xử lý chuyển xu
 document.getElementById("transferCoinBtn").addEventListener("click", function () {
     let targetId = document.getElementById("transferUserId").value.trim();
@@ -2051,59 +2049,35 @@ document.getElementById("transferCoinBtn").addEventListener("click", function ()
     // Xử lý khi đồng ý
     document.getElementById("confirmTransferYes").onclick = function () {
 
-        let targetId = document.getElementById("transferUserId").value.trim();
-        let amount = parseInt(document.getElementById("transferAmount").value);
-        let users = JSON.parse(localStorage.getItem("users")) || {};
-        let currentUser = JSON.parse(localStorage.getItem("currentUser"));
-        // Tìm người nhận theo ID
-        let receiver = Object.values(users).find(u => u.id === targetId);
-        if (!receiver) {
-            document.getElementById("transferStatus").textContent = "❌ Không tìm thấy người dùng với ID này!";
-            return;
-        }
-        if (currentUser.coins < amount) {
-            document.getElementById("transferStatus").textContent = "❌ Bạn không đủ xu!";
-            return;
-        }
+        // Lưu lịch sử chuyển xu
+        let transferHistory = JSON.parse(localStorage.getItem("transferHistory")) || [];
+        transferHistory.push({
+            from: currentUser.id,
+            to: targetId,
+            amount: amount,
+            time: new Date().toLocaleString(),
+            type: "send" // loại: gửi
+        });
+        localStorage.setItem("transferHistory", JSON.stringify(transferHistory));
+
 
         // Trừ xu người gửi
         currentUser.coins -= amount;
         users[currentUser.id].coins = currentUser.coins;
 
         // Cộng xu cho người nhận
-        receiver.coins += amount;
-        users[receiver.user].coins = receiver.coins;
+        users[targetId].coins = (users[targetId].coins || 0) + amount;
 
         // Lưu lại
-        localStorage.setItem("users", JSON.stringify(users));
         localStorage.setItem("currentUser", JSON.stringify(currentUser));
+        localStorage.setItem("users", JSON.stringify(users));
         localStorage.setItem("balance", currentUser.coins);
 
+        // Cập nhật hiển thị
         document.getElementById("balance").textContent = currentUser.coins;
-        document.getElementById("transferStatus").textContent = `✅ Đã chuyển ${amount} xu cho ${receiver.user} (ID: ${receiver.id})`;
-        document.getElementById("confirmTransferModal").style.display = "none";
 
-        // Lưu lịch sử chuyển xu
-        let transferHistory = JSON.parse(localStorage.getItem("transferHistory")) || [];
-        // Log cho người gửi
-        transferHistory.push({
-            type: "sent",
-            from: currentUser.id,
-            to: targetId,
-            amount: amount,
-            time: new Date().toLocaleString()
-        });
-
-        // Log cho người nhận
-        transferHistory.push({
-            type: "received",
-            from: currentUser.id,
-            to: targetId,
-            amount: amount,
-            time: new Date().toLocaleString()
-        });
-        localStorage.setItem("transferHistory", JSON.stringify(transferHistory));
-
+        statusEl.textContent = `✅ Đã chuyển ${amount} xu cho ID ${targetId} thành công!`;
+        statusEl.style.color = "lime";
 
         // Đóng modal xác nhận
         document.getElementById("confirmTransferModal").style.display = "none";
@@ -2116,56 +2090,27 @@ document.getElementById("transferCoinBtn").addEventListener("click", function ()
 });
 
 
-//Xem lịch sử chuyển xu
-function renderTransferHistory(filterType) {
+document.getElementById("openTransferHistoryBtn").addEventListener("click", function () {
     let transferHistory = JSON.parse(localStorage.getItem("transferHistory")) || [];
-    let currentUser = JSON.parse(localStorage.getItem("currentUser"));
     let listEl = document.getElementById("transferHistoryList");
     listEl.innerHTML = "";
 
-    let filtered = transferHistory.filter(entry => {
-        if (filterType === "sent") {
-            return entry.type === "sent" && entry.from === currentUser.id;
-        }
-        if (filterType === "received") {
-            return entry.type === "received" && entry.to === currentUser.id;
-        }
-        return false;
-    });
-
-    if (filtered.length === 0) {
-        listEl.innerHTML = "<p style='color:gray;'>Chưa có giao dịch.</p>";
+    if (transferHistory.length === 0) {
+        listEl.innerHTML = "<p style='color:gray;'>Chưa có giao dịch nào.</p>";
     } else {
-        filtered.slice().reverse().forEach(entry => {
+        transferHistory.slice().reverse().forEach(entry => {
             let div = document.createElement("div");
             div.style.padding = "6px";
             div.style.borderBottom = "1px solid #444";
-            if (entry.type === "sent") {
-                div.innerHTML = `🕒 <b>${entry.time}</b><br>
-                         📤 Bạn đã gửi <span style="color:gold">${entry.amount}</span> xu cho 
-                         <span style="color:lime">ID ${entry.to}</span>`;
-            } else {
-                div.innerHTML = `🕒 <b>${entry.time}</b><br>
-                         📥 Bạn đã nhận <span style="color:gold">${entry.amount}</span> xu từ 
-                         <span style="color:orange">ID ${entry.from}</span>`;
-            }
+            div.innerHTML = `🕒 <b>${entry.time}</b><br>
+                       ➡️ Từ: <span style="color:orange">${entry.from}</span> 
+                       ➡️ Đến: <span style="color:lime">${entry.to}</span><br>
+                       💰 Số xu: <span style="color:gold">${entry.amount}</span>`;
             listEl.appendChild(div);
         });
     }
-}
 
-
-document.getElementById("openTransferHistoryBtn").addEventListener("click", function () {
-    renderTransferHistory("sent"); // mặc định mở tab "đã gửi"
     document.getElementById("transferHistoryModal").style.display = "flex";
-});
-
-document.getElementById("showSentBtn").addEventListener("click", function () {
-    renderTransferHistory("sent");
-});
-
-document.getElementById("showReceivedBtn").addEventListener("click", function () {
-    renderTransferHistory("received");
 });
 
 document.getElementById("closeTransferHistoryBtn").addEventListener("click", function () {
