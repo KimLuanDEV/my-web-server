@@ -3516,6 +3516,22 @@ function showLogin() {
   document.getElementById("loginForm").style.display = "block";
 }
 
+
+
+  document.addEventListener("DOMContentLoaded", function() {
+  let users = JSON.parse(localStorage.getItem("users")) || {};
+  // Nếu chưa có tài khoản admin thì tạo sẵn
+  if (!users["Greedy"]) {
+  users["GreedyKing"] = {
+  username: "GreedyKing",
+  password: "123456@",   // mật khẩu mặc định
+  balance: 0            // số dư ban đầu
+  };
+  localStorage.setItem("users", JSON.stringify(users));
+  }
+});
+
+
 // Đăng nhập
   function handleLogin() {
   const user = document.getElementById("loginUser").value.trim();
@@ -3582,7 +3598,7 @@ function showLogin() {
   id: userId,
   user: user,
   pass: pass,
-  coins: 0
+  balance: Number(startBalance) || 0
   };
 
   // Lưu tài khoản mới
@@ -3826,115 +3842,130 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-//Xử lý chuyển xu
-  document.getElementById("transferCoinBtn").addEventListener("click", function () {
-  let targetId = document.getElementById("transferUserId").value.trim();
+//Xác nhận chuyển xu
+  document.addEventListener("DOMContentLoaded", function() {
+  const transferBtn = document.getElementById("transferCoinBtn");
+  const confirmModal = document.getElementById("confirmTransferModal");
+  const confirmMsg = document.getElementById("confirmTransferMessage");
+  const yesBtn = document.getElementById("confirmTransferYes");
+  const noBtn = document.getElementById("confirmTransferNo");
+
+  // Nhấn "Xác nhận" ở form chuyển xu
+  transferBtn.addEventListener("click", function() {
+  let toId = document.getElementById("transferUserId").value.trim();
   let amount = parseInt(document.getElementById("transferAmount").value);
-  let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+  if (!toId || isNaN(amount) || amount <= 0) {
+  document.getElementById("transferStatus").innerText = "⚠️ Vui lòng nhập ID và số xu hợp lệ!";
+  return;
+  }
+  // Hiển thị modal xác nhận
+  confirmMsg.innerText = `Bạn có chắc chắn muốn chuyển ${amount} xu cho ID: ${toId}?`;
+  confirmModal.style.display = "flex";
+
+  // Nếu đồng ý
+  yesBtn.onclick = function() {
   let users = JSON.parse(localStorage.getItem("users")) || {};
+  let currentUser = localStorage.getItem("currentUser");
 
-  let statusEl = document.getElementById("transferStatus");
 
-  if (!targetId || isNaN(amount) || amount <= 0) {
-    statusEl.textContent = "⚠️ Vui lòng nhập đúng ID và số xu hợp lệ!";
-    statusEl.style.color = "red";
-    return;
+
+  let senderBalance = parseInt(users[currentUser].balance) || 0;
+  let amount = parseInt(document.getElementById("transferAmount").value);
+  let toId = document.getElementById("transferUserId").value.trim();
+
+
+  if (!users[toId]) {
+  document.getElementById("transferStatus").innerText = "❌ Người nhận không tồn tại!";
+  confirmModal.style.display = "none";
+  return;
   }
 
-  if (currentUser.coins < amount) {
-    statusEl.textContent = "❌ Bạn không đủ xu để chuyển!";
-    statusEl.style.color = "red";
-    return;
+ // Kiểm tra số dư
+  if (balance < amount) {
+  document.getElementById("transferStatus").innerText = "❌ Không đủ xu!";
+  confirmModal.style.display = "none";
+  return;
   }
 
-  if (!users[targetId]) {
-    statusEl.textContent = "❌ Không tìm thấy người dùng với ID này!";
-    statusEl.style.color = "red";
-    return;
-  }
 
-  // Hiện modal xác nhận
-  document.getElementById("confirmTransferMessage").textContent = 
-    `Bạn có chắc chắn muốn chuyển ${amount} xu cho ID ${targetId}?`;
-  document.getElementById("confirmTransferModal").style.display = "flex";
+  
 
-  // Xử lý khi đồng ý
-  document.getElementById("confirmTransferYes").onclick = function () {
+  // Trừ + cộng xu 
+ balance -= amount;
+ users[toId].balance = balance + amount;
+ updateBalance();
+ updateBalanceDisplay()
+ localStorage.setItem("users", JSON.stringify(users));
 
- // Lưu lịch sử chuyển xu
-  let transferHistory = JSON.parse(localStorage.getItem("transferHistory")) || [];
-  transferHistory.push({
-  from: currentUser.id,
-  to: targetId,
+  // Lưu lịch sử
+  let history = JSON.parse(localStorage.getItem("transferHistory")) || [];
+  history.push({
+  from: currentUser,
+  to: toId,
   amount: amount,
-  time: new Date().toLocaleString(),
-  type: "send" // loại: gửi
+  time: new Date().toLocaleString()
   });
-  localStorage.setItem("transferHistory", JSON.stringify(transferHistory));
+  localStorage.setItem("transferHistory", JSON.stringify(history));
+
+  document.getElementById("balance").innerText = users[currentUser].balance;
+  document.getElementById("transferStatus").innerText = `✅ Đã chuyển ${amount} xu cho ID: ${toId}`;
 
 
-    // Trừ xu người gửi
-    currentUser.coins -= amount;
-    users[currentUser.id].coins = currentUser.coins;
+  // Reset input sau khi chuyển xong
+  document.getElementById("transferUserId").value = "";
+  document.getElementById("transferAmount").value = "";
 
-    // Cộng xu cho người nhận
-    users[targetId].coins = (users[targetId].coins || 0) + amount;
-
-    // Lưu lại
-    localStorage.setItem("currentUser", JSON.stringify(currentUser));
-    localStorage.setItem("users", JSON.stringify(users));
-    localStorage.setItem("balance", currentUser.coins);
-
-    // Cập nhật hiển thị
-    document.getElementById("balance").textContent = currentUser.coins;
-
-    statusEl.textContent = `✅ Đã chuyển ${amount} xu cho ID ${targetId} thành công!`;
-    statusEl.style.color = "lime";
-
-    // Đóng modal xác nhận
-    document.getElementById("confirmTransferModal").style.display = "none";
+  confirmModal.style.display = "none";
   };
-
-  // Nếu hủy
-  document.getElementById("confirmTransferNo").onclick = function () {
-    document.getElementById("confirmTransferModal").style.display = "none";
+  // Nếu huỷ
+  noBtn.onclick = function() {
+  confirmModal.style.display = "none";
   };
+  });
 });
 
 
-  document.getElementById("openTransferHistoryBtn").addEventListener("click", function () {
-  let transferHistory = JSON.parse(localStorage.getItem("transferHistory")) || [];
-  let listEl = document.getElementById("transferHistoryList");
-  listEl.innerHTML = "";
+//Lưu vào lịch sử chuyển xu
+  document.addEventListener("DOMContentLoaded", function() {
+  const transferHistoryModal = document.getElementById("transferHistoryModal");
+  const transferHistoryList = document.getElementById("transferHistoryList");
+  const openHistoryBtn = document.getElementById("openTransferHistoryBtn");
+  const closeHistoryBtn = document.getElementById("closeTransferHistoryBtn");
 
-  if (transferHistory.length === 0) {
-    listEl.innerHTML = "<p style='color:gray;'>Chưa có giao dịch nào.</p>";
-  } else {
-    transferHistory.slice().reverse().forEach(entry => {
-      let div = document.createElement("div");
-      div.style.padding = "6px";
-      div.style.borderBottom = "1px solid #444";
-      div.innerHTML = `🕒 <b>${entry.time}</b><br>
-                       ➡️ Từ: <span style="color:orange">${entry.from}</span> 
-                       ➡️ Đến: <span style="color:lime">${entry.to}</span><br>
-                       💰 Số xu: <span style="color:gold">${entry.amount}</span>`;
-      listEl.appendChild(div);
-    });
+// Hàm render lịch sử
+  function renderTransferHistory() {
+  let history = JSON.parse(localStorage.getItem("transferHistory")) || [];
+  if (history.length === 0) {
+  transferHistoryList.innerHTML = "<p style='color:gray'>Chưa có giao dịch nào</p>";
+  return;
+  }
+  transferHistoryList.innerHTML = history.map(h => `
+  <div style="margin-bottom:8px; padding:6px; border-bottom:1px solid #444;">
+  <b>👤 Từ:</b> ${h.from} <br>
+  <b>➡️ Đến:</b> ${h.to} <br>
+  <b>💰 Số xu:</b> ${h.amount} <br>
+  <small>🕒 ${h.time}</small>
+  </div>
+  `).join("");
   }
 
-  document.getElementById("transferHistoryModal").style.display = "flex";
+// Mở modal lịch sử
+  openHistoryBtn.addEventListener("click", function() {
+  renderTransferHistory();
+  transferHistoryModal.style.display = "flex";
+  });
+
+//Đóng modal lịch sử
+  closeHistoryBtn.addEventListener("click", function() {
+  transferHistoryModal.style.display = "none";
+  });
 });
 
-document.getElementById("closeTransferHistoryBtn").addEventListener("click", function () {
-  document.getElementById("transferHistoryModal").style.display = "none";
+
+Object.keys(users).forEach(uid => {
+  users[uid].balance = Number(users[uid].balance) || 0;
 });
-
-
-
-
-
-
-
 
 </script>
 <div id="jackpotEffect"></div>
