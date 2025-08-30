@@ -679,6 +679,7 @@ button:hover {
   justify-content: center;
 }
 
+/*
 /*Trục 8 cửa*/
 .stage {
  position: relative;
@@ -838,6 +839,9 @@ button:hover {
 .door:nth-child(6) { background: radial-gradient(circle, #fde68a, #d97706); }
 .door:nth-child(7) { background: radial-gradient(circle, #fde68a, #d97706); }
 .door:nth-child(8) { background: radial-gradient(circle, #fde68a, #d97706); }
+
+
+*/
 
 .door.dim {
   opacity: 0.2;
@@ -1274,3 +1278,4 @@ button:hover {
   background: #333;
   color: #ffd700;
 }
+
