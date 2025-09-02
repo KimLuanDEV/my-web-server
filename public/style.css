@@ -679,7 +679,6 @@ button:hover {
   justify-content: center;
 }
 
-/*
 /*Trục 8 cửa*/
 .stage {
  position: relative;
@@ -839,9 +838,6 @@ button:hover {
 .door:nth-child(6) { background: radial-gradient(circle, #fde68a, #d97706); }
 .door:nth-child(7) { background: radial-gradient(circle, #fde68a, #d97706); }
 .door:nth-child(8) { background: radial-gradient(circle, #fde68a, #d97706); }
-
-
-*/
 
 .door.dim {
   opacity: 0.2;
@@ -1279,3 +1275,90 @@ button:hover {
   color: #ffd700;
 }
 
+
+/* Container ngang */
+.top-winners-list {
+  display: flex;
+  gap: 12px;
+  justify-content: space-around;
+  flex-wrap: nowrap;   /* hoặc wrap nếu muốn xuống dòng khi nhỏ */
+  margin-top: 8px;
+}
+
+/* Mỗi ô top */
+.top-winner-card {
+  flex: 1;
+  min-width: 0;
+  background: rgba(255,215,0,0.08);
+  border: 1px solid gold;
+  border-radius: 12px;
+  padding: 10px;
+  text-align: center;
+  box-shadow:0 0 8px rgba(255,215,0,.3);
+}
+
+.top-winner-rank {
+  font-weight: bold;
+  color: gold;
+  font-size: 1.1rem;
+}
+
+.top-winner-avatar {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  border:2px solid gold;
+  margin: 4px auto;
+  display: block;
+}
+
+.top-winner-name {
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.top-winner-meta {
+  font-size: .85rem;
+  opacity: .85;
+}
+
+.top-winner-amount {
+  margin-top: 4px;
+  font-weight: 900;
+  color: #ffd700;
+  text-shadow:0 0 6px #fff000;
+}
+
+/* Màu huy chương theo hạng */
+.top-winner-card.rank-1 {
+  border-color: #FFD700;
+  background: linear-gradient(160deg, rgba(255,215,0,.18), rgba(255,215,0,.05));
+  box-shadow: 0 0 16px rgba(255,215,0,.35);
+}
+.top-winner-card.rank-2 {
+  border-color: #C0C0C0;
+  background: linear-gradient(160deg, rgba(192,192,192,.18), rgba(192,192,192,.05));
+  box-shadow: 0 0 12px rgba(192,192,192,.3);
+}
+.top-winner-card.rank-3 {
+  border-color: #CD7F32; /* bronze */
+  background: linear-gradient(160deg, rgba(205,127,50,.18), rgba(205,127,50,.05));
+  box-shadow: 0 0 10px rgba(205,127,50,.28);
+}
+
+/* Hàng đầu nổi bật nhẹ */
+.top-winner-card.pulse {
+  animation: popPulse .9s ease-in-out;
+}
+@keyframes popPulse {
+  0%   { transform: scale(0.96); }
+  60%  { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+/* Trang trí tiêu đề hạng */
+.top-winner-rank {
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.top-winner-rank .medal {
+  font-size: 1.05rem;
+}

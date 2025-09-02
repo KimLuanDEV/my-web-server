@@ -1,4 +1,3 @@
-
 let countdownDuration = 40; // số giây mỗi phiên
 let lastSpinTime = parseInt(localStorage.getItem("lastSpinTime")) || Date.now();
 let pauseAfterSpin = false;
@@ -26,11 +25,11 @@ const notificationEl = document.getElementById("notification");
 const historyEl = document.getElementById("history");
 const betHistoryEl = document.getElementById("betHistory");
 const JACKPOT_THRESHOLD = 5000;
-const JACKPOT_CHANCE = 0.001;
+const JACKPOT_CHANCE = 0;
 const wheelEl = document.getElementById("wheel");
 const options = [
     { name: "Chua", icon: "🍅", weight: 19.2, reward: 5 },
-    { name: "Cải", icon: "🥬", weight: 19.2, reward: 5 },
+    { name: "Cải", icon: "🥦", weight: 19.2, reward: 5 },
     { name: "Ngô", icon: "🌽", weight: 19.2, reward: 5 },
     { name: "Rốt", icon: "🥕", weight: 19.2, reward: 5 },
     { name: "Mỳ", icon: "🌭", weight: 10, reward: 10 },
@@ -40,6 +39,55 @@ const options = [
 ];
 
 
+const JACKPOT_KEY = "greedy_jackpot_value";
+const JACKPOT_MAX_KEY = "greedy_jackpot_max"; // để nhớ luôn progress max (nếu bạn muốn)
+
+function readJackpot() {
+    const v = Number(localStorage.getItem(JACKPOT_KEY));
+    return Number.isFinite(v) ? v : 0;
+}
+function writeJackpot(val) {
+    const jackpotEl = document.getElementById("jackpot");
+    const progressEl = document.getElementById("jackpotProgress");
+    const v = Math.max(0, Math.floor(val));
+
+    if (jackpotEl) jackpotEl.textContent = v;
+    if (progressEl) {
+        const savedMax = Number(localStorage.getItem(JACKPOT_MAX_KEY)) || 1000000;
+        // đảm bảo max không nhỏ hơn giá trị hiện tại
+        const newMax = Math.max(savedMax, v);
+        progressEl.max = newMax;
+        progressEl.value = v;
+        localStorage.setItem(JACKPOT_MAX_KEY, String(newMax));
+    }
+    localStorage.setItem(JACKPOT_KEY, String(v));
+}
+
+function getJackpotFromStorage() {
+    return parseInt(localStorage.getItem(JACKPOT_KEY) || "0", 10);
+}
+function setJackpotToStorage(value) {
+    localStorage.setItem(JACKPOT_KEY, String(value));
+}
+function getJackpotMaxFromStorage() {
+    return parseInt(localStorage.getItem(JACKPOT_MAX_KEY) || "1000000", 10);
+}
+function setJackpotMaxToStorage(value) {
+    localStorage.setItem(JACKPOT_MAX_KEY, String(value));
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const jackpotEl = document.getElementById("jackpot");
+    const progressEl = document.getElementById("jackpotProgress");
+    const saved = getJackpotFromStorage();
+    const savedMax = getJackpotMaxFromStorage();
+
+    if (jackpotEl) jackpotEl.textContent = isNaN(saved) ? 0 : saved;
+    if (progressEl) {
+        progressEl.max = isNaN(savedMax) ? 1000000 : savedMax;
+        progressEl.value = isNaN(saved) ? 0 : saved;
+    }
+});
 
 // Hàm thêm lịch sử đặt cược
 function addBetHistory(betName, amount, result = "Chờ kết quả", payout = 0) {
@@ -55,36 +103,41 @@ function addBetHistory(betName, amount, result = "Chờ kết quả", payout = 0
 }
 
 function renderBetHistory() {
-    let betHistory = JSON.parse(localStorage.getItem("betHistory")) || [];
+    let history = JSON.parse(localStorage.getItem("betHistory")) || [];
+
     const modalEl = document.getElementById("modalBetHistory");
     if (!modalEl) return; // nếu modal chưa load
-
     modalEl.innerHTML = "";
 
-    if (betHistory.length === 0) {
-        modalEl.innerHTML = "<p>⚠️ Chưa có lịch sử cược nào.</p>";
+    if (history.length === 0) {
+        historyEl.innerHTML = "<p>⚠️ Chưa có lịch sử cược nào.</p>";
         return;
     }
 
-    betHistory.forEach(entry => {
+    history.forEach(entry => {
         modalEl.innerHTML += `
   <div style="margin-bottom:8px; border-bottom:1px solid #444; padding-bottom:5px;">
   ⏰ ${entry.time} | 🎯 Phiên ${entry.spin}<br>
   👉 Đặt <b>${entry.amount}</b> xu vào <b>${entry.betName}</b><br>
   🏆 Kết quả: ${entry.result} | 💰 Xu nhận: ${entry.payout}
+
+  localStorage.setItem("betHistory", JSON.stringify(betHistory));
   </div>
     `;
     });
 }
 
+
 // Khôi phục khi load lại trang
 window.addEventListener("load", () => {
-
+    /*
     let betHistory = JSON.parse(localStorage.getItem("betHistory")) || [];
     betHistoryEl.innerHTML = " <b></b>";
     betHistory.forEach(entry => {
-        betHistoryEl.innerHTML += `⏰ ${entry.time} - Đặt ${entry.amount} xu vào ${entry.betName}<br>`;
+    betHistoryEl.innerHTML += `⏰ ${entry.time} - Đặt ${entry.amount} xu vào ${entry.betName}<br>`;
     });
+  
+  */
     document.querySelectorAll('.chip, .bet-box').forEach(el => el.classList.remove('lock-bets'));
 
     resetHistoryDaily();   // chỉ xóa khi sang ngày
@@ -438,6 +491,51 @@ function updateBetDisplay() {
     document.getElementById("totalBetDisplay").textContent = `${total}`;
 }
 
+function increaseJackpotWithReset() {
+    const jackpotEl = document.getElementById("jackpot");
+    const progressEl = document.getElementById("jackpotProgress");
+    if (!jackpotEl) return;
+
+    // Đọc giá trị hiện tại (ưu tiên UI, fallback storage)
+    let current = parseInt(jackpotEl.textContent) || getJackpotFromStorage() || 0;
+
+    // +500–1000 xu
+    const inc = Math.floor(Math.random() * (1000 - 500 + 1)) + 500;
+    let next = current + inc;
+
+    // Tỷ lệ reset Jackpot về còn 20% (ví dụ 10% cơ hội)
+    const RESET_PROB = 0.001;  //0.1%
+    const RESET_FACTOR = 0.20;   // reset hũ về còn 20%
+    if (Math.random() < RESET_PROB) {
+        next = Math.floor(next * RESET_FACTOR);
+        // (tuỳ chọn) bạn có thể hiển thị thông báo reset ở đây
+        // showToast("⚠️ Jackpot bị reset còn 20%!");
+    }
+
+    writeJackpot(next);
+
+    // Cập nhật UI
+    jackpotEl.textContent = next;
+
+    // Cập nhật progress
+    if (progressEl) {
+        // nếu vượt max thì tăng max để progress không bị full
+        if (next > progressEl.max) {
+            progressEl.max = next;
+            setJackpotMaxToStorage(next);
+        }
+        progressEl.value = next;
+    }
+
+    // LƯU vào localStorage để F5 không mất
+    setJackpotToStorage(next);
+
+    // hiệu ứng nhẹ
+    jackpotEl.classList.add("flash-update");
+    setTimeout(() => jackpotEl.classList.remove("flash-update"), 600);
+}
+
+
 
 function updateJackpotDisplay() {
     const oldVal = parseInt(jackpotEl.textContent.replace(/\D/g, '')) || 0;
@@ -663,102 +761,6 @@ window.onload = () => {
     // cũng load lại số dư đã lưu
 };
 
-
-
-
-// Hàm xử lý nổ Salad
-function handleSaladEvent(rauList, totalBet) {
-    let winAmount = 0;
-
-    rauList.forEach(name => {
-        const betAmt = Number(bets[name] || 0);
-        if (betAmt >= 0) {
-            const opt = options.find(o => o.name === name) || {};
-            winAmount += betAmt * (opt.reward || 0);
-        }
-
-        const betBox = document.querySelector(`.bet-box[data-name="${name}"]`);
-        if (betBox) betBox.classList.add("highlight-win");
-
-        const doorEl = document.querySelector(`.door[data-name="${name}"]`);
-        if (doorEl) doorEl.classList.add("highlight", "winner", "highlight-win");
-    });
-
-    balance += winAmount;
-
-    const saladSelected = { name: "Salad", icon: "🥗", reward: 0 };
-    const resultEl = document.getElementById("result");
-    resultEl.textContent = saladSelected.icon;
-
-    localStorage.setItem("lastResultIcon", saladSelected.icon);
-    localStorage.setItem("lastResult", JSON.stringify(saladSelected));
-    addResultToHistory(saladSelected.icon);
-
-    showResultModal(saladSelected, totalBet, winAmount);
-
-    // Reset game trạng thái để quay vòng mới
-    /*resetGameState();*/
-    return winAmount;
-}
-
-// Hàm xử lý nổ Pizza
-function handlePizzaEvent(thitList, totalBet) {
-    let winAmount = 0;
-
-    thitList.forEach(name => {
-        const betAmt = Number(bets[name] || 0);
-        if (betAmt >= 0) {
-            const opt = options.find(o => o.name === name) || {};
-            winAmount += betAmt * (opt.reward || 0);
-        }
-
-        const doorEl = document.querySelector(`.door[data-name="${name}"]`);
-        if (doorEl) doorEl.classList.add("highlight", "winner", "highlight-win");
-
-        const betBox = document.querySelector(`.bet-box[data-name="${name}"]`);
-        if (betBox) betBox.classList.add("highlight-win");
-
-    });
-
-    balance += winAmount;
-
-    const pizzaSelected = { name: "Pizza", icon: "🍕", reward: 0 };
-    const resultEl = document.getElementById("result");
-    resultEl.textContent = pizzaSelected.icon;
-
-    localStorage.setItem("lastResultIcon", pizzaSelected.icon);
-    localStorage.setItem("lastResult", JSON.stringify(pizzaSelected));
-    addResultToHistory(pizzaSelected.icon);
-
-    showResultModal(pizzaSelected, totalBet, winAmount);
-
-    // Reset game trạng thái để quay vòng mới
-    /*resetGameState();*/
-    return winAmount;
-}
-
-// Hàm reset game sau mỗi vòng
-function resetGameState() {
-    // Reset trạng thái quay, cược và UI
-    isSpinning = false;
-    document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.remove('lock-bets'));
-
-    // Xóa highlight
-    document.querySelectorAll('.bet-box.highlight-win').forEach(b => b.classList.remove('highlight-win'));
-
-    document.querySelectorAll('.door.highlight, .door.winner, .door.dim').forEach(d => {
-        d.classList.remove('highlight', 'winner', 'dim');
-    });
-
-    // Reset lại các trạng thái liên quan đến vòng quay và cược
-    resetBets();
-    unlockDoors();
-    spinCount++;
-    document.getElementById("spinCounter").textContent = `🎯 Round: ${spinCount}`;
-    updateSpinCounter();
-}
-
-
 function spinWheel() {
     if (isSpinning) return;
     isSpinning = true;
@@ -766,116 +768,85 @@ function spinWheel() {
     document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.add('lock-bets'));
     const resultEl = document.getElementById("result");
     let totalBet = Object.values(bets).reduce((a, b) => a + b, 0);
-
-    // Validate bets
     for (let key in bets) {
         let val = parseFloat(bets[key]);
         if (isNaN(val) || val < 0) {
             resultEl.textContent = `❌ Cược không hợp lệ ở cửa ${key}`;
-            isSpinning = false;
-            document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.remove('lock-bets'));
             return;
         }
     }
-
     document.getElementById("spinSound").play();
     resultEl.classList.add("spin-animating");
-
+    setTimeout(() => {
+        resultEl.classList.remove("spin-animating");
+        highlightWinner(selected.name);
+    }, 5000);
+    const spinDuration = 5; // giây
+    let countdown = spinDuration;
     const selected = chooseResult();
-
     const anglePerSegment = 360 / options.length;
     const selectedIndex = options.findIndex(opt => opt.name === selected.name);
+    const randomOffset = Math.random() * anglePerSegment; // giúp kết quả trông tự nhiên hơn
     const targetAngle = (360 - (selectedIndex * anglePerSegment + anglePerSegment / 2) % 360);
     const extraSpins = 5;
     const targetRotation = 360 * extraSpins + targetAngle;
     wheelRotation += targetRotation;
     wheelEl.style.transform = `rotate(${wheelRotation}deg)`;
-
     const animationInterval = setInterval(() => {
         const tempIcon = options[Math.floor(Math.random() * options.length)].icon;
         resultEl.textContent = `${tempIcon}`;
     }, 100);
 
-    // Tỉ lệ nổ Salad & Pizza
-    const SALAD_CHANCE = 0.005; // 0.5%
-    const PIZZA_CHANCE = 0.005; // 0.5%
-    const rand = Math.random();
-    const isSalad = rand < SALAD_CHANCE;
-    const isPizza = !isSalad && rand < SALAD_CHANCE + PIZZA_CHANCE;
 
-    const rauList = ["Chua", "Cải", "Ngô", "Rốt"];
-    const thitList = ["Mỳ", "Xiên", "Đùi", "Bò"];
 
-    let countdown = 5;
     const countdownInterval = setInterval(() => {
         countdown--;
         if (countdown <= 0) {
             clearInterval(countdownInterval);
             clearInterval(animationInterval);
-            resultEl.classList.remove("spin-animating");
+            const betAmount = bets[selected.name] || 0;
+            const winAmount = betAmount > 0 ? betAmount * selected.reward : 0;
+            balance += winAmount; //trả thưởng
 
-            let winAmount = 0;
-            // --- Kiểm tra nếu có sự kiện đặc biệt ---
-            if (isSalad) {
-                // Nổ Salad
-                winAmount = handleSaladEvent(rauList, totalBet);
-            } else if (isPizza) {
-                // Nổ Pizza
-                winAmount = handlePizzaEvent(thitList, totalBet);
-            } else {
-                // Quay thưởng bình thường - Không trả thưởng nếu có sự kiện đặc biệt
-                const betAmount = Number(bets[selected.name] || 0);
-                winAmount = betAmount > 0 ? betAmount * selected.reward : 0;
-                balance += winAmount;
+            // 📝 Cập nhật lịch sử cược (thắng / thua)
+            const finishedSpinId = getCurrentSpinNumber();  // số phiên quay hiện tại
+            let betHistory = JSON.parse(localStorage.getItem("betHistory")) || [];
+            betHistory = betHistory.map(entry => {
+                if (entry.spin !== finishedSpinId || entry.result !== "Chờ kết quả") return entry;
+                const isWin = entry.betName === selected.name;
+                entry.result = isWin ? "✅ Thắng" : "❌ Thua";
+                entry.payout = isWin ? entry.amount * selected.reward : 0;
+                return entry;
+            });
 
-                resultEl.textContent = selected.icon;
-                localStorage.setItem("lastResultIcon", selected.icon);
-                localStorage.setItem("lastResult", JSON.stringify(selected));
-                addResultToHistory(selected.icon);
-                showResultModal(selected, totalBet, winAmount);
 
-                const betBox = document.querySelector(`.bet-box[data-name="${selected.name}"]`);
-                if (betBox) betBox.classList.add('highlight-win');
-
-                setTimeout(() => {
-                    setTimeout(() => {
-                        betBox.classList.remove('highlight-win');
-                    }, 5000);
-                    highlightWinner(selected.name);
-                }, 0); // bất sáng ô trúng và tắt ô trượt
-
-                const doorEl = document.querySelector(`.door[data-name="${selected.name}"]`);
-                if (doorEl) doorEl.classList.add("highlight", "winner");
-            }
 
             localStorage.setItem("betHistory", JSON.stringify(betHistory));
             renderBetHistory(); // đẩy vào modal
 
-            // --- Cập nhật balance, jackpot ---
             updateBalanceDisplay();
             const lostAmount = totalBet - winAmount;
             let profitOrLoss = winAmount - totalBet;
-            if (lostAmount > 0) {
-                const jackpotContribution = Math.floor(lostAmount * 0.1);
-                jackpot += jackpotContribution;
-                updateJackpotDisplay();
+            if (profitOrLoss > 0) {
+                netProfit += profitOrLoss;
             }
-            if (profitOrLoss > 0) netProfit += profitOrLoss;
-            else if (profitOrLoss < 0) netLoss += Math.abs(profitOrLoss);
+            else if (profitOrLoss < 0) {
+                netLoss += Math.abs(profitOrLoss);
+            }
             updateStatsDisplay();
-
-
-
-
+            addResultToHistory(selected.icon);
+            let outcome = winAmount > 0 ? `✅ Thắng ${winAmount}` : `❌ Thua`;
+            showResultModal(selected, totalBet, winAmount);
+            let jackpotWin = 0;
             if (jackpot >= JACKPOT_THRESHOLD && Math.random() < JACKPOT_CHANCE) {
-                const jackpotWin = Math.floor(jackpot * 0.8);
+                jackpotWin = Math.floor(jackpot * 0.8);
                 jackpot -= jackpotWin;
                 balance += jackpotWin;
                 updateBalanceDisplay();
                 updateJackpotDisplay();
-                showJackpotEffect();
+                outcome += ` 🎉 Nổ hũ! Nhận thêm ${jackpotWin} xu từ hũ!`;
+                showJackpotEffect();  // Hiển thị hiệu ứng pháo hoa + coin bay
             }
-
             if (totalBet >= 0) {
                 resultEl.textContent = `${selected.icon}`;
 
@@ -885,61 +856,101 @@ function spinWheel() {
             }
             addHistory(result.icon);
 
+            // Gọi ngay sau khi add người thắng thật, trước TopWinnersReal.render()
+            (function seedBotWinnersForThisSpin(selectedName, isSalad = false) {
+                const iconMap = { "Chua": "🍅", "Cải": "🥬", "Ngô": "🌽", "Rốt": "🥕", "Mỳ": "🌭", "Xiên": "🍢", "Đùi": "🍖", "Bò": "🥩" };
+                const bots = [
+                    { name: "Rising 24/7", avatar: "https://i.pravatar.cc/80?u=minh" },
+                    { name: "Híp Híp", avatar: "https://i.pravatar.cc/80?u=lan" },
+                    { name: "Vờ bờ", avatar: "https://i.pravatar.cc/80?u=hai" },
+                    { name: "Bibi salad", avatar: "https://i.pravatar.cc/80?u=vu" },
+                    { name: "Vỡ nợ vì salad", avatar: "https://i.pravatar.cc/80?u=vu" },
+                    { name: "Kun salad", avatar: "https://i.pravatar.cc/80?u=vu" },
+                    { name: "3 rau bỏ idol", avatar: "https://i.pravatar.cc/80?u=vu" },
+                    { name: "Mèo Tộc", avatar: "https://i.pravatar.cc/80?u=vu" },
+                    { name: "Nâu 24/7", avatar: "https://i.pravatar.cc/80?u=vu" },
+                    { name: "Bán máu trả nợ", avatar: "https://i.pravatar.cc/80?u=vu" },
+                    { name: "Masid", avatar: "https://i.pravatar.cc/80?u=vu" },
+                    { name: "Mèo Mun", avatar: "https://i.pravatar.cc/80?u=vu" },
+                    { name: "Minh Thư", avatar: "https://i.pravatar.cc/80?u=vu" },
+                    { name: "Long hổ top 1", avatar: "https://i.pravatar.cc/80?u=vu" },
+                ];
+                const MULT = isSalad ? 5 : (MULTIPLIER[selectedName] || 5);
+
+                for (let i = 0; i < 2; i++) {
+                    const b = bots.splice(Math.floor(Math.random() * bots.length), 1)[0];
+                    // tạo số thắng nguyên (không lẻ) và khác nhau mỗi vòng
+                    const baseBet = Math.floor(Math.random() * 1500) + 200; // 200–1700
+                    const amount = Math.round(baseBet * MULT);
+
+                    TopWinnersReal.clear();
+
+                    TopWinnersReal.add({
+                        name: b.name,
+                        avatar: b.avatar,
+                        amount,
+                        betLabel: isSalad ? "Nổ Salad (4 cửa rau)" : ``,
+                        icon: isSalad ? "🥗" : ("")
+                    });
+                }
+            })(selected.name, /* isSalad= */ false);
 
 
 
+            TopWinnersReal.render();
 
-            if (winAmount >= 1000) resultEl.classList.add("big-win-effect");
-            else if (winAmount > 0) resultEl.classList.add("small-win-effect");
+            increaseJackpotWithReset();
+
+            // Bật sáng cả ô đặt cược trúng
+            const betBox = document.querySelector(`.bet-box[data-name="${selected.name}"]`);
+            if (betBox) {
+                betBox.classList.add('highlight-win');
+                setTimeout(() => {
+                    setTimeout(() => {
+                        betBox.classList.remove('highlight-win');
+                        unlockBets();
+                        document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.remove('lock-bets'));
+                        //Tăng số phiên quay.
+                        spinCount++;
+                        document.getElementById("spinCounter").textContent = `🎯 Round: ${spinCount}`;
+                        updateSpinCounter();
+                        //Reset cược.
+                        resetBets();
+                        unlockDoors();
+                        isSpinning = false;
+                        adminResult = null;
+                        document.getElementById("adminSelect").value = "";
+
+                        clearBets(); // 🔥 sang vòng mới thì không giữ cược nữa
+                        clearHot();  // 🔥 Xóa HOT sau 5 giây khi đã trả kết quả
+                        window.removeEventListener("keydown", disableF5);
+                        window.removeEventListener("beforeunload", blockReload);
+                    }, 5000);
+                    highlightWinner(selected.name);
+                }, 0); // bất sáng ô trúng và tắt ô trượt
+            }
+            if (winAmount >= 1000) {
+                resultEl.classList.add("big-win-effect");
+            }
+            else if (winAmount > 0) {
+                resultEl.classList.add("small-win-effect");
+            }
             setTimeout(() => {
                 resultEl.classList.remove("big-win-effect", "small-win-effect");
             }, 2000);
 
-
-
-
-            // Reset sau 5s
-
-            setTimeout(() => {
-                document.querySelectorAll('.bet-box.highlight-win').forEach(b => b.classList.remove('highlight-win'));
-                document.querySelectorAll('.door.highlight, .door.winner, .door.dim').forEach(d => {
-                    d.classList.remove('highlight', 'winner', 'dim');
-                });
-
-                unlockBets();
-                document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.remove('lock-bets'));
-
-                spinCount++;
-                document.getElementById("spinCounter").textContent = `🎯 Round: ${spinCount}`;
-                updateSpinCounter();
-
-                resetBets();
-                unlockDoors();
-
-                isSpinning = false;
-                adminResult = null;
-                if (document.getElementById("adminSelect")) document.getElementById("adminSelect").value = "";
-
-                clearBets();
-                clearHot();
-
-                window.removeEventListener("keydown", disableF5);
-                window.removeEventListener("beforeunload", blockReload);
-            }, 5000);
+            //Hiện thị lịch sử cược.
+            if (totalBet > 0) {
+                let betLog = `${new Date().toLocaleTimeString()} - Cược: `;
+                for (let key in bets) {
+                    const val = parseFloat(bets[key]) || 0;
+                    if (val > 0) betLog += `${key}: ${val} xu, `;
+                }
+                betLog += `→ Kết quả: ${selected.icon} - ${outcome}`;
+                betHistoryEl.innerHTML += `🧾 ${betLog}<br>`;
+            }
         }
     }, 1000);
-}
-
-
-// Hàm phát sáng các cửa rau
-function highlightRauWin() {
-    ["Chua", "Cải", "Ngô", "Rốt"].forEach(rau => {
-        const betBox = document.querySelector(`.bet-box[data-name="${rau}"]`);
-        if (betBox) {
-            betBox.classList.add('highlight-win');
-            setTimeout(() => betBox.classList.remove('highlight-win'), 5000);  // Sau 5s tắt hiệu ứng sáng
-        }
-    });
 }
 
 // Hàm cập nhật giao diện + lưu
@@ -1361,28 +1372,55 @@ function clearHot() {
     localStorage.removeItem("lastHotName");
 }
 
-
 function showResultModal(selected, totalBet, winAmount) {
     const modal = document.getElementById("resultModal");
+    document.body.style.overflow = "hidden";   // khoá cuộn
+
     const spinNumber = getCurrentSpinNumber();
     document.getElementById("modalSpin").textContent = spinNumber;
+
     document.getElementById("modalResult").textContent = selected.icon;
-    document.getElementById("modalWinner").textContent = `${selected.icon}`;
+    document.getElementById("modalWinner").textContent = selected.icon;
     document.getElementById("modalBet").textContent = totalBet;
     document.getElementById("modalWin").textContent = winAmount;
-    document.body.style.overflow = "hidden";   // khoá cuộn
+
+    // --- THÊM KHỐI NÀY ---
+    try {
+        if (window.TopWinnersReal) {
+            const name = localStorage.getItem("userName") || "Bạn";
+            const avatar = localStorage.getItem("userAvatar") || `https://i.pravatar.cc/80?u=${encodeURIComponent(name)}`;
+
+            // Nếu bạn thắng, đưa bạn vào bảng (số tròn)
+            if (Number(winAmount) > 0) {
+                window.TopWinnersReal.add({
+                    name,
+                    avatar,
+                    amount: Math.round(Number(winAmount) / 100) * 100, // số tròn
+                    betLabel: `Cửa ${selected.name}`,
+                    icon: selected.icon
+                });
+            }
+
+            // Luôn render Top 3, pad thêm người ảo nếu thiếu
+            window.TopWinnersReal.renderRound(selected);
+        }
+    } catch (e) { /* noop */ }
+    // --- HẾT KHỐI THÊM ---
+
+
     modal.classList.remove("hide");
     modal.style.display = "flex";
+
     // dùng setTimeout để đảm bảo transition chạy
     setTimeout(() => {
         modal.classList.add("show");
     }, 10);
+
     // Tự động ẩn sau 5 giây
     setTimeout(() => {
         closeResultModal();
     }, 5000);
 }
-
 
 function closeResultModal() {
     const modal = document.getElementById("resultModal");
@@ -2017,6 +2055,7 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
 
 // Giữ trạng thái đăng nhập khi load lại
 window.addEventListener("load", () => {
+    writeJackpot(readJackpot());
     if (localStorage.getItem("loggedIn") === "true") {
         document.getElementById("loginOverlay").style.display = "none";
         document.querySelector(".game-container").style.display = "flex";
@@ -2174,7 +2213,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // nếu chưa có thì set mặc định
     if (!name) {
-        name = "User";
+        name = "Người chơi";
         localStorage.setItem("userName", name);
     }
     if (!userId) {
@@ -2356,22 +2395,177 @@ Object.keys(users).forEach(uid => {
     users[uid].balance = Number(users[uid].balance) || 0;
 });
 
-// Hàm khôi phục lịch sử kết quả từ localStorage
-function restoreHistory() {
-    const lastResultIcon = localStorage.getItem("lastResultIcon");
-    const lastResult = JSON.parse(localStorage.getItem("lastResult"));
 
-    // Nếu có kết quả trước đó, hiển thị ngay khi trang load
-    if (lastResultIcon && lastResult) {
-        const resultEl = document.getElementById("result");
-        if (resultEl) resultEl.textContent = lastResultIcon;
 
-        // Thêm vào lịch sử kết quả
-        addResultToHistory(lastResultIcon);
+
+
+   
+/** ====== CẤU HÌNH PHEP NHÂN (đồng bộ với game hiện có) ====== **/
+        const MULTIPLIER = {"Chua":5, "Cải":5, "Ngô":5, "Rốt":5, "Mỳ":10, "Xiên":15, "Đùi":25, "Bò":45 };
+
+/** ====== TÍNH PAYOUT TỪ CÁC CỬA ĐẶT ======
+ * bets: object {"Chua": 100, "Mỳ": 0, ... }
+        * selectedName: tên cửa trúng (VD: "Mỳ")
+        * salad: boolean — nếu "nổ salad" (tất cả 4 cửa rau thắng)
+        */
+        function computePayoutFromBets(bets, selectedName, salad=false) {
+            let payout = 0;
+
+        // 4 cửa "rau"
+        const veg = ["Chua","Cải","Ngô","Rốt"];
+
+        if (salad) {
+    // Salad: 4 cửa rau đều thắng
+    for (const k of veg) {
+      const bet = Number(bets[k]||0);
+      if (bet>0) payout += bet * (MULTIPLIER[k]||1);
     }
+        return payout;
+  }
+
+        // Trúng thường: chỉ 1 cửa selectedName thắng
+        const bet = Number(bets[selectedName]||0);
+  if (bet>0) payout = bet * (MULTIPLIER[selectedName]||1);
+
+        return payout;
 }
 
-// Gọi restoreHistory khi trang được tải lại
-document.addEventListener("DOMContentLoaded", () => {
-    restoreHistory();
-});
+        (function(){
+  const LS_KEY   = "topWinnersV1";      // bảng xếp hạng lưu localStorage
+        const LIST_ID  = "topWinnersListModal"; // <ol> bên trong modal kết quả
+            const MAX_ROWS = 3;
+
+  const fmt = x => Number(x||0).toLocaleString("vi-VN");
+
+            function loadBoard(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||"[]"); }catch{ return []; } }
+            function saveBoard(list){localStorage.setItem(LS_KEY, JSON.stringify(list)); }
+
+            function renderTopWinners(){
+  const listEl = document.getElementById("topWinnersListModal");
+            if(!listEl) return;
+
+            const data = loadBoard()
+    .sort((a,b)=> (b.amount - a.amount) || (b.ts - a.ts))
+            .slice(0,3); // Top 3
+
+            listEl.innerHTML = "";
+            const medalByRank = ["🥇","🥈","🥉"]; // 1-2-3
+
+  data.forEach((row, idx) => {
+    const card = document.createElement("div");
+            card.className = `top-winner-card rank-${idx + 1} ${idx === 0 ? 'pulse' : ''}`;
+            card.innerHTML = `
+            <div class="top-winner-rank">
+                <span>#${idx + 1}</span>
+                <span class="medal">${medalByRank[idx] || ""}</span>
+            </div>
+            <img class="top-winner-avatar" src="${row.avatar}" alt="">
+                <div class="top-winner-name">${row.name}</div>
+                <div class="top-winner-meta">${row.icon || ""} ${row.betLabel || ""}</div>
+                <div class="top-winner-amount">+${Number(row.amount || 0).toLocaleString("vi-VN")} xu</div>
+                `;
+                listEl.appendChild(card);
+  });
+}
+
+                // Thêm 1 chiến thắng thật vào bảng
+                function pushRealWin({name, avatar, amount, betLabel, icon, ts}) {
+    if (!name || !amount) return;
+                const list = loadBoard();
+                list.push({name, avatar, amount, betLabel, icon, ts: ts||Date.now() });
+    list.sort((a, b) => (b.amount - a.amount) || (b.ts - a.ts));
+                saveBoard(list);
+                renderTopWinners();
+  }
+
+                // Public API để nơi trả thưởng gọi
+                window.TopWinnersReal = {
+                    add: pushRealWin,
+                render: renderTopWinners,
+    clear: () => {localStorage.removeItem(LS_KEY); renderTopWinners(); }
+  };
+
+                document.addEventListener("DOMContentLoaded", renderTopWinners);
+})();
+            
+
+
+           
+                (function () {
+  const LS_KEY   = "topWinnersV1";
+                const LIST_ID  = "topWinnersListModal";
+                const MAX_ROWS = 3;
+
+                const NAMES = ["Minh Tâm",".","Hana","Thảo Thảo","Anh Tũn","Bơ trộn salad","Diệu Diệu","Johnson","Tất tay bỏ bò","Tommy","Apex group","Hmh","My Anh","Giang bạch thủ","Long Ca","Ba Duy","Sơn Sói","Bia 6 lỗ","Lan Quế Phường","Mai Anh"];
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const fmt  = x => Number(x||0).toLocaleString("vi-VN");
+  const roundNice = n => Math.max(50, Math.round(Number(n)/100)*100); // số tròn (bội 100)
+
+                function loadBoard(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||"[]"); }catch{ return []; } }
+                function saveBoard(list){localStorage.setItem(LS_KEY, JSON.stringify(list)); }
+
+                function makeFake(selected) {
+    const name   = pick(NAMES);
+                const seed   = `${name}-${Date.now()}-${Math.random()}`;
+                const amount = roundNice(1000 + Math.random()*20000); // 1000 → ~21000
+                return {
+                    name,
+                    avatar: `https://i.pravatar.cc/80?u=${encodeURIComponent(seed)}`,
+                amount,
+                betLabel: ``,
+                icon: selected?.icon || "",
+                ts: Date.now()
+    };
+  }
+
+                function renderTopWinners(selected){
+    const listEl = document.getElementById(LIST_ID);
+                if(!listEl) return;
+
+    const real = loadBoard().sort((a,b)=>(b.amount-a.amount) || (b.ts-a.ts));
+                const need = Math.max(0, MAX_ROWS - real.length);
+                const fakes = Array.from({length: need}, () => makeFake(selected));
+                const data = [...real, ...fakes]
+      .sort((a,b)=>(b.amount-a.amount) || (b.ts-a.ts))
+                .slice(0, MAX_ROWS);
+
+                listEl.innerHTML = "";
+                const medalByRank = ["🥇","🥈","🥉"];
+
+    data.forEach((row, idx) => {
+      const card = document.createElement("div");
+                card.className = `top-winner-card rank-${idx + 1} ${idx === 0 ? "pulse" : ""}`;
+                card.innerHTML = `
+                <div class="top-winner-rank">
+                    <span>#${idx + 1}</span>
+                    <span class="medal">${medalByRank[idx] || ""}</span>
+                </div>
+                <img class="top-winner-avatar" src="${row.avatar}" alt="">
+                    <div class="top-winner-name">${row.name}</div>
+                    <div class="top-winner-meta">${row.icon || ""} ${row.betLabel || ""}</div>
+                    <div class="top-winner-amount">+${fmt(row.amount)} xu</div>
+                    `;
+                    listEl.appendChild(card);
+    });
+  }
+
+                    function pushRealWin({name, avatar, amount, betLabel, icon, ts}) {
+    if (!name || !amount) return;
+                    const list = loadBoard();
+                    list.push({name, avatar, amount: roundNice(amount), betLabel, icon, ts: ts||Date.now() });
+    list.sort((a,b)=>(b.amount-a.amount)||(b.ts-a.ts));
+                    saveBoard(list);
+  }
+
+                    // Public API
+                    window.TopWinnersReal = {
+                        add: pushRealWin,                        // thêm người thắng thật
+    render: (selected)=>renderTopWinners(selected), // render, có thể truyền 'selected' của vòng hiện tại
+    clear: () => {localStorage.removeItem(LS_KEY); renderTopWinners(); },
+    renderRound: (selected)=>{renderTopWinners(selected); } // alias dễ nhớ
+  };
+
+  document.addEventListener("DOMContentLoaded", ()=>renderTopWinners());
+})();
+
+            
