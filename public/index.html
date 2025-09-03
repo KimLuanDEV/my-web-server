@@ -2723,6 +2723,8 @@ function saveHistory() {
   if (isSpinning) return;
   isSpinning = true;
 
+  if (window.TopWinnersReal?.clear) TopWinnersReal.clear(); // Reset Top mỗi vòng
+
   document.querySelectorAll('.chip, .bet-box').forEach(chip => chip.classList.add('lock-bets'));
   const resultEl = document.getElementById("result");
   let totalBet = Object.values(bets).reduce((a,b)=>a+b,0);
@@ -2813,6 +2815,30 @@ renderBetHistory(); // đẩy vào modal
   } 
   addHistory(result.icon);
 
+// --- THÊM NGƯỜI THẮNG VÀO TOP WINNERS ---
+try {
+  if (window.TopWinnersReal) {
+    const name   = localStorage.getItem("userName")   || "Bạn";
+    const avatar = localStorage.getItem("userAvatar") || `https://i.pravatar.cc/80?u=${encodeURIComponent(name)}`;
+
+    // Nếu bạn thắng, đưa bạn vào bảng (số tròn)
+    if (Number(winAmount) > 0) {
+      window.TopWinnersReal.add({
+        name,
+        avatar,
+        amount: Math.round(Number(winAmount)/100)*100, // số tròn
+        betLabel: "",
+        icon: ""
+      });
+    }
+
+    // Luôn render Top 3, pad thêm người ảo nếu thiếu
+    window.TopWinnersReal.renderRound(selected);
+  }
+} catch (e) {}
+// --- HẾT KHỐI THÊM ---
+
+
 // Gọi ngay sau khi add người thắng thật, trước TopWinnersReal.render()
 (function seedBotWinnersForThisSpin(selectedName, isSalad=false){
   const iconMap = { "Chua":"🍅","Cải":"🥬","Ngô":"🌽","Rốt":"🥕","Mỳ":"🌭","Xiên":"🍢","Đùi":"🍖","Bò":"🥩" };
@@ -2821,26 +2847,39 @@ renderBetHistory(); // đẩy vào modal
     { name: "Híp Híp",  avatar: "https://i.pravatar.cc/80?u=lan"  },
     { name: "Vờ bờ",  avatar: "https://i.pravatar.cc/80?u=hai"  },
     { name: "Bibi salad",   avatar: "https://i.pravatar.cc/80?u=vu"   },
-  { name: "Vỡ nợ vì salad",   avatar: "https://i.pravatar.cc/80?u=vu"   },
-  { name: "Kun salad",   avatar: "https://i.pravatar.cc/80?u=vu"   },
-  { name: "3 rau bỏ idol",   avatar: "https://i.pravatar.cc/80?u=vu"   },
-  { name: "Mèo Tộc",   avatar: "https://i.pravatar.cc/80?u=vu"   },
-  { name: "Nâu 24/7",   avatar: "https://i.pravatar.cc/80?u=vu"   },
-  { name: "Bán máu trả nợ",   avatar: "https://i.pravatar.cc/80?u=vu"   },
-  { name: "Masid",   avatar: "https://i.pravatar.cc/80?u=vu"   },
-  { name: "Mèo Mun",   avatar: "https://i.pravatar.cc/80?u=vu"   },
-  { name: "Minh Thư",   avatar: "https://i.pravatar.cc/80?u=vu"   },
-  { name: "Long hổ top 1",   avatar: "https://i.pravatar.cc/80?u=vu"   },
+    { name: "Vỡ nợ vì salad",   avatar: "https://i.pravatar.cc/80?u=ruoc"   },
+    { name: "Kun salad",   avatar: "https://i.pravatar.cc/80?u=keodeo"   },
+    { name: "3 rau bỏ idol",   avatar: "https://i.pravatar.cc/80?u=banhquy"   },
+    { name: "Mèo Tộc",   avatar: "https://i.pravatar.cc/80?u=socola"   },
+    { name: "Nâu 24/7",   avatar: "https://i.pravatar.cc/80?u=nuoc"   },
+    { name: "Bán máu trả nợ",   avatar: "https://i.pravatar.cc/80?u=ban"   },
+    { name: "Masid",   avatar: "https://i.pravatar.cc/80?u=tulanh"   },
+    { name: "Mèo Mun",   avatar: "https://i.pravatar.cc/80?u=lo"   },
+    { name: "Minh Thư",   avatar: "https://i.pravatar.cc/80?u=bep"   },
+    { name: "Súp bào ngư",   avatar: "https://i.pravatar.cc/80?u=quat"   },
+    { name: "Thần long",   avatar: "https://i.pravatar.cc/80?u=dieuhoa"   },
+    { name: "Vũ Hạo",   avatar: "https://i.pravatar.cc/80?u=maygiat"   },
+    { name: "Gia Cát Dự",   avatar: "https://i.pravatar.cc/80?u=tivi"   },
+    { name: "Tiểu Bá Hổ",   avatar: "https://i.pravatar.cc/80?u=giuong"   },
+    { name: "Shark Tank",   avatar: "https://i.pravatar.cc/80?u=tu"   },
+    { name: "Bình Minh",   avatar: "https://i.pravatar.cc/80?u=chuot"   },
+    { name: "@@",   avatar: "https://i.pravatar.cc/80?u=dua"   },
+    { name: "Lên top",   avatar: "https://i.pravatar.cc/80?u=xoai"   },
+    { name: "Bánh bèo",   avatar: "https://i.pravatar.cc/80?u=chom"   },
+    { name: "Bún Riêu Cua",   avatar: "https://i.pravatar.cc/80?u=vai"   },
+    { name: "Bạch thủ đùi",   avatar: "https://i.pravatar.cc/80?u=nho"   },
+    { name: "Nuôi Mỳ top 1",   avatar: "https://i.pravatar.cc/80?u=cam"   },
+    { name: "Bạch Thủ Rau",   avatar: "https://i.pravatar.cc/80?u=quyt"   },
+    { name: "Phong Vũ",   avatar: "https://i.pravatar.cc/80?u=le"   },
+    { name: "Táo mèo",   avatar: "https://i.pravatar.cc/80?u=tao"   },
   ];
   const MULT = isSalad ? 5 : (MULTIPLIER[selectedName] || 5);
 
   for (let i = 0; i < 2; i++) {
     const b = bots.splice(Math.floor(Math.random()*bots.length), 1)[0];
     // tạo số thắng nguyên (không lẻ) và khác nhau mỗi vòng
-    const baseBet = Math.floor(Math.random() * 1500) + 200; // 200–1700
+    const baseBet = Math.floor(Math.random() * 8000) + 2000; // 2000–10000
     const amount  = Math.round(baseBet * MULT);
-
-TopWinnersReal.clear(); 
 
     TopWinnersReal.add({
       name: b.name,
@@ -2848,13 +2887,13 @@ TopWinnersReal.clear();
       amount,
       betLabel: isSalad ? "Nổ Salad (4 cửa rau)" : ``,
       icon: isSalad ? "🥗" : ("")
-    });
+     });
   }
 })(selected.name, /* isSalad= */ false);
 
-
-
 TopWinnersReal.render();
+
+
 
  increaseJackpotWithReset();
 
@@ -3329,6 +3368,8 @@ TopWinnersReal.render();
   localStorage.removeItem("lastHotName");
 }
 
+
+
   function showResultModal(selected, totalBet, winAmount) {
   const modal = document.getElementById("resultModal");
   document.body.style.overflow = "hidden";   // khoá cuộn
@@ -3340,29 +3381,6 @@ TopWinnersReal.render();
   document.getElementById("modalWinner").textContent = selected.icon;
   document.getElementById("modalBet").textContent = totalBet;
   document.getElementById("modalWin").textContent = winAmount;
-
-// --- THÊM KHỐI NÀY ---
-try {
-  if (window.TopWinnersReal) {
-    const name   = localStorage.getItem("userName")   || "Bạn";
-    const avatar = localStorage.getItem("userAvatar") || `https://i.pravatar.cc/80?u=${encodeURIComponent(name)}`;
-
-    // Nếu bạn thắng, đưa bạn vào bảng (số tròn)
-    if (Number(winAmount) > 0) {
-      window.TopWinnersReal.add({
-        name,
-        avatar,
-        amount: Math.round(Number(winAmount)/100)*100, // số tròn
-        betLabel: `Cửa ${selected.name}`,
-        icon: selected.icon
-      });
-    }
-
-    // Luôn render Top 3, pad thêm người ảo nếu thiếu
-    window.TopWinnersReal.renderRound(selected);
-  }
-} catch (e) { /* noop */ }
-// --- HẾT KHỐI THÊM ---
 
 
   modal.classList.remove("hide");
@@ -3378,6 +3396,8 @@ try {
     closeResultModal();
   }, 5000);
 }
+
+
 
   function closeResultModal() {
   const modal = document.getElementById("resultModal");
@@ -4387,67 +4407,6 @@ function computePayoutFromBets(bets, selectedName, salad=false) {
   return payout;
 }
 
-(function(){
-  const LS_KEY   = "topWinnersV1";      // bảng xếp hạng lưu localStorage
-  const LIST_ID  = "topWinnersListModal"; // <ol> bên trong modal kết quả
-  const MAX_ROWS = 3;
-
-  const fmt = x => Number(x||0).toLocaleString("vi-VN");
-
-  function loadBoard(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||"[]"); }catch{ return []; } }
-  function saveBoard(list){ localStorage.setItem(LS_KEY, JSON.stringify(list)); }
-
- function renderTopWinners(){
-  const listEl = document.getElementById("topWinnersListModal");
-  if(!listEl) return;
-
-  const data = loadBoard()
-    .sort((a,b)=> (b.amount - a.amount) || (b.ts - a.ts))
-    .slice(0,3); // Top 3
-
-  listEl.innerHTML = "";
-  const medalByRank = ["🥇","🥈","🥉"]; // 1-2-3
-
-  data.forEach((row, idx) => {
-    const card = document.createElement("div");
-    card.className = `top-winner-card rank-${idx+1} ${idx===0?'pulse':''}`;
-    card.innerHTML = `
-      <div class="top-winner-rank">
-        <span>#${idx+1}</span>
-        <span class="medal">${medalByRank[idx]||""}</span>
-      </div>
-      <img class="top-winner-avatar" src="${row.avatar}" alt="">
-      <div class="top-winner-name">${row.name}</div>
-      <div class="top-winner-meta">${row.icon||""} ${row.betLabel||""}</div>
-      <div class="top-winner-amount">+${Number(row.amount||0).toLocaleString("vi-VN")} xu</div>
-    `;
-    listEl.appendChild(card);
-  });
-}
-
-  // Thêm 1 chiến thắng thật vào bảng
-  function pushRealWin({ name, avatar, amount, betLabel, icon, ts }) {
-    if (!name || !amount) return;
-    const list = loadBoard();
-    list.push({ name, avatar, amount, betLabel, icon, ts: ts||Date.now() });
-    list.sort((a, b) => (b.amount - a.amount) || (b.ts - a.ts));
-    saveBoard(list);
-    renderTopWinners();
-  }
-
-  // Public API để nơi trả thưởng gọi
-  window.TopWinnersReal = {
-    add: pushRealWin,
-    render: renderTopWinners,
-    clear: () => { localStorage.removeItem(LS_KEY); renderTopWinners(); }
-  };
-
-  document.addEventListener("DOMContentLoaded", renderTopWinners);
-})();
-</script>
-
-
-<script>
 (function () {
   const LS_KEY   = "topWinnersV1";
   const LIST_ID  = "topWinnersListModal";
@@ -4500,7 +4459,7 @@ function computePayoutFromBets(bets, selectedName, salad=false) {
         <img class="top-winner-avatar" src="${row.avatar}" alt="">
         <div class="top-winner-name">${row.name}</div>
         <div class="top-winner-meta">${row.icon||""} ${row.betLabel||""}</div>
-        <div class="top-winner-amount">+${fmt(row.amount)} xu</div>
+        <div class="top-winner-amount">${fmt(row.amount)} </div>
       `;
       listEl.appendChild(card);
     });
