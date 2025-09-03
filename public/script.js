@@ -1,6 +1,7 @@
 
 
 
+
 let countdownDuration = 40; // số giây mỗi phiên
 let lastSpinTime = parseInt(localStorage.getItem("lastSpinTime")) || Date.now();
 let pauseAfterSpin = false;
@@ -888,15 +889,15 @@ try {
 (function seedBotWinnersForThisSpin(selectedName, isSalad=false){
   const iconMap = { "Chua":"🍅","Cải":"🥬","Ngô":"🌽","Rốt":"🥕","Mỳ":"🌭","Xiên":"🍢","Đùi":"🍖","Bò":"🥩" };
   const bots = [
-    { name: "Rising 24/7", avatar: "https://i.pravatar.cc/80?u=minh" },
+    { name: "Tâm Tâm", avatar: "https://i.pravatar.cc/80?u=minh" },
     { name: "Híp Híp",  avatar: "https://i.pravatar.cc/80?u=lan"  },
     { name: "Vờ bờ",  avatar: "https://i.pravatar.cc/80?u=hai"  },
-    { name: "Bibi salad",   avatar: "https://i.pravatar.cc/80?u=vu"   },
+    { name: "Baby",   avatar: "https://i.pravatar.cc/80?u=vu"   },
     { name: "Vỡ nợ vì salad",   avatar: "https://i.pravatar.cc/80?u=ruoc"   },
-    { name: "Kun salad",   avatar: "https://i.pravatar.cc/80?u=keodeo"   },
+    { name: "Kún Yêu",   avatar: "https://i.pravatar.cc/80?u=keodeo"   },
     { name: "3 rau bỏ idol",   avatar: "https://i.pravatar.cc/80?u=banhquy"   },
     { name: "Mèo Tộc",   avatar: "https://i.pravatar.cc/80?u=socola"   },
-    { name: "Nâu 24/7",   avatar: "https://i.pravatar.cc/80?u=nuoc"   },
+    { name: "Sói Bạc",   avatar: "https://i.pravatar.cc/80?u=nuoc"   },
     { name: "Bán máu trả nợ",   avatar: "https://i.pravatar.cc/80?u=ban"   },
     { name: "Masid",   avatar: "https://i.pravatar.cc/80?u=tulanh"   },
     { name: "Mèo Mun",   avatar: "https://i.pravatar.cc/80?u=lo"   },
@@ -923,7 +924,7 @@ try {
   for (let i = 0; i < 2; i++) {
     const b = bots.splice(Math.floor(Math.random()*bots.length), 1)[0];
     // tạo số thắng nguyên (không lẻ) và khác nhau mỗi vòng
-    const baseBet = Math.floor(Math.random() * 8000) + 2000; // 2000–10000
+    const baseBet = Math.floor(Math.random() * 10000) + 2000; // 2000–10000
     const amount  = Math.round(baseBet * MULT);
 
     TopWinnersReal.add({
@@ -1590,7 +1591,7 @@ const hotkeyMap = {
 
 // Toggle panel bằng phím tắt Ctrl + M
   document.addEventListener("keydown", (e) => {
-  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "m") {
+  if (e.ctrlKey && e.key.toLowerCase() === "m") {
   e.preventDefault(); // tránh select all
   const panel = document.getElementById("adminPanel");
   panel.style.display = (panel.style.display === "none" || panel.style.display === "") 
@@ -2529,3 +2530,181 @@ function computePayoutFromBets(bets, selectedName, salad=false) {
   document.addEventListener("DOMContentLoaded", ()=>renderTopWinners());
 })();
 
+
+
+
+
+/** ============= SAFE CACHE ============= **/
+(function () {
+  const BK_KEY = "__safeBackupV1";
+  const TMP_KEY = "__safeRestoreV1";
+
+  // Các khóa nên giữ lại khi dọn sâu (bạn có thể thêm/bớt)
+  const EXPLICIT_KEEP = [
+    "userName","userId","userAvatar","jwt",
+    "betHistory","topWinnersV1",
+    "balance","walletBalance","coin","coins",
+    "jackpotAmount","jackpot","jackpot_ts",
+  ];
+  const KEEP_PREFIXES = [
+    "user_","profile_","bets_","history_","code_","token_","jackpot_","game_"
+  ];
+
+  const shouldKeep = (k) =>
+    EXPLICIT_KEEP.includes(k) || KEEP_PREFIXES.some(p => k.startsWith(p));
+
+  function backupLocal() {
+    const data = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      data[k] = localStorage.getItem(k);
+    }
+    return { ts: Date.now(), data };
+  }
+
+  function restoreLocal(payload) {
+    if (!payload || !payload.data) return;
+    Object.entries(payload.data).forEach(([k, v]) => {
+      localStorage.setItem(k, v);
+    });
+  }
+
+  async function clearCacheStorage() {
+    if (!("caches" in window)) return;
+    const names = await caches.keys();
+    await Promise.all(names.map(n => caches.delete(n)));
+  }
+
+  async function unregisterSW() {
+    if (!("serviceWorker" in navigator)) return;
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map(r => r.unregister()));
+  }
+
+  // DỌN NHANH: chỉ xóa Cache Storage + sessionStorage
+  async function quickClean({ alsoUnregisterSW = false } = {}) {
+    await clearCacheStorage();
+    if (alsoUnregisterSW) await unregisterSW();
+    // Giữ session backup, xóa phần còn lại
+    const keep = new Set([BK_KEY, TMP_KEY]);
+    const keys = [];
+    for (let i = 0; i < sessionStorage.length; i++) keys.push(sessionStorage.key(i));
+    keys.forEach(k => { if (!keep.has(k)) sessionStorage.removeItem(k); });
+  }
+
+  // DỌN SÂU AN TOÀN: giữ lại key quan trọng trong localStorage
+  async function deepClean({ alsoUnregisterSW = false } = {}) {
+    const backup = backupLocal(); // đề phòng
+    sessionStorage.setItem(BK_KEY, JSON.stringify(backup));
+
+    // Xóa localStorage trừ key quan trọng
+    const lsKeys = [];
+    for (let i = 0; i < localStorage.length; i++) lsKeys.push(localStorage.key(i));
+    lsKeys.forEach(k => { if (!shouldKeep(k)) localStorage.removeItem(k); });
+
+    // Xóa sessionStorage (trừ backup)
+    const keep = new Set([BK_KEY, TMP_KEY]);
+    const ssKeys = [];
+    for (let i = 0; i < sessionStorage.length; i++) ssKeys.push(sessionStorage.key(i));
+    ssKeys.forEach(k => { if (!keep.has(k)) sessionStorage.removeItem(k); });
+
+    await clearCacheStorage();
+    if (alsoUnregisterSW) await unregisterSW();
+  }
+
+  // TẢI LẠI AN TOÀN (giữ dữ liệu): backup -> reload -> restore
+  function safeRefresh() {
+    const backup = backupLocal();
+    sessionStorage.setItem(BK_KEY, JSON.stringify(backup));
+    sessionStorage.setItem(TMP_KEY, "1");
+    location.reload();
+  }
+
+  // Gọi ở DOMContentLoaded để tự phục hồi sau khi safeRefresh()
+  function maybeRestoreOnLoad() {
+    try {
+      if (sessionStorage.getItem(TMP_KEY) === "1") {
+        const raw = sessionStorage.getItem(BK_KEY);
+        if (raw) restoreLocal(JSON.parse(raw));
+        sessionStorage.removeItem(TMP_KEY);
+        // Gợi ý: cập nhật lại UI nếu có
+        window.setUserInfo?.(
+          localStorage.getItem("userName"),
+          localStorage.getItem("userId"),
+          localStorage.getItem("userAvatar")
+        );
+        window.renderBetHistory?.();
+        window.TopWinnersReal?.renderRound?.();
+      }
+    } catch (e) {}
+  }
+
+  // Xuất/Nhập backup ra file (phòng khi bạn thật sự phải xóa “Site data” của trình duyệt)
+  function exportBackup() {
+    const payload = backupLocal();
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const name = `backup-${new Date(payload.ts).toISOString().slice(0,19).replace(/[:T]/g,"-")}.json`;
+    const a = Object.assign(document.createElement("a"), { href: url, download: name });
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  }
+
+  function importBackupFile(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(reader.error);
+      reader.onload = () => {
+        try {
+          const payload = JSON.parse(reader.result);
+          restoreLocal(payload);
+          resolve(payload);
+        } catch (e) { reject(e); }
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  window.SafeCache = {
+    quickClean, deepClean, safeRefresh,
+    exportBackup, importBackupFile, maybeRestoreOnLoad
+  };
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // Tự phục hồi nếu vừa safeRefresh()
+    SafeCache.maybeRestoreOnLoad();
+
+    // Gắn nút nếu có
+    document.getElementById("btnSafeClear")?.addEventListener("click", async () => {
+      await SafeCache.quickClean();                // dọn nhanh
+      alert("Đã xóa cache tạm thời và giữ dữ liệu người chơi.");
+    });
+    document.getElementById("btnSafeDeep")?.addEventListener("click", async () => {
+      await SafeCache.deepClean();                 // dọn sâu an toàn
+      alert("Đã dọn cache sâu (an toàn). Dữ liệu quan trọng vẫn được giữ.");
+    });
+    document.getElementById("btnSafeRefresh")?.addEventListener("click", () => {
+      SafeCache.safeRefresh();                     // tải lại nhưng giữ data
+    });
+    document.getElementById("btnBackupExport")?.addEventListener("click", () => {
+      SafeCache.exportBackup();                    // xuất file backup
+    });
+    document.getElementById("inputBackupImport")?.addEventListener("change", async (e) => {
+      const f = e.target.files?.[0]; if (!f) return;
+      try {
+        await SafeCache.importBackupFile(f);
+        alert("Phục hồi dữ liệu thành công!");
+        window.setUserInfo?.(
+          localStorage.getItem("userName"),
+          localStorage.getItem("userId"),
+          localStorage.getItem("userAvatar")
+        );
+        window.renderBetHistory?.();
+        window.TopWinnersReal?.renderRound?.();
+      } catch (err) {
+        alert("File backup không hợp lệ.");
+      } finally {
+        e.target.value = "";
+      }
+    });
+  });
+})();
