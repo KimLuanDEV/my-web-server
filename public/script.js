@@ -1,6 +1,7 @@
 
 
-
+// Danh sách keycode hợp lệ (tạo sẵn)
+const VALID_KEYCODES = ["GREEDYKING9999", "GREEDYKING2025", "GREEDYKING8888"];
 
 let countdownDuration = 40; // số giây mỗi phiên
 let lastSpinTime = parseInt(localStorage.getItem("lastSpinTime")) || Date.now();
@@ -2008,11 +2009,12 @@ function showLogin() {
   const user = document.getElementById("regUser").value.trim();
   const pass = document.getElementById("regPass").value.trim();
   const pass2 = document.getElementById("regPass2").value.trim();
+  const keycode = document.getElementById("regKeycode").value.trim();
   const msgEl = document.getElementById("registerMsg");
 
-  if (user === "" || pass === "" || pass2 === "") {
+  if (user === "" || pass === "" || pass2 === "" || keycode === "") {
     msgEl.style.color = "red";
-    msgEl.textContent = "⚠️ Vui lòng nhập đầy đủ!";
+    msgEl.textContent = "⚠️ Vui lòng nhập đầy đủ thông tin!";
     return;
   }
 
@@ -2033,6 +2035,12 @@ function showLogin() {
     msgEl.textContent = "❌ Mật khẩu xác nhận không khớp!";
     return;
   }
+
+  if (!VALID_KEYCODES.includes(keycode)) {
+    msgEl.textContent = "❌ Keycode không hợp lệ!";
+    return;
+  }
+
 
   let users = JSON.parse(localStorage.getItem("users")) || {};
   if (users[user]) {
@@ -2419,10 +2427,6 @@ Object.keys(users).forEach(uid => {
 });
 
 
-
-
-
-
 /** ====== CẤU HÌNH PHEP NHÂN (đồng bộ với game hiện có) ====== **/
 const MULTIPLIER = { "Chua":5, "Cải":5, "Ngô":5, "Rốt":5, "Mỳ":10, "Xiên":15, "Đùi":25, "Bò":45 };
 
@@ -2529,10 +2533,6 @@ function computePayoutFromBets(bets, selectedName, salad=false) {
 
   document.addEventListener("DOMContentLoaded", ()=>renderTopWinners());
 })();
-
-
-
-
 
 /** ============= SAFE CACHE ============= **/
 (function () {

@@ -1423,6 +1423,9 @@ button:hover {
     style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #555;" autocomplete="new-password">
     <input type="password" id="regPass2" placeholder="Xác nhận mật khẩu"
     style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #555;" autocomplete="new-password">
+    <input type="text" id="regKeycode" placeholder="Nhập keycode"
+    style="width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #555;" autocomplete="off">
+
     <button onclick="handleRegister()"
     style="width:100%; padding:10px; margin-top:10px; border:none;
     border-radius:8px; font-weight:bold; background:deepskyblue;">
@@ -1972,6 +1975,9 @@ background: rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index
 
 
 <script>
+
+// Danh sách keycode hợp lệ (tạo sẵn)
+const VALID_KEYCODES = ["GREEDYKING9999", "GREEDYKING2025", "GREEDYKING8888"];
 
 let countdownDuration = 40; // số giây mỗi phiên
 let lastSpinTime = parseInt(localStorage.getItem("lastSpinTime")) || Date.now();
@@ -3979,11 +3985,12 @@ function showLogin() {
   const user = document.getElementById("regUser").value.trim();
   const pass = document.getElementById("regPass").value.trim();
   const pass2 = document.getElementById("regPass2").value.trim();
+  const keycode = document.getElementById("regKeycode").value.trim();
   const msgEl = document.getElementById("registerMsg");
 
-  if (user === "" || pass === "" || pass2 === "") {
+  if (user === "" || pass === "" || pass2 === "" || keycode === "") {
     msgEl.style.color = "red";
-    msgEl.textContent = "⚠️ Vui lòng nhập đầy đủ!";
+    msgEl.textContent = "⚠️ Vui lòng nhập đầy đủ thông tin!";
     return;
   }
 
@@ -4004,6 +4011,12 @@ function showLogin() {
     msgEl.textContent = "❌ Mật khẩu xác nhận không khớp!";
     return;
   }
+
+  if (!VALID_KEYCODES.includes(keycode)) {
+    msgEl.textContent = "❌ Keycode không hợp lệ!";
+    return;
+  }
+
 
   let users = JSON.parse(localStorage.getItem("users")) || {};
   if (users[user]) {
