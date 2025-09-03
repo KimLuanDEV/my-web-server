@@ -1,3 +1,142 @@
+#bgVideo {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: -1;  /* đẩy xuống dưới */
+  filter: brightness(0.5); /* làm tối để chữ rõ hơn */
+}
+
+
+.neon-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+/* Nút login (vàng-cam) */
+.login-btn {
+  background: linear-gradient(145deg, gold, orange);
+  color: black;
+  box-shadow: 0 0 10px gold, 0 0 20px orange, 0 0 40px red;
+}
+
+/* Nút register (xanh neon) */
+.register-btn {
+  background: linear-gradient(145deg, lime, #00cc66);
+  color: black;
+  box-shadow: 0 0 10px #00ff99, 0 0 20px #00cc66, 0 0 40px #009933;
+}
+
+/* Hover: sáng rực */
+.neon-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px #fff, 0 0 40px currentColor, 0 0 60px currentColor;
+  animation: neonPulseBtn 1.5s infinite alternate;
+}
+
+/* Animation nhấp nháy */
+@keyframes neonPulseBtn {
+  from { filter: brightness(1); }
+  to   { filter: brightness(1.5); }
+}
+
+
+.neon-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  animation: neonFlicker 2s infinite alternate;
+}
+
+/* Login: vàng cam */
+.login-title {
+  color: gold;
+  text-shadow: 0 0 5px #ffd700, 0 0 10px #ffae00, 0 0 20px #ff6600;
+}
+
+/* Register: xanh lá neon */
+.register-title {
+  color: lime;
+  text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff99, 0 0 20px #00cc66;
+}
+
+@keyframes neonFlicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    opacity: 1;
+    text-shadow: 0 0 5px currentColor, 0 0 10px currentColor, 0 0 20px currentColor;
+  }
+  20%, 24%, 55% {
+    opacity: 0.6;
+    text-shadow: none;
+  }
+}
+
+
+.login-box {
+  background: #000;
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  width: 320px;
+
+  /* Viền neon vàng */
+  border: 2px solid gold;
+  box-shadow: 0 0 25px gold, 0 0 50px orange, 0 0 75px red;
+  animation: neonPulse 2s infinite alternate;
+}
+
+@keyframes neonPulse {
+  0% {
+    box-shadow: 0 0 10px gold, 0 0 20px orange, 0 0 30px red;
+    border-color: gold;
+  }
+  50% {
+    box-shadow: 0 0 20px gold, 0 0 40px orange, 0 0 60px red;
+    border-color: orange;
+  }
+  100% {
+    box-shadow: 0 0 25px gold, 0 0 50px orange, 0 0 75px red;
+    border-color: gold;
+  }
+}
+
+
+#loginOverlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  animation: casinoGlow 15s ease-in-out infinite;
+
+  /* Ảnh nền casino */
+  background: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80') no-repeat center center / cover;
+
+  /* Lớp phủ tối giúp chữ rõ ràng */
+  background-color: rgba(0, 0, 0, 0.7);
+  background-blend-mode: darken;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+@keyframes casinoGlow {
+  0%   { background-color: rgba(0,0,0,0.6); }
+  50%  { background-color: rgba(0,0,0,0.8); }
+  100% { background-color: rgba(0,0,0,0.6); }
+}
+
+
 /* Ngăn chặn bôi đen + hiện menu khi click giữ */
 body, .game-container, .bet-box, .door, .wallet, .result, .history, button, input {
   -webkit-user-select: none; /* chặn trên Chrome/Safari */
@@ -1279,20 +1418,20 @@ button:hover {
 /* Container ngang */
 .top-winners-list {
   display: flex;
-  gap: 12px;
+  gap: 20px;
   justify-content: space-around;
   flex-wrap: nowrap;   /* hoặc wrap nếu muốn xuống dòng khi nhỏ */
-  margin-top: 8px;
+  margin-top:10px;
 }
 
 /* Mỗi ô top */
 .top-winner-card {
-  flex: 1;
+  flex: 3;
   min-width: 0;
   background: rgba(255,215,0,0.08);
   border: 1px solid gold;
   border-radius: 12px;
-  padding: 10px;
+  padding: 12px;
   text-align: center;
   box-shadow:0 0 8px rgba(255,215,0,.3);
 }
@@ -1312,7 +1451,7 @@ button:hover {
 }
 
 .top-winner-name {
-  font-weight: 600;
+  font-weight: 800;
   margin-top: 4px;
 }
 
@@ -1362,3 +1501,516 @@ button:hover {
 .top-winner-rank .medal {
   font-size: 1.05rem;
 }
+
+
+
+
+
+
+/* ==== CASINO GAME BACKDROP (toàn trang) ==== */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  /* Ảnh nền casino bokeh (nhẹ, không phân tán mắt) */
+  background: url("https://images.unsplash.com/photo-1549918864-48ac978761a0?q=80&w=1920&auto=format&fit=crop") center / cover no-repeat fixed;
+  filter: brightness(0.35) saturate(1.15);
+}
+
+/* Lớp ánh sáng ambient chuyển động nhẹ */
+body::after {
+  content: "";
+  position: fixed;
+  inset: -10%;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(40vmax 40vmax at 15% 25%, rgba(255,215,0,.14), transparent 60%),
+    radial-gradient(35vmax 35vmax at 85% 20%, rgba(255,0,80,.12), transparent 60%),
+    radial-gradient(45vmax 45vmax at 30% 85%, rgba(0,255,170,.12), transparent 60%),
+    radial-gradient(40vmax 40vmax at 80% 80%, rgba(0,120,255,.12), transparent 60%);
+  animation: ambientFloat 18s ease-in-out infinite alternate;
+  filter: blur(2px);
+}
+
+@keyframes ambientFloat {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(1.5%, -1.5%, 0) scale(1.03); }
+}
+
+/* ==== GAME CONTAINER: glass + viền vàng sang trọng ==== */
+.game-container {
+  background: rgba(0,0,0,0.55) !important; /* thay nền đen đặc bằng glass */
+  backdrop-filter: blur(8px) saturate(1.2);
+  -webkit-backdrop-filter: blur(8px) saturate(1.2);
+  border: 2px solid rgba(255,215,0,0.7) !important;
+  border-radius: 24px !important;
+  box-shadow:
+    0 10px 40px rgba(0,0,0,0.6),
+    0 0 22px rgba(255,215,0,0.18),
+    inset 0 0 15px rgba(255,255,255,0.06) !important;
+  padding: 22px !important;
+}
+
+/* Vành “đèn mềm” quanh container (nhẹ hơn marquee để không loá) */
+.game-container::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 26px;
+  background:
+    radial-gradient(12px 12px at 30px 30px, rgba(255,215,0,.25), transparent 70%) repeat,
+    radial-gradient(12px 12px at 50% 50%, rgba(255,120,0,.15), transparent 70%) repeat;
+  background-size: 120px 120px, 160px 160px;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  padding: 6px;
+  opacity: .35;
+  pointer-events: none;
+  animation: softRun 8s linear infinite;
+}
+@keyframes softRun {
+  to { background-position: 120px 0, 0 160px; }
+}
+
+/* ==== KHU VỰC VÒNG QUAY: hiệu ứng bàn casino / vầng sáng trung tâm ==== */
+.stage {
+  position: relative;
+  border-radius: 50%;
+  isolation: isolate;
+}
+
+/* Vầng sáng mặt bàn và viền nhung nhẹ */
+.stage::before {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, rgba(255,215,0,.12), transparent 70%),
+    radial-gradient(100% 60% at 50% 40%, rgba(0,0,0,.35), transparent 60%);
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(0.3px);
+}
+
+/* Vignette trong bàn: tập trung mắt về tâm */
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(70% 70% at 50% 50%, transparent 60%, rgba(0,0,0,.35) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+
+/* ==== Chỉnh nhẹ tiêu đề, đồng hồ cho hợp nền mới ==== */
+h1 {
+  text-shadow: 0 0 14px rgba(255,215,0,.45), 0 0 26px rgba(255,140,0,.25);
+}
+.time-display {
+  text-shadow: 0 0 8px rgba(255,255,255,.25);
+}
+
+
+.game-container {
+  position: relative;
+  background: rgba(15, 15, 15, 0.6); /* nền trong suốt nhẹ */
+  backdrop-filter: blur(10px) saturate(1.3);
+  -webkit-backdrop-filter: blur(10px) saturate(1.3);
+
+  border-radius: 28px;
+  border: 2px solid rgba(255, 215, 0, 0.8);
+
+  box-shadow:
+    0 0 30px rgba(255, 215, 0, 0.25),
+    inset 0 0 20px rgba(255, 255, 255, 0.05),
+    0 12px 40px rgba(0, 0, 0, 0.7);
+
+  padding: 24px;
+  margin: 20px auto;
+  max-width: 1250px;
+
+  overflow: hidden; /* để hiệu ứng ánh sáng không tràn */
+}
+
+/* Viền vàng gradient động */
+.game-container::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 30px;
+  padding: 2px;
+  background: linear-gradient(130deg, gold, orange, red, gold);
+  background-size: 300% 300%;
+  animation: borderShift 12s linear infinite;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: 0;
+}
+
+@keyframes borderShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Hiệu ứng ánh sáng quét ngang */
+.game-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.0) 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.0) 100%
+  );
+  transform: skewX(-20deg);
+  animation: shineSweep 8s infinite;
+  z-index: 1;
+}
+
+@keyframes shineSweep {
+  0%   { left: -75%; }
+  50%  { left: 125%; }
+  100% { left: 125%; }
+}
+
+/* Nội dung trong container luôn nổi phía trên */
+.game-container > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* LED nhấp nháy quanh game-container */
+.game-container::before,
+.game-container::after,
+.game-container .led-frame {
+  pointer-events: none; /* không ảnh hưởng click */
+}
+
+.led-frame {
+  position: absolute;
+  inset: -12px;
+  border-radius: 34px;
+  padding: 12px;
+  z-index: 3;
+
+  /* Tạo LED nhỏ quanh viền bằng radial-gradient */
+  background:
+    radial-gradient(circle, rgba(255,255,0,0.9) 60%, transparent 62%) top    / 28px 28px repeat-x,
+    radial-gradient(circle, rgba(255,0,0,0.9)   60%, transparent 62%) bottom / 28px 28px repeat-x,
+    radial-gradient(circle, rgba(0,255,100,0.9) 60%, transparent 62%) left   / 28px 28px repeat-y,
+    radial-gradient(circle, rgba(0,120,255,0.9) 60%, transparent 62%) right  / 28px 28px repeat-y;
+
+  animation: ledBlink 1.5s steps(2) infinite;
+  border-radius: inherit;
+}
+
+/* Nhấp nháy LED */
+@keyframes ledBlink {
+  0%, 100% {
+    filter: brightness(1);
+    opacity: 1;
+  }
+  50% {
+    filter: brightness(2);
+    opacity: 0.6;
+  }
+}
+
+
+
+
+/* ====== GREEDY CASINO — Neon Brand Logo ====== */
+.brand-logo{
+  position:fixed; top:14px; left:16px;
+  display:flex; align-items:center; gap:10px;
+  text-decoration:none; user-select:none;
+  z-index:12000; /* nằm trên video login + game */
+  padding:10px 14px;
+  border-radius:14px;
+  background: rgba(0,0,0,.25);
+  backdrop-filter: blur(6px) saturate(1.2);
+  -webkit-backdrop-filter: blur(6px) saturate(1.2);
+  border:1px solid rgba(255,215,0,.35);
+  box-shadow: 0 0 12px rgba(255,215,0,.25), inset 0 0 8px rgba(255,255,255,.06);
+}
+
+/* “Greedy” — neon vàng cam, sáng dần nhịp nhàng */
+.brand-greedy{
+  font-weight:900; letter-spacing:.5px;
+  font-size:1.4rem; color:#FFD54A;
+  text-shadow:
+    0 0 6px #FFD54A,
+    0 0 14px #FFA000,
+    0 0 24px #FF6D00;
+  animation: greedyGlow 2.4s ease-in-out infinite;
+}
+
+/* Icon 🎲 — nhấp nháy kiểu đèn bảng hiệu */
+.brand-dice{
+  font-size:1.35rem; line-height:1;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,.7));
+  animation: diceBlink 1.2s steps(2,end) infinite;
+}
+
+/* “Casino” — neon đỏ hồng, rực hơn khi pulse */
+.brand-casino{
+  font-weight:800; letter-spacing:.8px;
+  font-size:1.1rem; color:#FF4D7E;
+  text-shadow:
+    0 0 6px #FF4D7E,
+    0 0 14px #E91E63,
+    0 0 26px #AD1457;
+  animation: casinoPulse 3.2s ease-in-out infinite;
+}
+
+/* Gạch chân đèn chạy (marquee underline) */
+.brand-logo::after{
+  content:"";
+  position:absolute; left:10px; right:10px; bottom:6px; height:3px;
+  border-radius:3px;
+  background:
+    radial-gradient(circle, rgba(255,215,0,1) 60%, transparent 62%) 0 0/18px 3px repeat-x,
+    radial-gradient(circle, rgba(255,64,64,1) 60%, transparent 62%) 9px 0/18px 3px repeat-x;
+  animation: underlineRun 2.8s linear infinite;
+  opacity:.9;
+}
+
+/* ========= Keyframes ========= */
+@keyframes greedyGlow{
+  0%,100%{ filter:brightness(1); }
+  50%{
+    filter:brightness(1.35);
+    text-shadow:
+      0 0 10px #FFE082,
+      0 0 22px #FFC107,
+      0 0 38px #FF6D00;
+  }
+}
+
+@keyframes diceBlink{
+  0%   { opacity:1;   filter: drop-shadow(0 0 6px rgba(255,255,255,.8)); }
+  50%  { opacity:.45; filter: drop-shadow(0 0 2px rgba(255,255,255,.4)); }
+  100% { opacity:1;   filter: drop-shadow(0 0 6px rgba(255,255,255,.8)); }
+}
+
+@keyframes casinoPulse{
+  0%   { transform:translateY(0);   filter:brightness(1); }
+  50%  { transform:translateY(-1px);filter:brightness(1.3); }
+  100% { transform:translateY(0);   filter:brightness(1); }
+}
+
+@keyframes underlineRun{
+  0%   { background-position: 0 0, 9px 0; }
+  100% { background-position: 180px 0, 189px 0; }
+}
+
+/* Responsive: thu nhỏ logo trên màn hình nhỏ */
+@media (max-width: 600px){
+  .brand-logo{ padding:8px 10px; gap:8px; top:10px; left:10px; }
+  .brand-greedy{ font-size:1.15rem; }
+  .brand-dice{ font-size:1.1rem; }
+  .brand-casino{ font-size:0.95rem; }
+}
+
+/* Hỗ trợ người dùng giảm chuyển động */
+@media (prefers-reduced-motion: reduce){
+  .brand-logo,
+  .brand-greedy,
+  .brand-casino,
+  .brand-dice{ animation:none !important; }
+  .brand-logo::after{ display:none; }
+}
+
+
+/* === HUB LUXURY: kim loại + kính + viền vàng + vạch quay === */
+.hub{
+  position: absolute;           /* giữ nguyên vị trí trung tâm */
+  left: 51%; top: 50%;
+  width: 120px; height: 120px;  /* to hơn chút cho nổi bật */
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 3;
+  /* mặt kim loại xước + kính */
+  background:
+    radial-gradient(circle at 30% 30%, #ffffff 0%, #d9dde3 35%, #aeb4bf 60%, #8a909b 75%, #6b717d 100%);
+  box-shadow:
+    0 6px 18px rgba(0,0,0,.45),
+    inset 0 3px 10px rgba(255,255,255,.35),
+    inset 0 -6px 12px rgba(0,0,0,.35);
+  border: 5px solid transparent;               /* tạo khe cho viền vàng qua mask */
+  background-clip: padding-box;
+}
+
+/* Vòng chia vạch + viền vàng phát sáng (quay rất nhẹ) */
+.hub::before{
+  content:"";
+  position:absolute; inset:-8px;
+  border-radius:50%;
+  /* viền vàng gradient + conic vạch */
+  background:
+    conic-gradient(from 0deg,
+      rgba(255,215,0,.95) 0 4deg, transparent 4deg 45deg,
+      rgba(255,215,0,.95) 45deg 49deg, transparent 49deg 90deg,
+      rgba(255,215,0,.95) 90deg 94deg, transparent 94deg 135deg,
+      rgba(255,215,0,.95) 135deg 139deg, transparent 139deg 180deg,
+      rgba(255,215,0,.95) 180deg 184deg, transparent 184deg 225deg,
+      rgba(255,215,0,.95) 225deg 229deg, transparent 229deg 270deg,
+      rgba(255,215,0,.95) 270deg 274deg, transparent 274deg 315deg,
+      rgba(255,215,0,.95) 315deg 319deg, transparent 319deg 360deg),
+    radial-gradient(circle, rgba(255,215,0,.85), rgba(255,140,0,.75) 60%, rgba(255,140,0,0) 62%);
+  background-blend-mode: screen;
+  box-shadow:
+    0 0 18px rgba(255,215,0,.45),
+    inset 0 0 12px rgba(255,255,255,.18);
+  animation: hubSpin 18s linear infinite;      /* quay chậm */
+  filter: drop-shadow(0 0 10px rgba(255,215,0,.45));
+}
+
+/* Ánh sáng quét trên mặt hub */
+.hub::after{
+  content:"";
+  position:absolute; inset:8px;
+  border-radius:50%;
+  background:
+    radial-gradient(120% 60% at 30% 20%, rgba(255,255,255,.55), rgba(255,255,255,0) 60%),
+    radial-gradient(80% 120% at 70% 80%, rgba(255,255,255,.18), rgba(255,255,255,0) 70%);
+  mix-blend-mode: screen;
+  animation: hubShine 6.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Countdown LED ở tâm: cân giữa & nổi bật */
+#countdownValue .led-panel{
+  background: linear-gradient(145deg, rgba(0,0,0,.55), rgba(30,30,30,.7));
+  border: 1px solid rgba(255,215,0,.35);
+  box-shadow: 0 0 10px rgba(255,215,0,.25), inset 0 0 6px rgba(255,255,255,.06);
+  padding: 6px 12px !important;
+  border-radius: 12px;
+}
+
+/* Keyframes */
+@keyframes hubSpin{
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes hubShine{
+  0%,100% { opacity: .9; transform: rotate(0deg) scale(1); }
+  50%     { opacity: 1;  transform: rotate(3deg) scale(1.015); }
+}
+
+/* Responsive: nhỏ hơn trên mobile */
+@media (max-width: 600px){
+  .hub{ width: 100px; height: 100px; }
+}
+
+
+/* ====== BASE 3D BUTTON ====== */
+.btn-3d{
+  --btn-bg: linear-gradient(145deg, #2b2b2b, #1b1b1b);
+  --btn-bottom: #0d0d0d;            /* màu “đế” 3D */
+  --btn-glow: rgba(255, 215, 0, .35);
+
+  display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+  padding:12px 16px;
+  border:none; border-radius:14px;
+  font-weight:800; font-size:1.05rem; letter-spacing:.2px;
+  color:#111; cursor:pointer; user-select:none;
+  background: var(--btn-bg);
+  position:relative; isolation:isolate;
+
+  /* 3D: “đế” phía dưới + bóng ngoài */
+  box-shadow:
+    0 10px 0 var(--btn-bottom),
+    0 16px 32px rgba(0,0,0,.45),
+    0 0 14px var(--btn-glow);
+
+  transform: translateZ(0); will-change: transform, box-shadow, filter;
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+
+/* highlight bóng kính trên mặt nút */
+.btn-3d::before{
+  content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background: linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0) 45%);
+  mix-blend-mode: screen; opacity:.7; z-index:0;
+}
+
+/* hover: hơi bật lên, bóng sâu hơn */
+.btn-3d:hover{
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 0 var(--btn-bottom),
+    0 20px 36px rgba(0,0,0,.5),
+    0 0 16px var(--btn-glow);
+  filter: brightness(1.03);
+}
+
+/* active / ấn xuống: hạ thấp, “đế” mỏng lại */
+.btn-3d:active,
+.btn-3d.is-pressed{
+  transform: translateY(6px);
+  box-shadow:
+    0 4px 0 var(--btn-bottom),
+    0 10px 22px rgba(0,0,0,.45),
+    0 0 10px var(--btn-glow);
+  filter: brightness(.98);
+}
+
+/* focus ring đẹp */
+.btn-3d:focus-visible{
+  outline:none;
+  box-shadow:
+    0 10px 0 var(--btn-bottom),
+    0 16px 32px rgba(0,0,0,.45),
+    0 0 0 3px rgba(255,255,255,.25),
+    0 0 0 6px var(--btn-glow);
+}
+
+/* disabled */
+.btn-3d:disabled,
+.btn-3d.is-disabled{
+  cursor:not-allowed; opacity:.6;
+  filter:grayscale(.2) brightness(.9);
+  box-shadow:
+    0 8px 0 var(--btn-bottom),
+    0 12px 24px rgba(0,0,0,.35);
+}
+
+/* ====== COLOR VARIANTS ====== */
+.btn-gold{
+  --btn-bg: linear-gradient(145deg, #ffd54a, #ffb300);
+  --btn-bottom:#b57200; --btn-glow: rgba(255,215,0,.45);
+  color:#1a1000;
+}
+.btn-green{
+  --btn-bg: linear-gradient(145deg, #34ef8f, #00c66a);
+  --btn-bottom:#017a46; --btn-glow: rgba(0,255,160,.35);
+  color:#001a0f;
+}
+.btn-red{
+  --btn-bg: linear-gradient(145deg, #ff6b6b, #e53935);
+  --btn-bottom:#8c1313; --btn-glow: rgba(255,80,80,.35);
+  color:#1a0000;
+}
+
+/* size helpers (tuỳ chọn) */
+.btn-sm{ padding:8px 12px; font-size:.95rem; border-radius:12px; }
+.btn-lg{ padding:14px 20px; font-size:1.15rem; border-radius:16px; }
+
+/* icon trong nút (svg/emoji) */
+.btn-3d .ico{ font-size:1.2em; line-height:1; }
+
